@@ -84,8 +84,16 @@ Windows:
     pyplan\Scripts\activate.bat
     pyplan
 
-conda::
-:   Start terminal an type: **pyplan**
+conda:
 
-Anaconda Navigator::
-:   Click launch on **pyplan-ide** app
+- Start terminal an type: **pyplan**
+
+Anaconda Navigator:
+
+- Click launch on **pyplan-ide** app
+
+
+User Guide
+==========
+For User Guide please visit [docs.pyplan.com](http://docs.pyplan.com/)
+

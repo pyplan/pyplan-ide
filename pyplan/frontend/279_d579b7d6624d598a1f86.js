@@ -1,0 +1,2 @@
+/*! Copyright Novix S.A. 2019. All rights reserved. */
+(window.webpackJsonp=window.webpackJsonp||[]).push([[279],{2118:function(n,e,o){"use strict";(function(t){var c;void 0===(c=function(){return t.Controller.extend({name:"drawMenu",show:function(n){Promise.all([o.e(304),o.e(299)]).then(function(){var e=[o(2172)];(function(e){(new e).render(n)}).apply(null,e)}).catch(o.oe)}})}.apply(e,[]))||(n.exports=c)}).call(this,o(694))}}]);

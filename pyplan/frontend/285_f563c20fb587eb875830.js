@@ -1,0 +1,2 @@
+/*! Copyright Novix S.A. 2019. All rights reserved. */
+(window.webpackJsonp=window.webpackJsonp||[]).push([[285],{956:function(e){e.exports=[{name:"Simple Index",file:"simpleIndex.json"},{name:"Personnel",file:"personnel.json"},{name:"Product Sales",file:"productSales.json"}]}}]);

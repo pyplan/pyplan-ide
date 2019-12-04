@@ -1,0 +1,6 @@
+include README.rst
+include requirements/desktop.txt
+recursive-include pyplan/demos *
+recursive-include pyplan/frontend *
+recursive-include pyplan/static *
+recursive-include pyplan_engine/classes/extras *

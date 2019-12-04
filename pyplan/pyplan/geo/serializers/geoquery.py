@@ -1,0 +1,66 @@
+from rest_framework import serializers
+from pyplan.pyplan.geo.classes.geoquery import GeoQuery
+
+
+class GeoQuerySerializer(serializers.Serializer):
+    node = serializers.CharField(required=True)
+    zoom = serializers.IntegerField(required=False)
+    lat1 = serializers.FloatField(required=False)
+    lat2 = serializers.FloatField(required=False)
+    lng1 = serializers.FloatField(required=False)
+    lng2 = serializers.FloatField(required=False)
+    isCluster = serializers.BooleanField(default=False)
+    latField = serializers.CharField(required=False)
+    lngField = serializers.CharField(required=False)
+    geoField = serializers.CharField(required=False)
+    geoLimitLat1 = serializers.FloatField(required=False)
+    geoLimitLat2 = serializers.FloatField(required=False)
+    geoLimitLng1 = serializers.FloatField(required=False)
+    geoLimitLng2 = serializers.FloatField(required=False)
+    rowIndex = serializers.CharField(required=False)
+    attIndex = serializers.CharField(required=False)
+    sizeField = serializers.CharField(required=False)
+    sizeAggregator = serializers.CharField(required=False)
+    colorField = serializers.CharField(required=False)
+    colorAggregator = serializers.CharField(required=False)
+    labelField = serializers.CharField(required=False)
+    labelAggregator = serializers.CharField(required=False)
+    iconField = serializers.CharField(required=False)
+    iconAggregator = serializers.CharField(required=False)
+    extraData = serializers.CharField(required=False)
+    id = serializers.CharField(required=False)
+
+    def create(self, validated_data):
+        return GeoQuery(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.node = validated_data.get('node', instance.node)
+
+        instance.node = validated_data.get('node', instance.node)
+        instance.zoom = validated_data.get('zoom', instance.zoom)
+        instance.lat1 = validated_data.get('lat1', instance.lat1)
+        instance.lat2 = validated_data.get('lat2', instance.lat2)
+        instance.lng1 = validated_data.get('lng1', instance.lng1)
+        instance.lng2 = validated_data.get('lng2', instance.lng2)
+        instance.isCluster = validated_data.get('isCluster', instance.isCluster)
+        instance.latField = validated_data.get('latField', instance.latField)
+        instance.lngField = validated_data.get('lngField', instance.lngField)
+        instance.geoField = validated_data.get('geoField', instance.geoField)
+        instance.geoLimitLat1 = validated_data.get('geoLimitLat1', instance.geoLimitLat1)
+        instance.geoLimitLat2 = validated_data.get('geoLimitLat2', instance.geoLimitLat2)
+        instance.geoLimitLng1 = validated_data.get('geoLimitLng1', instance.geoLimitLng1)
+        instance.geoLimitLng2 = validated_data.get('geoLimitLng2', instance.geoLimitLng2)
+        instance.rowIndex = validated_data.get('rowIndex', instance.rowIndex)
+        instance.attIndex = validated_data.get('attIndex', instance.attIndex)
+        instance.sizeField = validated_data.get('sizeField', instance.nosizeFieldde)
+        instance.sizeAggregator = validated_data.get('sizeAggregator', instance.sizeAggregator)
+        instance.colorField = validated_data.get('colorField', instance.colorField)
+        instance.colorAggregator = validated_data.get('colorAggregator', instance.colorAggregator)
+        instance.labelField = validated_data.get('labelField', instance.labelField)
+        instance.labelAggregator = validated_data.get('labelAggregator', instance.labelAggregator)
+        instance.iconField = validated_data.get('iconField', instance.iconField)
+        instance.iconAggregator = validated_data.get('iconAggregator', instance.iconAggregator)
+        instance.extraData = validated_data.get('extraData', instance.extraData)
+        instance.id = validated_data.get('id', instance.id)
+
+        return instance

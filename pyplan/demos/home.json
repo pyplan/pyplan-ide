@@ -1,0 +1,89 @@
+{
+  "tabs": [
+    {
+      "name": "Tutorials",
+      "folders": [
+        {
+          "name": "Quick Start",
+          "shortDesc": "Start checking these models to see how to begin using Pyplan",
+          "items": [
+            {
+              "name": "Xarray Intro",
+              "image": "Tutorials/Quick Start/01-Xarray Intro/Xarray Intro.png",
+              "shortDesc": "XArray introduction",
+              "action": "openModel",
+              "uri": "Tutorials/Quick Start/01-Xarray Intro/Xarray Intro.ppl"
+            },
+            {
+              "name": "Xarray in Pyplan",
+              "image": "Tutorials/Quick Start/02-Xarray in Pyplan/Xarray in Pyplan.png",
+              "shortDesc": "XArray in Pyplan",
+              "action": "openModel",
+              "uri": "Tutorials/Quick Start/02-Xarray in Pyplan/Xarray in Pyplan.ppl"
+            },
+            {
+              "name": "Pandas Basics steps",
+              "image": "Tutorials/Quick Start/03-Pandas Basics/Pandas Basics.png",
+              "shortDesc": "Pandas in Pyplan",
+              "action": "openModel",
+              "uri": "Tutorials/Quick Start/03-Pandas Basics/Pandas Basics.ppl"
+            },
+            {
+              "name": "My first App",
+              "image": "Tutorials/Quick Start/04-Creating my first App/My first app.png",
+              "shortDesc": "My first App in Pyplan",
+              "action": "openModel",
+              "uri": "Tutorials/Quick Start/04-Creating my first App/My first app.ppl"
+            },
+            {
+              "name": "Pandas Data Preparation",
+              "image": "Tutorials/Quick Start/05-Data Preparation/Pandas Data Prep Model.png",
+              "shortDesc": "New model from Tableau Prep Dataset",
+              "action": "openModel",
+              "uri": "Tutorials/Quick Start/05-Data Preparation/Pandas Data Prep Model.ppl"
+            },
+            {
+              "name": "Revenue Calculation Example",
+              "image": "Tutorials/Quick Start/06-Revenue Calculation Example/Revenue Calculation Example.png",
+              "shortDesc": "Simple revenue calculation",
+              "action": "openModel",
+              "uri": "Tutorials/Quick Start/06-Revenue Calculation Example/Revenue Calculation Example.ppl"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Examples",
+      "folders": [
+        {
+          "name": "Pyplan Examples",
+          "shortDesc": "Functionalities examples",
+          "items": [
+            {
+              "name": "Iris Sample",
+              "image": "Examples/02-Machine Learning/02-Iris Sample/Iris Sample.png",
+              "shortDesc": "Iris Sample model - Check visualization and Machine Learning options",
+              "action": "openModel",
+              "uri": "Examples/02-Machine Learning/02-Iris Sample/Iris Sample.ppl"
+            },
+            {
+              "name": "Regressions",
+              "image": "Examples/03-Regressions/Regressions.png",
+              "shortDesc": "Econometric Regressions",
+              "action": "openModel",
+              "uri": "Examples/03-Regressions/Regressions.ppl"
+            },
+            {
+              "name": "Gapminder Data Analysis",
+              "image": "Examples/01-Visualization/03-Gapminder Data Analysis/Gapminder Data Analysis.png",
+              "shortDesc": "Gapminder Data Analysis - Data exploration with Plotly",
+              "action": "openModel",
+              "uri": "Examples/01-Visualization/03-Gapminder Data Analysis/Gapminder Data Analysis.ppl"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

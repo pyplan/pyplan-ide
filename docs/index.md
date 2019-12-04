@@ -18,12 +18,15 @@ Screenshots
 ===========
 
 Influence Diagram
+
 ![Influence Diagram](assets/img/diagram.png) 
 
 Interfaces (dashboards)
+
 ![Interfaces](assets/img/interface.png)
 
 Include lot of tutorials,examples and demos
+
 ![Demos](assets/img/demos.png)
 
 Requirements

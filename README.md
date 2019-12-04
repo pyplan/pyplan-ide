@@ -13,6 +13,21 @@ Among its most prominent features you will find:
 -   Secure and scalable with corporate standards
 -   On cloud or on-premise deployment
 
+Screenshots
+===========
+
+Influence Diagram
+
+![Influence Diagram](docs/assets/img/diagram.png) 
+
+Interfaces (dashboards)
+
+![Interfaces](docs/assets/img/interface.png)
+
+Include lot of tutorials,examples and demos
+
+![Demos](docs/assets/img/demos.png)
+
 
 Requirements
 ============

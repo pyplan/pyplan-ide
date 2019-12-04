@@ -3,9 +3,7 @@
 
 **Pyplan** allows consolidating into a single graphical environment all
 corporate Data Analytics and Decision Support needs. It is meant to
-simplify Business Analyst introduction to Data Science with Python, and
-provide at the same time, computer power, robustness, huge quantity of
-open source tools and corporate governance.
+simplify Business Analyst introduction to Data Science with Python
 
 Among its most prominent features you will find:
 
@@ -16,6 +14,12 @@ Among its most prominent features you will find:
 -   Secure and scalable with corporate standards.
 -   On cloud or on-premise deployment.
 
+Screenshots
+===========
+
+![Influence Diagram](assets/img/diagram.png) 
+
+![Interfaces](assets/img/interface.png)
 
 Requirements
 ============

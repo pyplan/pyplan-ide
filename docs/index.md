@@ -71,7 +71,9 @@ Windows:
     pyplan
 
 conda::
-:   Start terminal an type: **pyplan**
+
+    Start terminal an type: **pyplan**
 
 Anaconda Navigator::
-:   Click launch on **pyplan-ide** app
+
+    Click launch on **pyplan-ide** app

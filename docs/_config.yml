@@ -1,1 +1,6 @@
+title: Pyplan
+logo: /assets/img/logo.png
+description: Pyplan is a graphical Integrated Development Environment for creating and sharing Data Analytics Apps.
+show_downloads: false
+google_analytics:
 theme: jekyll-theme-minimal

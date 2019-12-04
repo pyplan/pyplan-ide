@@ -1,3 +1,5 @@
+![Pyplan](assets/img/logo.png)
+
 
 **Pyplan** allows consolidating into a single graphical environment all
 corporate Data Analytics and Decision Support needs. It is meant to

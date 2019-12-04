@@ -1,4 +1,3 @@
-![image](http://pyplan.com/wp-content/uploads/2018/10/logo_pyplan-1.png)
 
 **Pyplan** allows consolidating into a single graphical environment all
 corporate Data Analytics and Decision Support needs. It is meant to

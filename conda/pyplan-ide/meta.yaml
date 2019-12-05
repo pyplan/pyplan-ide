@@ -87,7 +87,7 @@ app:
 
 
 about:
-  home: http://www.pyplan.com
+  home: https://www.pyplan.org
   license: Free for non-commercial use
   license_family: OTHER
   summary: Pyplan is a graphical Integrated Development Environment for creating and sharing Data Analytics Apps.
@@ -95,8 +95,7 @@ about:
     Pyplan allows consolidating into a single 
     graphical environment all corporate 
     Data Analytics and Decision Support needs. 
-  doc_url: http://docs.pyplan.com
-  dev_url: http://www.pyplan.com
+  dev_url: https://github.com/pyplan/pyplan-ide
 
 extra:
   recipe-maintainers:

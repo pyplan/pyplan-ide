@@ -399,8 +399,8 @@ class DesktopType(IEngineType):
 
     def installLibrary(self, lib, target):
         """Install python library"""
-        return None
+        return DesktopType.calcEngine.model.installLibrary(lib, target)
 
     def getInstallProgress(self, from_line):
         """Get install python library progress"""
-        return None
+        return DesktopType.calcEngine.model.getInstallProgress(from_line)

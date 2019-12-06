@@ -24,7 +24,7 @@ class ExceptionMiddleware:
             if 'no module named' in message.lower():
                 library = message[message.rfind(
                     "'", 0, message.rfind("'"))+1:message.rfind("'")]
-                return HttpResponse(f'{message}. Please install {library} library using your default package manager', status=status.HTTP_400_BAD_REQUEST)
+                return HttpResponse(f'{message}. Please install "{library}" library using the Install Library utility', status=status.HTTP_400_BAD_REQUEST)
             messages.error(request, message)
             return HttpResponse(message, status=status.HTTP_400_BAD_REQUEST)
         else:

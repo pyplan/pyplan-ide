@@ -1155,6 +1155,7 @@ class Model(object):
 
         systemPathNode.system = True
         systemPathNode.definition = 'result="""' + str(path) + '"""'
+        os.chdir(str(path))
 
         node = self.createNode(identifier="pyplan_user", 
                                moduleId=self.modelNode.identifier)

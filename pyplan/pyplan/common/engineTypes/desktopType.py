@@ -191,7 +191,7 @@ class DesktopType(IEngineType):
     ):
 
         response = DesktopType.calcEngine.model.evaluateNode(
-            node_id, dims, rows, columns, from_row, to_row, summary_by, bottom_total, right_total)
+            node_id, dims, rows, columns, summary_by, bottom_total, right_total,  from_row, to_row)
 
         try:
             return json.loads(response)

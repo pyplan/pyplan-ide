@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 
 from django.db.models import Q
@@ -69,7 +70,8 @@ class ReportManagerService(BaseService):
         model_id = self.client_session.modelInfo.modelId
 
         reports = Report.objects.filter(
-            Q(departments__isnull=False) | Q(usercompanies__isnull=False) | Q(is_public=True),
+            Q(departments__isnull=False) | Q(
+                usercompanies__isnull=False) | Q(is_public=True),
             owner__pk=usercompany_id,
             model=model_id,
         )
@@ -124,7 +126,8 @@ class ReportManagerService(BaseService):
         dashboards = []
 
         if report_id:
-            report = Report.objects.get(pk=report_id)
+            report = Report.objects.get(pk=report_id) if report_id.isnumeric(
+            ) else Report.objects.get(uuid=report_id)
             dashboards = report.dashboards.all()
             dash_count = report.dashboards.count()
             # only next, on click dashboard id will come and sort
@@ -134,15 +137,18 @@ class ReportManagerService(BaseService):
                 result["nextName"] = next_dashboard['name']
 
         if dashboard_id:
-            dashboard = Dashboard.objects.get(pk=dashboard_id)
+            dashboard = Dashboard.objects.get(pk=dashboard_id) if dashboard_id.isnumeric(
+            ) else Dashboard.objects.get(uuid=dashboard_id)
             report = report if report_id else dashboard.report
             if report:
                 dashboards = report.dashboards
-                previous = Dashboard.objects.filter(report=report, order=dashboard.order-1).all()
+                previous = Dashboard.objects.filter(
+                    report=report, order=dashboard.order-1).all()
                 if previous.count() > 0:
                     result["priorId"] = previous[0].id
                     result["priorName"] = previous[0].name
-                following = Dashboard.objects.filter(report=report, order=dashboard.order+1).all()
+                following = Dashboard.objects.filter(
+                    report=report, order=dashboard.order+1).all()
                 if following.count() > 0:
                     result["nextId"] = following[0].id
                     result["nextName"] = following[0].name
@@ -200,23 +206,24 @@ class ReportManagerService(BaseService):
         reports.update(parent_id=report_id)
 
         dashboards_childrens = None
-        quantity = 0
+        order = 0
 
         if report_id:
             parent_report = Report.objects.get(pk=report_id)
             dashboards_childrens = parent_report.dashboards.all()
-            quantity = len(dashboards_childrens.values())
+            order = dashboards_childrens.latest('order').order
 
         else:
-            dashboards_childrens = Dashboard.objects.filter(report_id__isnull=True)
-            quantity = dashboards_childrens.count()
+            dashboards_childrens = Dashboard.objects.filter(
+                report_id__isnull=True)
+            order = dashboards_childrens.latest('order').order
 
         for dash_id in dashboard_ids:
             dash = Dashboard.objects.get(pk=dash_id)
             dash.report_id = report_id
-            dash.order = quantity+1
+            dash.order = order+1
             dash.save()
-            quantity += 1
+            order += 1
 
         dashboards = Dashboard.objects.filter(pk__in=dashboard_ids)
 
@@ -226,7 +233,8 @@ class ReportManagerService(BaseService):
         reports = Report.objects.filter(pk__in=data['report_ids'])
         dashboards = Dashboard.objects.filter(pk__in=data['dashboard_ids'])
         styles = []
-        styles.extend(DashboardStyle.objects.filter(dashboards__id__in=data['dashboard_ids']).all())
+        styles.extend(DashboardStyle.objects.filter(
+            dashboards__id__in=data['dashboard_ids']).all())
         self._getStyles(reports, styles)
 
         return {
@@ -256,6 +264,14 @@ class ReportManagerService(BaseService):
             )
             styles.update({item["id"]: ds.pk})
         for item in data["reports"]:
+            use_new_uuid = True
+
+            # check the uuid if the report is imported more than one time
+            # the first time we import the uuid, else we create a new one
+            if "uuid" in item.keys():
+                use_new_uuid = Report.objects.filter(
+                    uuid=item['uuid']).count() is 0
+
             report = Report.objects.create(
                 model=model_id,
                 name=item["name"],
@@ -263,10 +279,19 @@ class ReportManagerService(BaseService):
                 is_public=item["is_public"],
                 order=item["order"],
                 parent_id=item["parent_id"],
+                uuid=uuid.uuid4() if use_new_uuid else item["uuid"],
                 owner_id=user_company_id,
             )
             self._createChildReportsAndDashboards(report, item, result, styles)
         for item in data["dashboards"]:
+            use_new_uuid = True
+
+            # check the uuid if the dashboard is imported more than one time
+            # the first time we import the uuid, else we create a new one
+            if "uuid" in item.keys():
+                use_new_uuid = Dashboard.objects.filter(
+                    uuid=item['uuid']).count() is 0
+
             dash_created = Dashboard.objects.create(
                 model=model_id,
                 name=item["name"],
@@ -274,6 +299,7 @@ class ReportManagerService(BaseService):
                 is_fav=item["is_fav"],
                 definition=item["definition"] if "definition" in item else None,
                 order=item["order"],
+                uuid=uuid.uuid4() if use_new_uuid else item["uuid"],
                 owner_id=user_company_id,
             )
             dash_created.styles.set(DashboardStyle.objects.filter(pk__in=list(

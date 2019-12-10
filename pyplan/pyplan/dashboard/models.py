@@ -1,6 +1,6 @@
+import uuid
 from jsonfield import JSONField
 from django.db import models
-
 from pyplan.pyplan.dashboardstyle.models import DashboardStyle
 from pyplan.pyplan.report.models import Report
 from pyplan.pyplan.department.models import Department
@@ -15,6 +15,7 @@ class Dashboard(models.Model):
     definition = JSONField(null=True)
     node = models.CharField(max_length=255, blank=True, null=True)
     order = models.IntegerField(null=False, default=0)
+    uuid = models.UUIDField(default=uuid.uuid4, null=True)
 
     report = models.ForeignKey(
         Report, on_delete=models.CASCADE, null=True, related_name='dashboards')

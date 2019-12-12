@@ -29,7 +29,7 @@ from .serializers.pivot import (PivotNodeValueChangesSerializer,
 class DashboardManagerService(BaseService):
 
     def getDashboard(self, dashboard_id):
-        return Dashboard.objects.get(pk=dashboard_id)
+        return Dashboard.objects.get(pk=int(dashboard_id)) if dashboard_id.isnumeric() else Dashboard.objects.get(uuid=dashboard_id)
 
     def companyDashboards(self):
         company_id = self.client_session.companyId

@@ -43,7 +43,8 @@ class DashboardView(object):
                 DashboardView.allMyDashboards),
             url(r'^dashboardManager/mySharedDashboards/$',
                 DashboardView.mySharedDashboards),
-            url(r'^dashboardManager/by_id/(?P<pk>\d+)/$', DashboardView.get),
+            url(r'^dashboardManager/by_id/(?P<pk>[0-9a-f-]+)/$',
+                DashboardView.get),
             url(r'^dashboardManager/getNodeFullData/$',
                 DashboardView.getNodeFullData),
             url(r'^dashboardManager/evaluateNode/$', DashboardView.evaluateNode),
@@ -143,7 +144,7 @@ class DashboardView(object):
         coreapi.Field("pk", required=False, location="query", description="ID")
     ]))
     def get(request, *args, **kargs):
-        dashboard_id = int(kargs.get("pk"))
+        dashboard_id = kargs.get("pk")
         if dashboard_id:
             service = DashboardManagerService(request)
             dashboard = service.getDashboard(dashboard_id)
@@ -220,7 +221,7 @@ class DashboardView(object):
         coreapi.Field("pk", required=False, location="query", description="ID")
     ]))
     def update(request, *args, **kargs):
-        dashboard_id = int(kargs.get("pk"))
+        dashboard_id = kargs.get("pk")
         if dashboard_id:
             serializer = DashboardUpdateSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -384,7 +385,7 @@ class DashboardView(object):
         coreapi.Field("dashboard_id", required=True, location="query",),
     ]))
     def getExternalLink(request, *args, **kargs):
-        dashboard_id = int(kargs.get("pk"))
+        dashboard_id = kargs.get("pk")
         if dashboard_id:
             service = DashboardManagerService(request)
             result = service.getDashboard(dashboard_id)

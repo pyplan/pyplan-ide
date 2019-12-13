@@ -28,6 +28,7 @@ from pyplan.pyplan.user_company_preference.views import \
     UserCompanyPreferenceViewSet
 from pyplan.pyplan.usercompanies.views import UserCompanyViewSet
 from pyplan.pyplan.users.views import UserViewSet
+from pyplan.pyplan.notification.views import NotificationViewSet
 
 router = DefaultRouter()
 
@@ -67,6 +68,10 @@ router.register(r'reportExternalLink', ReportExternalLinkViewSet,
                 base_name='reportExternalLink')
 router.register(r'dashboardExternalLink',
                 DashboardExternalLinkViewSet, base_name='dashboardExternalLink')
+
+# Notification
+router.register(r'notification',
+                NotificationViewSet, base_name='notification')
 
 urlpatterns = []
 urlpatterns += SecurityView.register()

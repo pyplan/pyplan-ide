@@ -380,6 +380,7 @@ class ReportManagerService(BaseService):
         report.owner_id = owner_id
         report.parent_id = parent_id
         report.pk = None
+        report.uuid = uuid.uuid4()
         report.is_public = False
 
         report.save()
@@ -394,6 +395,7 @@ class ReportManagerService(BaseService):
 
     def _copyDashboard(self, dashboard, owner_id, report_id=None):
         dashboard.pk = None
+        dashboard.uuid = uuid.uuid4()
         dashboard.owner_id = owner_id
         dashboard.is_public = False
         dashboard.report_id = report_id
@@ -403,6 +405,7 @@ class ReportManagerService(BaseService):
     def _duplicateReport(self, report, is_main=False):
         old_report_id = report.pk
         report.pk = None
+        report.uuid = uuid.uuid4()
         report.is_public = False
 
         if is_main:
@@ -419,6 +422,7 @@ class ReportManagerService(BaseService):
 
     def _duplicateDashboard(self, dashboard, is_main=False):
         dashboard.pk = None
+        dashboard.uuid = uuid.uuid4()
         dashboard.is_public = False
 
         if is_main:

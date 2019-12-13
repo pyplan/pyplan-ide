@@ -17,7 +17,6 @@ requests==2.22.0
 # Logging
 user-agents>=2.0
 
-
 # Developer Tools
 ipython==7.8.0
 autopep8>=1.4.4

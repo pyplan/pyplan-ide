@@ -27,33 +27,31 @@
 ## Run
 
 ```bash
-    source venv/bin/activate
-    python run_pyplan.py
+source venv/bin/activate
+python run_pyplan.py
 ```
-
-
 
 ## Create build for Pypi
 
 1. Install setup packages:
 
-```bash
-python3 -m pip install --upgrade setuptools wheel twine
-```
+    ```bash
+    python3 -m pip install --upgrade setuptools wheel twine
+    ```
 
 2. Build:
 
-Set de version number in setup.cfg and :
+    Set de version number in setup.cfg and:
 
-```bash
-. build_version
-```
+    ```bash
+    . build_version
+    ```
 
 3. Upload to Pypi:
 
-```bash
-. upload_to_pypi
-```
+    ```bash
+    . upload_to_pypi
+    ```
 
 ## Setup for buils for Conda
 
@@ -61,9 +59,9 @@ Set de version number in setup.cfg and :
 
 2. add conda-forge channel
 
-```bash
-conda config --append channels conda-forge
-```
+    ```bash
+    conda config --append channels conda-forge
+    ```
 
 ## Create build for Conda
 
@@ -76,16 +74,17 @@ conda config --append channels conda-forge
 
     copy sha256 from pypi and paste on :
     ```sha256: 368ec48.............324```
-    (the sha256 is in 'https://pypi.org/project/pyplan-ide/#files') and click on view of .gz file
+    (the sha256 is in '[https://pypi.org/project/pyplan-ide/#files](https://pypi.org/project/pyplan-ide/#files)') and click on view of .gz file
 
 3. build pyplan-ide:
 
-```bash
-cd conda
-conda build pyplan-ide
-```
+    ```bash
+    cd conda
+    conda build pyplan-ide
+    ```
 
-3. upload to pyplan conda channel
-```bash
-anaconda upload /my/anaconda3/conda-bld/noarch/pyplan-ide-0.29.7-py_0.tar.bz2
-```
+4. upload to pyplan conda channel
+
+    ```bash
+    anaconda upload /my/anaconda3/conda-bld/noarch/pyplan-ide-0.29.7-py_0.tar.bz2
+    ```

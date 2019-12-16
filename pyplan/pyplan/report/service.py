@@ -264,43 +264,61 @@ class ReportManagerService(BaseService):
             )
             styles.update({item["id"]: ds.pk})
         for item in data["reports"]:
+
+            """check the uuid if the report is imported more than one time
+            if the report exits with the same owner we update ir else we create a new one (links will be broken in this case)"""
             use_new_uuid = True
 
-            # check the uuid if the report is imported more than one time
-            # the first time we import the uuid, else we create a new one
             if "uuid" in item.keys():
-                use_new_uuid = Report.objects.filter(
-                    uuid=item['uuid']).count() is 0
+                if Report.objects.filter(uuid=item['uuid']).count() > 0:
+                    if Report.objects.filter(uuid=item['uuid'], owner__pk=user_company_id).count() > 0:
+                        # we need to update the old_report with new data
+                        use_new_uuid = False
+                else:
+                    # we need to create a new report with the same uuid
+                    use_new_uuid = False
 
-            report = Report.objects.create(
-                model=model_id,
-                name=item["name"],
-                is_fav=item["is_fav"],
-                is_public=item["is_public"],
-                order=item["order"],
-                parent_id=item["parent_id"],
+            defaults = {
+                'model': model_id,
+                'name': item['name'],
+                'is_fav': item["is_fav"],
+                'is_public': item["is_public"],
+                'order': item["order"],
+                'parent_id': item["parent_id"],
+            }
+            report, created = Report.objects.update_or_create(
                 uuid=uuid.uuid4() if use_new_uuid else item["uuid"],
                 owner_id=user_company_id,
+                defaults=defaults
             )
             self._createChildReportsAndDashboards(report, item, result, styles)
         for item in data["dashboards"]:
+
+            """check the uuid if the dashboard is imported more than one time
+            if the dashboard exits with the same owner we update ir else we create a new one (links will be broken in this case)"""
             use_new_uuid = True
 
-            # check the uuid if the dashboard is imported more than one time
-            # the first time we import the uuid, else we create a new one
             if "uuid" in item.keys():
-                use_new_uuid = Dashboard.objects.filter(
-                    uuid=item['uuid']).count() is 0
+                if Dashboard.objects.filter(uuid=item['uuid']).count() > 0:
+                    if Dashboard.objects.filter(uuid=item['uuid'], owner__pk=user_company_id).count() > 0:
+                        # we need to update the old dashboard with new data
+                        use_new_uuid = False
+                else:
+                    # we need to create a new dashboard with the same uuid
+                    use_new_uuid = False
 
-            dash_created = Dashboard.objects.create(
-                model=model_id,
-                name=item["name"],
-                node=item["node"] if "node" in item else None,
-                is_fav=item["is_fav"],
-                definition=item["definition"] if "definition" in item else None,
-                order=item["order"],
+            defaults = {
+                'model': model_id,
+                'name': item['name'],
+                'node': item["node"] if "node" in item else None,
+                'is_fav': item["is_fav"],
+                'definition': item["definition"] if "definition" in item else None,
+                'order': item["order"],
+            }
+            dash_created, created = Dashboard.objects.update_or_create(
                 uuid=uuid.uuid4() if use_new_uuid else item["uuid"],
                 owner_id=user_company_id,
+                defaults=defaults
             )
             dash_created.styles.set(DashboardStyle.objects.filter(pk__in=list(
                 map(lambda style: styles[style], item["styles"]))))
@@ -348,30 +366,66 @@ class ReportManagerService(BaseService):
     def _createChildReportsAndDashboards(self, parent, item, result, styles):
         user_company_id = self.client_session.userCompanyId
         model_id = self.client_session.modelInfo.modelId
-        for rep in item["reports"]:
-            report = Report.objects.create(
-                model=model_id,
-                name=rep["name"],
-                is_fav=rep["is_fav"],
-                is_public=rep["is_public"],
-                order=item["order"],
-                parent=parent,
+        for item in item["reports"]:
+
+            """check the uuid if the report is imported more than one time
+            if the report exits with the same owner we update ir else we create a new one (links will be broken in this case)"""
+            use_new_uuid = True
+
+            if "uuid" in item.keys():
+                if Report.objects.filter(uuid=item['uuid']).count() > 0:
+                    if Report.objects.filter(uuid=item['uuid'], owner__pk=user_company_id).count() > 0:
+                        # we need to update the old_report with new data
+                        use_new_uuid = False
+                else:
+                    # we need to create a new report with the same uuid
+                    use_new_uuid = False
+
+            defaults = {
+                'model': model_id,
+                'name': item['name'],
+                'is_fav': item["is_fav"],
+                'is_public': item["is_public"],
+                'order': item["order"],
+                'parent_id': item["parent_id"],
+            }
+            report, created = Report.objects.update_or_create(
+                uuid=uuid.uuid4() if use_new_uuid else item["uuid"],
                 owner_id=user_company_id,
+                defaults=defaults
             )
             self._createChildReportsAndDashboards(report, rep, result, styles)
-        for dash in item["dashboards"]:
-            dash_created = Dashboard.objects.create(
-                model=model_id,
-                name=dash["name"],
-                node=dash["node"] if "node" in dash else None,
-                is_fav=dash["is_fav"],
-                definition=dash["definition"] if "definition" in dash else None,
-                order=item["order"],
-                report=parent,
-                owner_id=user_company_id
+        for item in item["dashboards"]:
+
+            """check the uuid if the dashboard is imported more than one time
+            if the dashboard exits with the same owner we update ir else we create a new one (links will be broken in this case)"""
+            use_new_uuid = True
+
+            if "uuid" in item.keys():
+                if Dashboard.objects.filter(uuid=item['uuid']).count() > 0:
+                    if Dashboard.objects.filter(uuid=item['uuid'], owner__pk=user_company_id).count() > 0:
+                        # we need to update the old_dashboard with new data
+                        use_new_uuid = False
+                else:
+                    # we need to create a new dashboard with the same uuid
+                    use_new_uuid = False
+
+            defaults = {
+                'model': model_id,
+                'name': item['name'],
+                'node': item["node"] if "node" in item else None,
+                'is_fav': item["is_fav"],
+                'definition': item["definition"] if "definition" in item else None,
+                'order': item["order"],
+                'report': parent
+            }
+            dash_created, created = Dashboard.objects.update_or_create(
+                uuid=uuid.uuid4() if use_new_uuid else item["uuid"],
+                owner_id=user_company_id,
+                defaults=defaults
             )
             dash_created.styles.set(DashboardStyle.objects.filter(pk__in=list(
-                map(lambda item: styles[item], dash["styles"]))))
+                map(lambda item: styles[item], item["styles"]))))
 
         result["reports"].append(parent)
 

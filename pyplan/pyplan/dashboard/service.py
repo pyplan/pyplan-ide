@@ -1,3 +1,4 @@
+import uuid
 from types import SimpleNamespace
 
 from django.db.models import Q
@@ -417,6 +418,7 @@ class DashboardManagerService(BaseService):
         if name:
             dashboard.name = name
         dashboard.pk = None
+        dashboard.uuid = uuid.uuid4()
         if dashboard.owner_id != self.client_session.userCompanyId:
             dashboard.report = None
         dashboard.owner_id = self.client_session.userCompanyId

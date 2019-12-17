@@ -211,12 +211,14 @@ class ReportManagerService(BaseService):
         if report_id:
             parent_report = Report.objects.get(pk=report_id)
             dashboards_childrens = parent_report.dashboards.all()
-            order = dashboards_childrens.latest('order').order
+            order = dashboards_childrens.latest(
+                'order').order if dashboards_childrens else order
 
         else:
             dashboards_childrens = Dashboard.objects.filter(
                 report_id__isnull=True)
-            order = dashboards_childrens.latest('order').order
+            order = dashboards_childrens.latest(
+                'order').order if dashboards_childrens else order
 
         for dash_id in dashboard_ids:
             dash = Dashboard.objects.get(pk=dash_id)

@@ -1,2 +1,0 @@
-#python -m twine upload --user pyplan --password nvxValpa3540! --skip-existing --repository-url https://test.pypi.org/legacy/ dist/*
-python -m twine upload --user pyplan --password nvxValpa3540! --skip-existing  dist/*

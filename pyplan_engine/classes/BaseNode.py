@@ -569,7 +569,7 @@ class BaseNode(object):
                                 raise ValueError(
                                     "The result was not found. Did you forget to include the text 'result =' ?")
 
-                    self._isCalc = True
+                    self._isCalc = self.nodeClass != "button"
                     self.postCalculate()
 
                     endTime = dt.datetime.now()

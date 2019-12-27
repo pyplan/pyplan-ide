@@ -468,7 +468,7 @@ class BaseNode(object):
 
                 if params['dynamicIndex'] is None:
                     raise ValueError("Cyclic dependency detected between nodes: " + ",".join(
-                        circularNodes) + ".\nPlease use the cp.dynamic function")
+                        circularNodes) + ".\nPlease use the 'dynamic' function")
                 self.dynamicEvaluator.circularEval(self, params)
             else:
 
@@ -625,6 +625,22 @@ class BaseNode(object):
             nn += 1
         return False
 
+    def getFullInputs(self):
+        """
+        Return list of all node inputs and inputs of inputs
+        """
+        res = [self.identifier if self.originalId is None else self.originalId]
+        nn = 0
+        while nn < len(res):
+            _node = res[nn]
+            if self.model.existNode(_node) and self.model.getNode(_node).ioEngine.inputs:
+                for _inputId in self.model.getNode(_node).ioEngine.inputs:
+                    input_node = self.model.getNode(_inputId)
+                    if not _inputId in res:
+                        res.append(_inputId)
+            nn += 1
+        return res
+
     def getSortedCyclicDependencies(self):
         """
         Return list of nodes in circular dependencyes, sortered by execition order
@@ -637,8 +653,11 @@ class BaseNode(object):
             while nn < len(res):
                 _node = res[nn]
                 for _inputId in self.model.getNode(_node).ioEngine.inputs:
-                    if not _inputId in res and self.model.getNode(_inputId).isCircular():
-                        res.append(_inputId)
+                    input_node = self.model.getNode(_inputId)
+                    if not _inputId in res and input_node.isCircular():
+                        # check if node is in circle of _inputId
+                        if _node in input_node.getFullInputs():
+                            res.append(_inputId)
                 nn += 1
         return res
 

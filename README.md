@@ -106,4 +106,4 @@ Anaconda Navigator:
 User Guide
 ===========
 
-For User Guide please visit [docs.pyplan.com](http://docs.pyplan.com/)
+For User Guide please visit [community.pyplan.org](http://community.pyplan.org)

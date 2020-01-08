@@ -37,31 +37,31 @@ It includes many tutorials, examples and demos
 
 Linux/Mac:
 
-    ```bash
-    python3.7 -m venv pyplan
-    . pyplan/bin/activate
-    pip install --upgrade pip
-    pip install pyplan-ide
-    ```
+```bash
+python3.7 -m venv pyplan
+. pyplan/bin/activate
+pip install --upgrade pip
+pip install pyplan-ide
+```
 
 Windows:
 
-    ```bash
-    python3.7 -m venv pyplan
-    pyplan\Scripts\activate.bat
-    pip install --upgrade pip
-    pip install pyplan-ide
-    ```
+```bash
+python3.7 -m venv pyplan
+pyplan\Scripts\activate.bat
+pip install --upgrade pip
+pip install pyplan-ide
+```
 
 ### Using **conda**
 
-    ```bash
-    conda config --append channels pyplan
-    conda config --append channels conda-forge
-    conda create -n pyplan-ide python=3.7
-    conda activate pyplan-ide
-    conda install pyplan-ide
-    ```
+```bash
+conda config --append channels pyplan
+conda config --append channels conda-forge
+conda create -n pyplan-ide python=3.7
+conda activate pyplan-ide
+conda install pyplan-ide
+```
 
 ### Using **Anaconda Navigator**
 
@@ -85,24 +85,24 @@ You can run **Pyplan** with these commands:
 
 Linux/Mac:
 
-    ```bash
-    . pyplan/bin/activate
-    pyplan
-    ```
+```bash
+. pyplan/bin/activate
+pyplan
+```
 
 Windows:
 
-    ```bash
-    pyplan\Scripts\activate.bat
-    pyplan
-    ```
+```bash
+pyplan\Scripts\activate.bat
+pyplan
+```
 
 Conda:
 
-    ```bash
-    conda activate
-    pyplan
-    ```
+```bash
+conda activate
+pyplan
+```
 
 Anaconda Navigator:
 

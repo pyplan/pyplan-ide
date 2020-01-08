@@ -383,7 +383,7 @@ class SecurityService(BaseService):
 
         return res
 
-    def setStatistics(self):
+    def setStatistics(self, appVersion):
         try:
             if self.client_session and self.client_session.userId:
                 ping_url = 'https://ping.pyplan.com/pings/'
@@ -392,7 +392,8 @@ class SecurityService(BaseService):
                     'id': str(uuid.uuid4()),
                     'uuid': str(self.client_session.userId),
                     'homePath': home_path,
-                    'platform': platform.system()
+                    'platform': platform.system(),
+                    'appVersion': appVersion,
                 }
                 requests.post(url=ping_url, json=payload)
         except Exception as ex:

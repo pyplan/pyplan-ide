@@ -55,7 +55,8 @@ class SecurityView(object):
         PyplanLogger().logInfo(request, clientSession,
                                {'session_created': True})
 
-        security_service.setStatistics()
+        appVersion = request.data.get("appVersion", None)
+        security_service.setStatistics(appVersion)
 
         return Response(serializer.data)
 

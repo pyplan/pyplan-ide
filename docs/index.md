@@ -1,100 +1,113 @@
-![Pyplan](assets/img/logo.png)
-
+# ![Pyplan](assets/img/logo.png)
 
 **Pyplan** allows consolidating into a single graphical environment all
 corporate Data Analytics and Decision Support needs. It is meant to
-simplify Business Analyst introduction to Data Science with Python
+simplify Business Analyst introduction to Data Science with Python.
 
 Among its most prominent features you will find:
 
--   Assisted drag and drop graphical programming.
--   Visual Influence Diagram to represent logic flow.
--   Easy creation of interactive user interfaces.
--   Empowered collaboration by one click publishing and sharing.
--   Secure and scalable with corporate standards.
--   On cloud or on-premise deployment.
+- Assisted drag and drop graphical programming.
+- Visual Influence Diagram to represent logic flow.
+- Easy creation of interactive user interfaces.
+- Empowered collaboration by one click publishing and sharing.
+- Secure and scalable with corporate standards.
+- On cloud or on-premise deployment.
 
-Screenshots
-===========
+## Screenshots
 
 Influence Diagram
 
-![Influence Diagram](assets/img/diagram.png) 
+![Influence Diagram](assets/img/diagram.png)
 
 Interfaces (dashboards)
 
 ![Interfaces](assets/img/interface.png)
 
-Include lot of tutorials,examples and demos
+It includes many tutorials, examples and demos
 
 ![Demos](assets/img/demos.png)
 
-Requirements
-============
+## Requirements
 
--   [python 3.7](https://www.python.org/downloads/release/python-375/)
+- [python 3.7](https://www.python.org/downloads/release/python-375/)
 
-Installation
-============
+## Installation alterantives
 
-You can install **Pyplan** using pip:
+### Using **pip**
 
 Linux/Mac:
 
-    python3.7 -m venv pyplan
-    . pyplan/bin/activate
-    pip install pyplan-ide
+```bash
+python3.7 -m venv pyplan
+. pyplan/bin/activate
+pip install --upgrade pip
+pip install pyplan-ide
+```
 
 Windows:
 
-    python3.7 -m venv pyplan
-    pyplan\Scripts\activate.bat
-    pip install pyplan-ide
+```bash
+python3.7 -m venv pyplan
+pyplan\Scripts\activate.bat
+pip install --upgrade pip
+pip install pyplan-ide
+```
 
-Install **Pyplan** using **conda**:
+### Using **conda**
 
-    conda config --append channels pyplan
-    conda config --append channels conda-forge
-    conda create -n pyplan-ide python=3.7
-    conda activate pyplan-ide
-    conda install pyplan-ide
+```bash
+conda config --append channels pyplan
+conda config --append channels conda-forge
+conda create -n pyplan-ide python=3.7
+conda activate pyplan-ide
+conda install pyplan-ide
+```
 
-Or install **Pyplan** using **Anaconda Navigator**:
+### Using **Anaconda Navigator**
 
-    create and select new environment "pyplan-ide"
-    add channel pyplan
-    add channel conda-forge
-    go to home
-    find "pyplan-ide" app on Navigator and click Install
-    then click Launch
+1. Create and select new environment "pyplan-ide"
 
+2. Add `pyplan` and `conda-forge` channels
 
-Run Pyplan
-==========
+3. Find `pyplan-ide` app on Home section and click Install
+
+#### Important
+
+If doing an upgrade, first restart Anaconda Navigator in order to close any active Pyplan process.
+
+This message will appear, make sure that `pyplan-ide` is selected.
+
+![Restart Anaconda Navigator](assets/img/restart-anaconda-navigator.png)
+
+## Run Pyplan
 
 You can run **Pyplan** with these commands:
 
 Linux/Mac:
 
-    . pyplan/bin/activate
-    pyplan
+```bash
+. pyplan/bin/activate
+pyplan
+```
 
 Windows:
 
-    pyplan\Scripts\activate.bat
-    pyplan
+```bash
+pyplan\Scripts\activate.bat
+pyplan
+```
 
-conda:
+Conda:
 
-- Start terminal an type: **pyplan**
+```bash
+conda activate
+pyplan
+```
 
 Anaconda Navigator:
 
 - Click launch on **pyplan-ide** app
 
+## User Guide
 
-
-User Guide
-==========
-For User Guide please visit [docs.pyplan.com](http://docs.pyplan.com/)
-
+For User Guide please visit [community.pyplan.org](http://community.pyplan.org)

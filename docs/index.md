@@ -33,6 +33,8 @@ It includes many tutorials, examples and demos
 
 ## Installation alterantives
 
+You can install Pyplan in your computer following the instructions below or you can try it online at [my.pyplan.com](https://my.pyplan.com)
+
 ### Using **pip**
 
 Linux/Mac:

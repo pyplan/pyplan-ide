@@ -297,7 +297,7 @@ class DesktopType(IEngineType):
         return DesktopType.calcEngine.model.getToolbars(extra_path)
 
     def profileNode(self, node_id):
-        return DesktopType.calcEngine.model.profilenode(node_id)
+        return DesktopType.calcEngine.model.profileNode(node_id)
 
     def createNode(self, node):
         return DesktopType.calcEngine.model.createNode(nodeClass=node.nodeClass, moduleId=node.moduleId, x=node.x - 50, y=node.y - 25, toObj=True)

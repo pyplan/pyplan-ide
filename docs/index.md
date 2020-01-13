@@ -1,8 +1,6 @@
 # ![Pyplan](assets/img/logo.png)
 
-**Pyplan** allows consolidating into a single graphical environment all
-corporate Data Analytics and Decision Support needs. It is meant to
-simplify Business Analyst introduction to Data Science with Python.
+**Pyplan** provides a Python development environment intended for easily creating and deploying data analytics apps. Different than a Jupyter Notebook, where code is structured as a list of sentences, in Pyplan code is contained in nodes that work as calculation steps, organized in a hierarchical influence diagram. Nodes can be evaluated, and its result inspected through a console output or rendered as a table or graph. User interfaces are created dragging nodes on a canvas. Final apps can be shared with one click to general audience.
 
 Among its most prominent features you will find:
 
@@ -33,7 +31,7 @@ It includes many tutorials, examples and demos
 
 ## Installation alterantives
 
-You can install Pyplan in your computer following the instructions below or you can try it online at [my.pyplan.com](https://my.pyplan.com)
+You can install Pyplan in your computer following the instructions below or you can start using Pyplan online at [my.pyplan.com](https://my.pyplan.com)
 
 ### Using **pip**
 

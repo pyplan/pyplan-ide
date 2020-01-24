@@ -747,6 +747,18 @@ class ModelManagerService(BaseService):
         result = calcEngine.installLibrary(lib, target_path)
         return result
 
+    def listInstalledLibraries(self):
+        """List python installed libraries"""
+        calcEngine = CalcEngine.factory(self.client_session)
+        result = calcEngine.listInstalledLibraries()
+        return result
+
+    def uninstallLibrary(self, lib, target):
+        """Uninstall python library"""
+        calcEngine = CalcEngine.factory(self.client_session)
+        result = calcEngine.uninstallLibrary(lib, target)
+        return result
+
     def getInstallProgress(self, from_line):
         """Get install python library progress"""
         calcEngine = CalcEngine.factory(self.client_session)

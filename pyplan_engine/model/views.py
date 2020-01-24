@@ -34,8 +34,7 @@ def createNewModel(request, uid):
             engines[uid].initializeModel(_modelFile)
             engines[uid].model.createNewModel(_modelFile, _modelName)
             return HttpResponse("ok")
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -53,8 +52,7 @@ def openModel(request, uid):
             engines[uid].initializeModel(_fileName)
             engines[uid].model.openModel(_fileName)
             return HttpResponse("ok")
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -83,8 +81,7 @@ def saveModel(request, uid):
             _fileName = request.data.get('filename')
             engines[uid].model.saveModel(_fileName)
             return HttpResponse("ok")
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -104,10 +101,8 @@ def exportModule(request, uid):
         if uid in engines:
             if engines[uid].model.exportModule(_moduleId, _filename):
                 return HttpResponse("1")
-            else:
-                return HttpResponse("0")
-        else:
-            return manageNoEngine()
+            return HttpResponse("0")
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -130,10 +125,8 @@ def importModule(request, uid):
             _importType = request.data.get('importType')
             if engines[uid].model.importModule(_moduleId, _filename, _importType):
                 return HttpResponse("1")
-            else:
-                return HttpResponse("0")
-        else:
-            return manageNoEngine()
+            return HttpResponse("0")
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -149,8 +142,7 @@ def getDiagram(request, uid):
         _moduleId = request.data.get('moduleId')
         if uid in engines:
             return JsonResponse(engines[uid].model.getDiagram(_moduleId), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -166,8 +158,7 @@ def getBreadcrumb(request, uid):
         _moduleId = request.data.get('moduleId')
         if uid in engines:
             return JsonResponse(engines[uid].model.getBreadcrumb(_moduleId), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -182,8 +173,7 @@ def getModelProperties(request, uid):
     try:
         if uid in engines:
             return JsonResponse(engines[uid].model.getModelProperties(), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -206,8 +196,7 @@ def setModelProperties(request, uid):
             _obj = jsonpickle.decode(request.data.get('obj'))
             engines[uid].model.setModelProperties(_obj)
             return HttpResponse("ok")
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -223,8 +212,7 @@ def getArrows(request, uid):
         _nodeId = request.data.get('nodeId')
         if uid in engines:
             return JsonResponse(engines[uid].model.getArrows(_nodeId), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -249,8 +237,7 @@ def getNodeProperties(request, uid):
         if uid in engines:
             _obj = jsonpickle.decode(request.data.get('obj'))
             return JsonResponse(engines[uid].model.getNodeProperties(_obj), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -278,8 +265,7 @@ def setNodeProperties(request, uid):
             engines[uid].model.setNodeProperties(
                 _obj["node"], _obj["properties"])
             return HttpResponse("ok")
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -296,10 +282,8 @@ def existNode(request, uid):
             _nodeId = request.data.get('nodeId')
             if engines[uid].model.existNode(_nodeId):
                 return HttpResponse("1")
-            else:
-                return HttpResponse("0")
-        else:
-            return manageNoEngine()
+            return HttpResponse("0")
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -320,10 +304,8 @@ def isChild(request, uid):
                 request.data.get('modulesId'))
             if engines[uid].model.isChild(_nodeId, _modulesId):
                 return HttpResponse("1")
-            else:
-                return HttpResponse("0")
-        else:
-            return manageNoEngine()
+            return HttpResponse("0")
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -339,8 +321,7 @@ def getInputs(request, uid):
         if uid in engines:
             _nodeId = request.data.get('nodeId')
             return JsonResponse(engines[uid].model.getInputs(_nodeId), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -356,8 +337,7 @@ def getOutputs(request, uid):
         if uid in engines:
             _nodeId = request.data.get('nodeId')
             return JsonResponse(engines[uid].model.getOutputs(_nodeId), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -374,8 +354,7 @@ def getDefinition(request, uid):
             _nodeId = request.data.get('nodeId')
             _node = engines[uid].model.getNode(_nodeId)
             return HttpResponse(_node.definition)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -394,10 +373,8 @@ def invalidateNode(request, uid):
             if not _node is None:
                 _node.invalidate()
                 return HttpResponse("ok")
-            else:
-                return HttpResponse("")
-        else:
-            return manageNoEngine()
+            return HttpResponse("")
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -416,10 +393,8 @@ def previewNode(request, uid):
             _res = engines[uid].model.previewNode(_nodeId)
             if _res is None:
                 return HttpResponse('', status=204)
-            else:
-                return HttpResponse(_res)
-        else:
-            return manageNoEngine()
+            return HttpResponse(_res)
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e, engines[uid])
     finally:
@@ -446,8 +421,7 @@ def searchNodes(request, uid):
             _filterOptions = jsonpickle.decode(
                 request.data.get('filterOptions'))
             return JsonResponse(engines[uid].model.searchNodes(_filterOptions), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -463,8 +437,7 @@ def profilenode(request, uid):
         if uid in engines:
             _nodeId = request.data.get('nodeId')
             return HttpResponse(engines[uid].model.profileNode(_nodeId))
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -483,10 +456,8 @@ def evaluate(request, uid):
             _res = engines[uid].model.evaluate(definition)
             if _res is None:
                 return HttpResponse('', status=204)
-            else:
-                return JsonResponse(_res, safe=False)
-        else:
-            return manageNoEngine()
+            return JsonResponse(_res, safe=False)
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e, engines[uid])
     finally:
@@ -512,10 +483,8 @@ def callFunction(request, uid):
             _res = engines[uid].model.callFunction(nodeId, params)
             if _res is None:
                 return HttpResponse('', status=204)
-            else:
-                return JsonResponse(_res, safe=False)
-        else:
-            return manageNoEngine()
+            return JsonResponse(_res, safe=False)
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e, engines[uid])
     finally:
@@ -563,10 +532,8 @@ def evaluateNode(request, uid):
                 _nodeId, _dims, _rows, _columns, _summaryBy, _bottomTotal, _rightTotal, _fromRow, _toRow)
             if _res is None:
                 return HttpResponse('', status=204)
-            else:
-                return HttpResponse(_res)
-        else:
-            return manageNoEngine()
+            return HttpResponse(_res)
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e, engines[uid])
     finally:
@@ -584,8 +551,7 @@ def executeButton(request, uid):
         if uid in engines:
             _nodeId = request.data.get('nodeId')
             return JsonResponse(engines[uid].model.executeButton(_nodeId), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -601,8 +567,7 @@ def getIndexes(request, uid):
         if uid in engines:
             _nodeId = request.data.get('nodeId')
             return JsonResponse(engines[uid].model.getIndexes(_nodeId), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -618,8 +583,7 @@ def getIndexesWithLevels(request, uid):
         if uid in engines:
             _nodeId = request.data.get('nodeId')
             return JsonResponse(engines[uid].model.getIndexesWithLevels(_nodeId), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -635,8 +599,7 @@ def isTable(request, uid):
         if uid in engines:
             _nodeId = request.data.get('nodeId')
             return HttpResponse(engines[uid].model.isTable(_nodeId))
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -655,8 +618,7 @@ def getIndexType(request, uid):
             _nodeId = request.data.get('nodeId')
             _indexId = request.data.get('indexId')
             return JsonResponse(engines[uid].model.getIndexType(_nodeId, _indexId), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -683,8 +645,7 @@ def getIndexValues(request, uid):
             context = paginator.paginate_queryset(query_set, request)
 
             return paginator.get_paginated_response(context)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -701,8 +662,7 @@ def setNodeValueChanges(request, uid):
             _changes = jsonpickle.decode(request.data.get('changes'))
             engines[uid].model.setNodeValueChanges(_changes)
             return HttpResponse("ok")
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -721,8 +681,7 @@ def moveNodes(request, uid):
             _nodeList = jsonpickle.decode(request.data.get('nodeList'))
             _moduleId = request.data.get('moduleId')
             return JsonResponse(engines[uid].model.moveNodes(_nodeList, _moduleId), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -741,8 +700,7 @@ def copyNodes(request, uid):
             _nodeList = jsonpickle.decode(request.data.get('nodeList'))
             _moduleId = request.data.get('moduleId')
             return JsonResponse(engines[uid].model.copyNodes(_nodeList, _moduleId), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -761,8 +719,7 @@ def copyAsValues(request, uid):
             _nodeId = request.data.get('nodeId', '')
             _asNewNode = request.data.get('asNewNode', 'True') == 'True'
             return JsonResponse(engines[uid].model.copyAsValues(_nodeId, _asNewNode), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -778,8 +735,7 @@ def setNodeIdFromTitle(request, uid):
         if uid in engines:
             _nodeId = request.data.get('nodeId', '')
             return JsonResponse(engines[uid].model.setNodeIdFromTitle(_nodeId), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -795,8 +751,7 @@ def createInputNodes(request, uid):
         if uid in engines:
             _nodeList = jsonpickle.decode(request.data.get('nodeList'))
             return JsonResponse(engines[uid].model.createInputNodes(_nodeList), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -812,8 +767,7 @@ def createAlias(request, uid):
         if uid in engines:
             _nodeList = jsonpickle.decode(request.data.get('nodeList'))
             return JsonResponse(engines[uid].model.createAlias(_nodeList), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -840,8 +794,7 @@ def createNode(request, uid):
             _nodeObj = engines[uid].model.createNode(
                 nodeClass=_nodeClass, moduleId=_moduleId, x=_x, y=_y, toObj=True)
             return JsonResponse(_nodeObj, safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -858,8 +811,7 @@ def deleteNodes(request, uid):
             _obj = jsonpickle.decode(request.data.get('obj'))
             engines[uid].model.deleteNodes(_obj)
             return HttpResponse("ok")
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -875,8 +827,7 @@ def getCubeMetadata(request, uid):
         if uid in engines:
             _nodeId = request.data.get('nodeId')
             return JsonResponse(engines[uid].model.getCubeMetadata(_nodeId), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -892,8 +843,7 @@ def getCubeDimensionValues(request, uid):
         if uid in engines:
             _query = jsonpickle.decode(request.data.get('query'))
             return JsonResponse(engines[uid].model.getCubeDimensionValues(_query), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -909,8 +859,7 @@ def getCubeValues(request, uid):
         if uid in engines:
             _query = jsonpickle.decode(request.data.get('query'))
             return JsonResponse(engines[uid].model.getCubeValues(_query), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -926,8 +875,7 @@ def isCalcNodes(request, uid):
         if uid in engines:
             _nodeList = jsonpickle.decode(request.data.get('nodeList'))
             return JsonResponse(engines[uid].model.isCalcNodes(_nodeList), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -953,10 +901,8 @@ def exportFlatNode(request, uid):
             _fileName = request.data.get('fileName')
             if engines[uid].model.exportFlatNode(_nodeId, _numberFormat, _columnFormat, _fileName):
                 return HttpResponse("1")
-            else:
-                return HttpResponse("0")
-        else:
-            return manageNoEngine()
+            return HttpResponse("0")
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -976,8 +922,7 @@ def dumpNodeToFile(request, uid):
             _fileName = request.data.get('filename')
             engines[uid].model.dumpNodeToFile(_nodeId, _fileName)
             return HttpResponse("ok")
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -997,8 +942,7 @@ def loadScenario(request, uid):
             _scenarioData = request.data.get('scenarioData')
             engines[uid].model.loadScenario(_nodeId, _scenarioData)
             return HttpResponse("ok")
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -1010,8 +954,7 @@ def unloadScenario(request, uid):
         if uid in engines:
             engines[uid].model.unloadScenario()
             return HttpResponse("ok")
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -1054,8 +997,7 @@ def geoUnclusterData(request, uid):
             iconField = request.data.get('iconField')
         if uid in engines:
             return JsonResponse(engines[uid].model.geoUnclusterData(nodeId, rowIndex, attIndex, latField, lngField, geoField, labelField, sizeField, colorField, iconField), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -1071,8 +1013,7 @@ def getToolbars(request, uid):
         extraPath = request.data.get('extraPath', '')
         if uid in engines:
             return JsonResponse(engines[uid].model.getToolbars(extraPath), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -1088,8 +1029,7 @@ def callWizard(request, uid):
         params = request.data.get('params', '')
         if uid in engines:
             return JsonResponse(engines[uid].model.callWizard(params), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -1106,10 +1046,8 @@ def isSelector(request, uid):
             _nodeId = request.data.get('nodeId')
             if engines[uid].model.isSelector(_nodeId):
                 return HttpResponse("1")
-            else:
-                return HttpResponse("0")
-        else:
-            return manageNoEngine()
+            return HttpResponse("0")
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -1125,8 +1063,7 @@ def getSelector(request, uid):
         _nodeId = request.data.get('nodeId')
         if uid in engines:
             return JsonResponse(engines[uid].model.getSelector(_nodeId), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -1138,8 +1075,7 @@ def getPID(request, uid):
     try:
         if uid in engines:
             return JsonResponse(engines[uid].model.getPID(), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -1151,8 +1087,7 @@ def getSystemResources(request, uid):
     try:
         if uid in engines:
             return JsonResponse(engines[uid].model.getSystemResources(), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -1171,8 +1106,37 @@ def installLibrary(request, uid):
         _target = request.data.get('target')
         if uid in engines:
             return JsonResponse(engines[uid].model.installLibrary(_lib, _target), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
+    except Exception as e:
+        return genericApiException(e)
+
+
+@api_view(['GET'])
+def listInstalledLibraries(request, uid):
+    """List python installed libraries"""
+    try:
+        if uid in engines:
+            return JsonResponse(engines[uid].model.listInstalledLibraries(), safe=False)
+        return manageNoEngine()
+    except Exception as e:
+        return genericApiException(e)
+
+
+@api_view(['POST'])
+@schema(AutoSchema(manual_fields=[
+    coreapi.Field('lib', required=True, location='form',
+                  type='string', description='Library to uninstall'),
+    coreapi.Field('target', required=True, location='form',
+                  type='string', description='Target instalation')
+]))
+def uninstallLibrary(request, uid):
+    """Uninstall python library"""
+    try:
+        _lib = request.data.get('lib')
+        _target = request.data.get('target')
+        if uid in engines:
+            return JsonResponse(engines[uid].model.uninstallLibrary(_lib, _target), safe=False)
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)
 
@@ -1188,7 +1152,6 @@ def getInstallProgress(request, uid):
         if uid in engines:
             from_line = request.data.get('from_line', '0')
             return JsonResponse(engines[uid].model.getInstallProgress(from_line), safe=False)
-        else:
-            return manageNoEngine()
+        return manageNoEngine()
     except Exception as e:
         return genericApiException(e)

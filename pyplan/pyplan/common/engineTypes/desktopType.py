@@ -401,6 +401,14 @@ class DesktopType(IEngineType):
         """Install python library"""
         return DesktopType.calcEngine.model.installLibrary(lib, target)
 
+    def listInstalledLibraries(self):
+        """List python installed libraries"""
+        return json.loads(DesktopType.calcEngine.model.listInstalledLibraries())
+
+    def uninstallLibrary(self, lib, target):
+        """Uninstall python library"""
+        return DesktopType.calcEngine.model.uninstallLibrary(lib, target)
+
     def getInstallProgress(self, from_line):
         """Get install python library progress"""
         return DesktopType.calcEngine.model.getInstallProgress(from_line)

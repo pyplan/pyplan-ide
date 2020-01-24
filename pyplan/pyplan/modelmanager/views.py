@@ -118,6 +118,10 @@ class ModelManagerView(object):
                  ModelManagerView.uploadFileToTemp),
             path('modelManager/installLibrary/',
                  ModelManagerView.installLibrary),
+            path('modelManager/listInstalledLibraries/',
+                 ModelManagerView.listInstalledLibraries),
+            path('modelManager/uninstallLibrary/',
+                 ModelManagerView.uninstallLibrary),
             path('modelManager/getInstallProgress/',
                  ModelManagerView.getInstallProgress),
         ]
@@ -1020,6 +1024,37 @@ class ModelManagerView(object):
         except Exception as ex:
             raise exceptions.NotAcceptable(
                 f"Error in installLibrary: {str(ex)}")
+
+    @staticmethod
+    @api_view(['GET'])
+    @permission_classes((permissions.IsAuthenticated,))
+    def listInstalledLibraries(request, *args, **kargs):
+        """List python installed libraries"""
+        try:
+            service = ModelManagerService(request)
+            response = service.listInstalledLibraries()
+            return Response(response)
+        except Exception as ex:
+            raise exceptions.NotAcceptable(
+                f"Error listing installed libraries: {str(ex)}")
+
+    @staticmethod
+    @api_view(['DELETE'])
+    @permission_classes((permissions.IsAuthenticated,))
+    @schema(AutoSchema(manual_fields=[
+        coreapi.Field('lib', required=True, location='form',
+                      type='string', description='Library to uninstall'),
+    ]))
+    def uninstallLibrary(request, *args, **kargs):
+        """Uninstall python library"""
+        try:
+            _lib = request.data.get('lib')
+            _target = request.data.get('target')
+            service = ModelManagerService(request)
+            return Response(service.uninstallLibrary(_lib, _target))
+        except Exception as ex:
+            raise exceptions.NotAcceptable(
+                f"Error in uninstallLibrary: {str(ex)}")
 
     @staticmethod
     @api_view(['GET'])

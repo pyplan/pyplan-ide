@@ -66,5 +66,7 @@ urlpatterns = [
     path('getPID/<uid>', views.getPID),
     path('getSystemResources/<uid>', views.getSystemResources),
     path('installLibrary/<uid>', views.installLibrary),
+    path('listInstalledLibraries/<uid>', views.listInstalledLibraries),
+    path('uninstallLibrary/<uid>', views.uninstallLibrary),
     path('getInstallProgress/<uid>', views.getInstallProgress),
 ]

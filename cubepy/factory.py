@@ -641,8 +641,11 @@ def pandasFromExcel(excel,sheetName=None,namedRange=None,cellRange=None, indexes
             target_dir = os.path.dirname(filename)
             file_name, file_extension = os.path.splitext(filename)
             target_dir = os.path.join(target_dir, file_name)
+            file_to_read_legacy = os.path.join(target_dir, f"{namedRange}.pkl")
+            target_dir = f"{target_dir[:target_dir.rfind('/')+1]}.{target_dir[target_dir.rfind('/')+1:]}"
 
-            file_to_read = os.path.join(target_dir, namedRange+".pkl")
+            file_to_read = os.path.join(target_dir, f"{namedRange}.pkl") if os.path.isfile(os.path.join(target_dir, f"{namedRange}.pkl")) else file_to_read_legacy
+
             if os.path.isfile(file_to_read):
                 df = pd.read_pickle(file_to_read,compression='gzip')
                 if not indexes is None:

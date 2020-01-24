@@ -13,6 +13,8 @@ from time import sleep
 
 import jsonpickle
 import xarray as xr
+#default imports
+import pandas, numpy, cubepy
 
 from site import getsitepackages
 from pyplan_engine.classes.BaseNode import BaseNode
@@ -25,6 +27,12 @@ from pyplan_engine.common.classes.indexValuesReq import IndexValuesReq
 
 
 class Model(object):
+
+    DEFAULT_IMPORTS =  {"np":numpy,
+                        "pd":pandas,
+                        "cubepy":cubepy,
+                        "xr":xr
+    }
 
     def __init__(self):
         self._nodeDic = {}
@@ -39,6 +47,7 @@ class Model(object):
         self._wizard = None
         self._currentProcessingNode = ""
         self._currentInstallProgress = []
+        self._customImports = None
 
     # Props
 
@@ -119,7 +128,7 @@ class Model(object):
         """Delete nodes by node id"""
         if not nodes is None:
             for nodeId in nodes:
-                if self.existNode(nodeId) and nodeId != "_model_" and nodeId != "imports":
+                if self.existNode(nodeId) and nodeId != "_model_":
                     # check for module
                     if self.getNode(nodeId).nodeClass == "module":
                         childs = self.findNodes('moduleId', nodeId)
@@ -363,6 +372,7 @@ class Model(object):
         self._scenarioDic = dict()
         self._nodeClassDic = dict()
         self._wizard = None
+        self._customImports = None
 
         return
 
@@ -1117,6 +1127,9 @@ class Model(object):
             opened = None
             self._isLoadingModel = False
 
+        #check models library
+        self.ensureModelLibraries()
+
         # evaluate nodes on start
         try:
             for key in self.nodeDic:
@@ -1137,9 +1150,23 @@ class Model(object):
 
     def getCustomImports(self):
         """Return object with custom imported python modules."""
-        if self.existNode("imports"):
-            return self.getNode("imports").result
+        if self._customImports is None:
+            self._buildCustomImports()
+        return self._customImports
 
+    def _buildCustomImports(self):
+        """Build custom imports"""
+
+        self._customImports = Model.DEFAULT_IMPORTS.copy()
+
+        #support old "default imports" node
+        if self.existNode("imports"):
+            import_dic = self.getNode("imports").result
+            for key in import_dic:
+                if not key in self._customImports:
+                    self._customImports[key] = import_dic[key]
+
+        
     def createSystemNodes(self, fileName):
         """Create system nodes"""
         # current path
@@ -1183,7 +1210,7 @@ class Model(object):
         
     def createSymlinks(self, path):
         
-        if os.getenv("PYPLAN_IDE","0")!="1":
+        if os.getenv("PYPLAN_IDE","0")!="1" and os.getenv("ENGINE_MODE","")!="fixed":
 
             # Add user or public path to system paths
             pos = path.index("/", path.index("/", path.index("/",
@@ -1210,10 +1237,11 @@ class Model(object):
             #create symlink from user /public site-package
             os.system(f"rm -rf {venv_path}")
             os.system(f"ln -s -f {user_lib_path} {venv_path}")
+
         
 
     def createDefaultNodes(self):
-        """ Create default nodes as pyplan library, default imports, etc """
+        """ Create default nodes as pyplan library, etc """
 
         # modulo pyplan library
         if not self.existNode("pyplan_library"):
@@ -1223,28 +1251,7 @@ class Model(object):
             pyplan_library_node.color = "#9fc5e8"
             pyplan_library_node.nodeInfo["showInputs"] = 0
             pyplan_library_node.nodeInfo["showOutputs"] = 0
-
-        # Nodo default imports
-        importNode = None
-        if self.existNode("imports"):
-            importNode = self.getNode("imports")
-        else:
-
-            importNode = self.createNode(
-                identifier="imports", moduleId="pyplan_library", x=200, y=100)
-            importNode.title = "Default imports"
-            importNode.definition = """import numpy, pandas, cubepy, xarray
-#fill the following dict keys with the alias you want to define for each Library
-result = {
-    "np":numpy,
-    "pd":pandas,
-    "cubepy":cubepy,
-    "xr":xarray
-}"""
-        if importNode.moduleId != "pyplan_library":
-            importNode.moduleId = "pyplan_library"
-            importNode.x = 103
-            importNode.y = 190
+        
 
     def isLinux(self):
         if platform == "linux" or platform == "linux2" or platform == "darwin":
@@ -1502,27 +1509,31 @@ result = {
             "currentNode": current_node
         }
 
-    def installLibrary(self, lib, target):
-        """install python library"""
-        self._currentInstallProgress = []
 
-        def _install(command):
-            p = subprocess.Popen(split(command), stdout=subprocess.PIPE,
-                                 stderr=subprocess.PIPE, universal_newlines=True)
-            nn = 0
-            while p.stdout is not None and nn < 120:
-                line = p.stdout.readline()
-                if not line:
-                    p.stdout.flush()
-                    aa,err = p.communicate()
-                    if err:
-                        self._currentInstallProgress.append(err.rstrip('\n'))
-                    break
-                sleep(1)
-                nn += 1
-                self._currentInstallProgress.append(line.rstrip('\n'))
+    def ensureModelLibraries(self):
+        """Ensure that all model libs are installed"""
 
-            importlib.invalidate_caches()
+        if not "libs" in self.modelProp:
+            self.modelProp["libs"] = []
+        modelLibs = self.modelProp["libs"]
+        #get current installed libs
+        installed_libs_str = self.listInstalledLibraries()
+        installed_libs = jsonpickle.decode(installed_libs_str)
+        installed_libs_dic = dict()
+        for installed_lib in installed_libs:
+            installed_libs_dic[installed_lib["name"]] = installed_lib["version"]
+
+        to_install=""
+        for lib in modelLibs:
+            if not lib["name"] in installed_libs_dic:
+                to_install+=f" {lib['name']}=={lib['version']}"
+            #TODO: if exists, check version and send message via channels
+        
+        if to_install!="":
+            self._installLibrary(to_install, False)
+
+
+    def _installLibrary(self, lib, add_to_model=True):
 
         cmd = f"pip install {lib}"
 
@@ -1534,9 +1545,104 @@ result = {
         elif https_proxy:
             cmd += f' --proxy {https_proxy}'
 
-        thread = threading.Thread(target=_install, args=(cmd,))
+        p = subprocess.Popen(split(cmd), stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, universal_newlines=True)
+        nn = 0
+        while p.stdout is not None and nn < 240:
+            #TODO: show feedback to ide using channels
+            line = p.stdout.readline()
+            if not line:
+                p.stdout.flush()
+                aa,err = p.communicate()
+                if err:
+                    self._currentInstallProgress.append(err.rstrip('\n'))
+                break
+            sleep(1)
+            nn += 1
+            self._currentInstallProgress.append(line.rstrip('\n'))
+
+        importlib.invalidate_caches()
+        
+        if add_to_model:
+            #check if lib is succefully installed
+            libname = lib
+            if ">=" in lib:
+                libname = lib.split(">=")[0]
+            if "<=" in lib:
+                libname = lib.split("<=")[0]
+            if "==" in lib:
+                libname = lib.split("==")[0]
+            if ">" in lib:
+                libname = lib.split(">")[0]
+            if "<" in lib:
+                libname = lib.split("<")[0]        
+            libname = libname.lower()
+            installed_libs_str = self.listInstalledLibraries()
+            installed_libs = jsonpickle.decode(installed_libs_str)
+            for lib_item in installed_libs:
+                if lib_item and str(lib_item["name"]).lower() == libname:
+                    # add lib to model props
+                    self.addLibToModel(lib_item)
+                    break
+
+
+    def installLibrary(self, lib, target, add_to_model=True):
+        """install python library"""
+        self._currentInstallProgress = []
+        thread = threading.Thread(target=self._installLibrary, args=(lib,))
         thread.start()
         return "ok"
+
+
+    def addLibToModel(self,lib_item):
+        """Add user lib to model"""
+        if not "libs" in self.modelProp:
+            self.modelProp["libs"] = []
+
+        modelLibs = self.modelProp["libs"]
+        found = False
+        for modelLib in modelLibs:
+            if modelLib and modelLib["name"] == lib_item["name"]:
+                found = True
+                break
+        if not found:
+            modelLibs.append({"name":lib_item["name"], "version":lib_item["version"], "alias":""})
+
+    def removeLibFromModel(self, lib):
+        """Remove user lib from model"""
+        if not "libs" in self.modelProp:
+            self.modelProp["libs"] = []
+
+        modelLibs = self.modelProp["libs"]
+        for nn,modelLib in enumerate(modelLibs):
+            if modelLib and modelLib["name"] == lib:
+                del modelLibs[nn]
+                break
+        
+
+    def listInstalledLibraries(self):
+        cmd = 'pip list -v --format=json'
+        popen = subprocess.Popen(split(cmd), stdout=subprocess.PIPE, universal_newlines=True)
+
+        stdout, stderr = popen.communicate()
+        if stderr:
+            raise ValueError(f'Error listing installed libraries: {str(stderr)}') 
+
+        return stdout
+
+    def uninstallLibrary(self, lib, target):
+        """Uninstall python library"""
+        #cmd = f"pip uninstall -y {lib}"
+        # We cant use pip uninstall so we do a dirty workaround
+        cmd = f"find {target} -name '*{lib}*' -exec rm -rf {{}} \;"
+        popen = subprocess.Popen(split(cmd), stdout=subprocess.PIPE, universal_newlines=True)
+        stdout, stderr = popen.communicate()
+        importlib.invalidate_caches()
+        self.removeLibFromModel(lib)
+        if stderr:
+            raise ValueError(f'Error uninstalling library: {str(stderr)}') 
+
+        return stdout
 
     def getInstallProgress(self, from_line):
         """Return install library progress"""

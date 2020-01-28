@@ -26,3 +26,4 @@ class ClientSession(object):
         self.loginAction = None
         self.created_at = datetime.now()
         self.departments = []
+        self.my_uuid = None

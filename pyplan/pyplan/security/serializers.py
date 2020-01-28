@@ -25,6 +25,7 @@ class ClientSessionSerializer(serializers.Serializer):
     loginAction = serializers.JSONField(required=False, allow_null=True)
     created_at = serializers.DateTimeField(required=True, allow_null=False)
     departments = serializers.ListField(required=False, allow_null=True)
+    my_uuid = serializers.UUIDField(allow_null=True, default=None)
 
     def create(self, validated_data):
         instance = ClientSession()

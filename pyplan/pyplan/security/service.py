@@ -45,6 +45,7 @@ class SecurityService(BaseService):
                 client_session.userId = self.current_user.id
                 client_session.userFullName = f"{self.current_user.first_name} {self.current_user.last_name}"
                 client_session.userIsSuperUser = self.current_user.is_superuser
+                client_session.my_uuid = self.current_user.my_uuid
                 login_action = dict()
                 found = False
                 for userCompany in self.current_user.usercompanies.all().iterator():

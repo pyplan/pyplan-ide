@@ -361,6 +361,8 @@ class FileManagerService(BaseService):
             for zfile in zfobj.filelist:
                 zfile.create_system = 0
 
+        return zip_file
+
     def getHome(self):
         company_id = self.getSession().companyId
         model_path = eSpecialFolder.MODELS_PATH

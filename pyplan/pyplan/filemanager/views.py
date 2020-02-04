@@ -33,22 +33,27 @@ class FileManagerView(object):
     @staticmethod
     def register():
         return [
-            url(r'^fileManager/getMainFolders/$', FileManagerView.getMainFolders),
+            url(r'^fileManager/getMainFolders/$',
+                FileManagerView.getMainFolders),
             url(r'^fileManager/getFiles/$', FileManagerView.getFoldersAndFiles),
             url(r'^fileManager/createFolder/$', FileManagerView.createFolder),
-            url(r'^fileManager/copyFileOrFolder/$', FileManagerView.copyFileOrFolder),
+            url(r'^fileManager/copyFileOrFolder/$',
+                FileManagerView.copyFileOrFolder),
             url(r'^fileManager/renameFile/$', FileManagerView.renameFile),
-            url(r'^fileManager/duplicateFiles/$', FileManagerView.duplicateFiles),
+            url(r'^fileManager/duplicateFiles/$',
+                FileManagerView.duplicateFiles),
             url(r'^fileManager/moveFiles/$', FileManagerView.moveFiles),
             url(r'^fileManager/copyFiles/$', FileManagerView.copyFiles),
-            url(r'^fileManager/copyToMyWorkspace/$', FileManagerView.copyToMyWorkspace),
+            url(r'^fileManager/copyToMyWorkspace/$',
+                FileManagerView.copyToMyWorkspace),
             url(r'^fileManager/deleteFiles/$', FileManagerView.deleteFiles),
             url(r'^fileManager/upload/$', FileManagerView.upload),
             url(r'^fileManager/download/$', FileManagerView.download),
             url(r'^fileManager/unzipFile/$', FileManagerView.unzipFile),
             url(r'^fileManager/zipFiles/$', FileManagerView.zipFiles),
             url(r'^fileManager/getHome/', FileManagerView.getHome),
-            url(r'^fileManager/optimizeTemplates/$', FileManagerView.optimizeTemplates),
+            url(r'^fileManager/optimizeTemplates/$',
+                FileManagerView.optimizeTemplates),
         ]
 
     @staticmethod
@@ -73,7 +78,8 @@ class FileManagerView(object):
     @staticmethod
     @api_view(['GET'])
     @schema(AutoSchema(manual_fields=[
-        coreapi.Field('folder', required=False, location='query', description='folder name'),
+        coreapi.Field('folder', required=False, location='query',
+                      description='folder name'),
     ]))
     @permission_required('pyplan.list_folders', raise_exception=True)
     def getFoldersAndFiles(request, *args, **kargs):
@@ -322,8 +328,10 @@ class FileManagerView(object):
     @authentication_classes((QueryStringTokenAuthentication,))
     @permission_required('pyplan.download_files', raise_exception=True)
     @schema(AutoSchema(manual_fields=[
-        coreapi.Field("sources", required=True, location="query", schema=coreschema.Array()),
-        coreapi.Field("auth_token", required=True, location="query", schema=coreschema.String()),
+        coreapi.Field("sources", required=True, location="query",
+                      schema=coreschema.Array()),
+        coreapi.Field("auth_token", required=True,
+                      location="query", schema=coreschema.String()),
     ]))
     def download(request, *args, **kargs):
         """
@@ -369,7 +377,8 @@ class FileManagerView(object):
     @api_view(['GET'])
     @permission_classes((permissions.IsAuthenticated,))
     @schema(AutoSchema(manual_fields=[
-        coreapi.Field("sources", required=True, location="query", schema=coreschema.Array()),
+        coreapi.Field("sources", required=True, location="query",
+                      schema=coreschema.Array()),
     ]))
     def zipFiles(request, *args, **kargs):
         """
@@ -380,12 +389,12 @@ class FileManagerView(object):
 
         try:
             service = FileManagerService(request)
-            service.zipFiles(
+            response = service.zipFiles(
                 serializer.data.get("sources")
             )
         except Exception as ex:
             return Response(str(ex), status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_200_OK)
+        return Response(response, status=status.HTTP_200_OK)
 
     @staticmethod
     @api_view(['GET'])
@@ -401,7 +410,8 @@ class FileManagerView(object):
     @api_view(['GET'])
     @permission_classes((permissions.IsAuthenticated,))
     @schema(AutoSchema(manual_fields=[
-        coreapi.Field("sources", required=True, location="query", schema=coreschema.Array()),
+        coreapi.Field("sources", required=True, location="query",
+                      schema=coreschema.Array()),
     ]))
     def optimizeTemplates(request, *args, **kargs):
         """

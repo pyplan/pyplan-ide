@@ -1,0 +1,23 @@
+[
+  {
+    "name": "SRUC",
+    "file": "SRUC/main.js",
+    "css": [
+      "SRUC/css/sruc.css"
+    ]
+  },
+  {
+    "name": "SBMO",
+    "file": "SBMO/main.js",
+    "css": [
+      "SBMO/css/sbmo.css"
+    ]
+  },
+  {
+    "name": "GNF",
+    "file": "GNF/main.js",
+    "css": [
+      "GNF/css/gnf.css"
+    ]
+  }
+]

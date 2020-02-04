@@ -1,7 +1,12 @@
 import uuid
+import os
+import json
 from datetime import datetime
 
 from django.db.models import Q
+from django.core.files.storage import FileSystemStorage
+from django.core import serializers
+from django.conf import settings
 
 from pyplan.pyplan.common.baseService import BaseService
 from pyplan.pyplan.dashboard.models import Dashboard
@@ -10,6 +15,7 @@ from pyplan.pyplan.department.models import Department
 from pyplan.pyplan.usercompanies.models import UserCompany
 
 from .models import Report
+from .serializers import ExportItemsSerializer
 
 
 class ReportManagerService(BaseService):
@@ -244,6 +250,30 @@ class ReportManagerService(BaseService):
             'reports': reports,
             'styles': list(set(styles)),
         }, f"dashboards-{datetime.today().strftime('%Y%m%d-%H%M%S')}"
+
+    def exportItemForPublish(self, data):
+        dashboards = Dashboard.objects.filter(pk__in=[data['dashboard_id']])
+        styles = []
+        styles.extend(DashboardStyle.objects.filter(
+            dashboards__id__in=[data['dashboard_id']]).all())
+        to_save = {
+            'dashboards': dashboards,
+            'reports': [],
+            'styles': list(set(styles)),
+        }
+        to_save_serialized = json.dumps(ExportItemsSerializer(
+            to_save).data, indent=None)
+        storage = FileSystemStorage(
+            os.path.join(settings.MEDIA_ROOT, 'models'))
+        file_path = f'{storage.base_location}/{data["model_folder"]}/dashboardToPublish.json'
+
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        with open(file_path, 'w') as json_file:
+            json_file.write(to_save_serialized)
+
+        return True
 
     def _getStyles(self, reports, styles):
         for report in reports:

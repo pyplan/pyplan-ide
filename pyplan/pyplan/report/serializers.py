@@ -110,9 +110,15 @@ class SearchResultSerializer(serializers.Serializer):
     dashboards = DashboardSerializer(many=True)
 
 
-class SingleItemsSerializer(serializers.Serializer):
+class ExportItemsAndPublishSerializer(serializers.Serializer):
     model_folder = serializers.CharField()
-    dashboard_id = serializers.IntegerField()
+    username = serializers.CharField()
+    uuid = serializers.CharField()
+    model_id = serializers.CharField()
+    report_ids = serializers.ListSerializer(
+        child=serializers.IntegerField(), default=[])
+    dashboard_ids = serializers.ListSerializer(
+        child=serializers.IntegerField(), default=[])
 
 
 class DuplicateItemsSerializer(serializers.Serializer):

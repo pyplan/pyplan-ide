@@ -14,7 +14,7 @@ from rest_framework.schemas import AutoSchema, ManualSchema
 
 from pyplan.pyplan.filemanager.service import FileManagerService
 
-from .serializers import (DuplicateItemsSerializer, SingleItemsSerializer,
+from .serializers import (DuplicateItemsSerializer, ExportItemsAndPublishSerializer,
                           ExportItemsSerializer, ImportItemsSerializer,
                           ReportCreateUpdateSerializer, ReportGetNavigatorSerializer,
                           ReportGetSharesSerializer, ReportSerializer,
@@ -43,8 +43,8 @@ class ReportView(object):
             url(r'^reportManager/setAsFav/$', ReportView.setAsFav),
             url(r'^reportManager/dropOnReport/$', ReportView.dropOnReport),
             url(r'^reportManager/exportItems/$', ReportView.exportItems),
-            url(r'^reportManager/exportItemForPublish/$',
-                ReportView.exportItemForPublish),
+            url(r'^reportManager/exportItemsAndPublish/$',
+                ReportView.exportItemsAndPublish),
             url(r'^reportManager/importItems/$', ReportView.importItems),
             url(r'^reportManager/(?P<pk>\d+)/shares/$', ReportView.getShares),
             url(r'^reportManager/(?P<pk>\d+)/setShares/$', ReportView.setShares),
@@ -290,18 +290,28 @@ class ReportView(object):
     @api_view(['PUT'])
     @permission_classes((IsAuthenticated,))
     @schema(AutoSchema(manual_fields=[
+        coreapi.Field("username", required=True,
+                      location="body", schema=coreschema.String),
+        coreapi.Field("uuid", required=True,
+                      location="body", schema=coreschema.String),
         coreapi.Field("model_folder", required=True,
                       location="body", schema=coreschema.String),
-        coreapi.Field("dashboard_id", required=True,
-                      location="body", schema=coreschema.Integer),
+        coreapi.Field("model_id", required=True,
+                      location="body", schema=coreschema.String),
+        coreapi.Field("report_ids", required=True,
+                      location="body", schema=coreschema.Array()),
+        coreapi.Field("dashboard_ids", required=True,
+                      location="body", schema=coreschema.Array())
     ]))
-    def exportItemForPublish(request, *args, **kargs):
-        serializer = SingleItemsSerializer(data=request.data)
+    def exportItemsAndPublish(request, *args, **kargs):
+        serializer = ExportItemsAndPublishSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         try:
             service = ReportManagerService(request)
-            file_created = service.exportItemForPublish(serializer.data)
-            return Response(file_created, status=status.HTTP_200_OK)
+            file_created = service.exportItemsAndPublish(serializer.data)
+            if file_created:
+                return Response(file_created, status=status.HTTP_200_OK)
+            return Response('There was an error publishing the item', status=status.HTTP_406_NOT_ACCEPTABLE)
         except Exception as ex:
             raise exceptions.NotAcceptable(detail=ex)
 

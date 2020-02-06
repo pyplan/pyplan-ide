@@ -25,6 +25,7 @@ from pyplan.pyplan.filemanager.classes.fileEntryData import (FileEntryData,
 from pyplan.pyplan.modelmanager.classes.eImportType import eImportType
 from pyplan.pyplan.modelmanager.classes.modelInfo import ModelInfo
 from pyplan.pyplan.security.functions import _getAllSessions
+from pyplan.pyplan.common.utils import _uploadFile
 
 
 class ModelManagerService(BaseService):
@@ -619,18 +620,7 @@ class ModelManagerService(BaseService):
     # helper functions
 
     def uploadFile(self, action, my_file, folder_path, name, chunk):
-        file_path = os.path.join(settings.MEDIA_ROOT, 'tmp', name)
-        # Moves file if it already exists
-        while chunk is 0 and os.path.isfile(file_path):
-            tempName = name.split('.')
-            name = tempName[0] + '_copy.' + tempName[1]
-            file_path = os.path.join(settings.MEDIA_ROOT, 'tmp', name)
-        # Appends all chunks of this request (chunks of chunks)
-        # UI sends multiple requests with multiple chunks each per file
-        with open(file_path, 'ab+') as temp_file:
-            for chunk in my_file.chunks():
-                temp_file.write(chunk)
-            return name
+        return _uploadFile(action, my_file, folder_path, name, chunk, False)
 
     def _removeDiacritics(self, text):
         """Removes all diacritic marks from the given string"""

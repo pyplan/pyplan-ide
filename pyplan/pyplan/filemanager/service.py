@@ -4,7 +4,6 @@ import json
 import os
 import shutil
 import tempfile
-import zipfile
 from datetime import datetime
 from errno import ENOTDIR
 from itertools import islice
@@ -26,6 +25,8 @@ from pyplan.pyplan.user_company_preference.models import UserCompanyPreference
 from .classes.fileEntry import FileEntry, eFileTypes
 from .classes.fileEntryData import (FileEntryData, eSpecialFileType,
                                     eSpecialFolder)
+
+from pyplan.pyplan.common.utils import _zipFiles, _unzipFile
 
 
 class FileManagerService(BaseService):
@@ -307,17 +308,8 @@ class FileManagerService(BaseService):
             return open(src_0, 'rb'), os.path.relpath(src_0, os.path.join(src_0, '..'))
         else:
             temp = tempfile.SpooledTemporaryFile()
-            with zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED) as zfobj:
-                for source in sources:
-                    src = os.path.join(storage.base_location, source)
-                    if os.path.isfile(src):
-                        zfobj.write(src, os.path.relpath(
-                            src, os.path.join(src, '..')))
-                    else:
-                        self._zipdir(src, zfobj)
-                for zfile in zfobj.filelist:
-                    zfile.create_system = 0
-            temp.seek(0)
+            _zipFiles(sources, storage.base_location, temp,
+                      False, self._getDeniedFolders())
             return temp, f"{os.path.relpath(sources[0], os.path.join(sources[0], '..'))}.zip"
 
     def makeJsonStream(self, json_string: str):
@@ -335,9 +327,7 @@ class FileManagerService(BaseService):
         src = os.path.join(storage.base_location, source)
         dest = os.path.join(storage.base_location, target_folder)
 
-        # Unzip the file, creating subdirectories as needed
-        zfobj = zipfile.ZipFile(src)
-        zfobj.extractall(dest)
+        _unzipFile(src, dest)
 
     def zipFiles(self, sources):
         storage = FileSystemStorage(
@@ -345,23 +335,7 @@ class FileManagerService(BaseService):
         zip_file = os.path.join(storage.base_location,
                                 f'{os.path.normpath(sources[0])}.zip')
 
-        if storage.exists(zip_file):
-            file_name, file_extension = os.path.splitext(zip_file)
-            zip_file = f'{file_name}_{uuid4().hex}{file_extension}'
-
-        with zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED) as zfobj:
-            for source in sources:
-                src = os.path.join(storage.base_location,
-                                   os.path.normpath(source))
-                if os.path.isfile(src):
-                    zfobj.write(src, os.path.relpath(
-                        src, os.path.join(src, '..')))
-                else:
-                    self._zipdir(src, zfobj)
-            for zfile in zfobj.filelist:
-                zfile.create_system = 0
-
-        return zip_file
+        return _zipFiles(sources, storage.base_location, zip_file, False, self._getDeniedFolders())
 
     def getHome(self):
         company_id = self.getSession().companyId
@@ -414,14 +388,6 @@ class FileManagerService(BaseService):
                         self._generate_csv_from_excel(template_filename)
 
     # Private
-
-    def _zipdir(self, path, ziph):
-        # ziph is zipfile handle
-        for root, dirs, files in os.walk(path):
-            # check if folder is not in any department denied folders
-            for file in files:
-                ziph.write(os.path.join(root, file), os.path.relpath(
-                    os.path.join(root, file), os.path.join(path, '..')))
 
     def _generate_csv_from_excel(self, filename):
         """Generate compressed csv from excel file

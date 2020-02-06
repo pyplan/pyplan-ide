@@ -1,6 +1,7 @@
 import uuid
 import os
 import json
+import requests
 from datetime import datetime
 
 from django.db.models import Q
@@ -16,6 +17,8 @@ from pyplan.pyplan.usercompanies.models import UserCompany
 
 from .models import Report
 from .serializers import ExportItemsSerializer
+
+from pyplan.pyplan.common.utils import _zipFiles
 
 
 class ReportManagerService(BaseService):
@@ -251,29 +254,52 @@ class ReportManagerService(BaseService):
             'styles': list(set(styles)),
         }, f"dashboards-{datetime.today().strftime('%Y%m%d-%H%M%S')}"
 
-    def exportItemForPublish(self, data):
-        dashboards = Dashboard.objects.filter(pk__in=[data['dashboard_id']])
+    def exportItemsAndPublish(self, data):
+
+        response = False
+
+        # We create the json file to be imported inside the model folder
+        reports = Report.objects.filter(pk__in=data['report_ids'])
+        dashboards = Dashboard.objects.filter(pk__in=data['dashboard_ids'])
         styles = []
         styles.extend(DashboardStyle.objects.filter(
-            dashboards__id__in=[data['dashboard_id']]).all())
+            dashboards__id__in=data['dashboard_ids']).all())
+        self._getStyles(reports, styles)
         to_save = {
             'dashboards': dashboards,
-            'reports': [],
+            'reports': reports,
             'styles': list(set(styles)),
         }
         to_save_serialized = json.dumps(ExportItemsSerializer(
             to_save).data, indent=None)
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
-        file_path = f'{storage.base_location}/{data["model_folder"]}/dashboardToPublish.json'
+        file_path = f'{storage.base_location}/{data["model_folder"]}/itemsToPublish.json'
 
+        # we write the json file
         if os.path.exists(file_path):
             os.remove(file_path)
 
         with open(file_path, 'w') as json_file:
             json_file.write(to_save_serialized)
 
-        return True
+        # now that the file is inside the model folder we generate a zipFile to be uploaded
+        zip_file = None
+        zip_file = _zipFiles([data['model_folder']], storage.base_location,
+                             f"{storage.base_location}/{data['model_folder']}.zip", True, None)
+
+        if zip_file:
+            # we publish the item
+            files = {'files': open(zip_file, 'rb')}
+            values = {'username': data['username'], 'uuid': data['uuid'],
+                      'model_id': data['model_id'], 'name': zip_file[zip_file.rfind('/'):]}
+            # TODO: change to my pyplan
+            req = requests.put(
+                'http://localhost:8000/api/reportManager/publishItems/', files=files, data=values)
+
+            response = True
+
+        return response
 
     def _getStyles(self, reports, styles):
         for report in reports:

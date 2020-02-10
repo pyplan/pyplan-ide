@@ -107,28 +107,23 @@ class FileManagerService(BaseService):
 
         items = storage.listdir(base_path)
 
-        denied_folders = []
-        if not self.current_user.has_perm('pyplan.change_group_permissions'):
-            denied_folders = self._getDeniedFolders()
-
         # folders
         for item in sorted(items[0], key=str.lower):
             full_path = f"{base_path}{item}"
-            if not denied_folders or not item in denied_folders:
-                result.append(
-                    FileEntry(
-                        show=not item.startswith('.'),
-                        text=item,
-                        type=eFileTypes.MY_FOLDER,
-                        data=FileEntryData(
-                            fileSize=None,
-                            fullPath=full_path,
-                            # specialFolderType=eSpecialFolder.MODELS_PATH
-                            lastUpdateTime=storage.get_modified_time(
-                                full_path),
-                        )
+            result.append(
+                FileEntry(
+                    show=not item.startswith('.'),
+                    text=item,
+                    type=eFileTypes.MY_FOLDER,
+                    data=FileEntryData(
+                        fileSize=None,
+                        fullPath=full_path,
+                        # specialFolderType=eSpecialFolder.MODELS_PATH
+                        lastUpdateTime=storage.get_modified_time(
+                            full_path),
                     )
                 )
+            )
         # files
         for item in sorted(items[1], key=str.lower):
             full_path = f"{base_path}{item}"
@@ -215,8 +210,8 @@ class FileManagerService(BaseService):
     def renameFile(self, source, new_name):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
-        src = f"{storage.base_location}/{source}"
-        dest = f"{src[0:src.rfind('/')+1]}{new_name}"
+        src = os.path.join(storage.base_location, source)
+        dest = os.path.join(src[0:src.rfind('/')+1], new_name)
         os.rename(src, dest)
         return dest
 
@@ -225,14 +220,16 @@ class FileManagerService(BaseService):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
         for source in sources:
-            src = f"{storage.base_location}/{source}"
-            dest_path, dest_name = source.rsplit('/', 1)
-            dest = f"{storage.base_location}/{dest_path}/Copy 1 of {dest_name}"
+            src = os.path.join(storage.base_location, source)
+            *dest_path, dest_name = source.rsplit('/', 1)
+            dest_path = ''.join(dest_path)
+            dest = os.path.join(storage.base_location,
+                                dest_path, f'Copy 1 of {dest_name}')
             n = 1
             while storage.exists(dest):
                 n += 1
-                dest = f"{storage.base_location}/{dest_path}/Copy {n} of {dest_name}"
-
+                dest = os.path.join(storage.base_location,
+                                    dest_path, f'Copy {n} of {dest_name}')
             result.append(self._linuxCopy(src, dest))
         return result
 
@@ -255,9 +252,8 @@ class FileManagerService(BaseService):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
         for source in sources:
-            src = f"{storage.base_location}/{source}"
-            dest_path, dest_name = source.rsplit('/', 1)
-            dest = f"{storage.base_location}/{target}/"
+            src = os.path.join(storage.base_location, source)
+            dest = os.path.join(storage.base_location, target)
             self._linuxCopy(src, dest)
         return True
 
@@ -320,8 +316,8 @@ class FileManagerService(BaseService):
     def unzipFile(self, source, target_folder):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
-        src = f"{storage.base_location}/{source}"
-        dest = f"{storage.base_location}/{target_folder}"
+        src = os.path.join(storage.base_location, source)
+        dest = os.path.join(storage.base_location, target_folder)
 
         # Unzip the file, creating subdirectories as needed
         zfobj = zipfile.ZipFile(src)
@@ -400,14 +396,12 @@ class FileManagerService(BaseService):
     # Private
 
     def _zipdir(self, path, ziph):
-        denied_folders = self._getDeniedFolders()
         # ziph is zipfile handle
         for root, dirs, files in os.walk(path):
             # check if folder is not in any department denied folders
-            if not denied_folders or not any(list(map(lambda item: item in denied_folders, root.rsplit('/')))):
-                for file in files:
-                    ziph.write(os.path.join(root, file), os.path.relpath(
-                        os.path.join(root, file), os.path.join(path, '..')))
+            for file in files:
+                ziph.write(os.path.join(root, file), os.path.relpath(
+                    os.path.join(root, file), os.path.join(path, '..')))
 
     def _generate_csv_from_excel(self, filename):
         """Generate compressed csv from excel file

@@ -170,21 +170,6 @@ class ModelManagerService(BaseService):
             res = calcEngine.getDiagram(module_id)
         else:
             res = calcEngine.getDiagram()
-
-        denied_modules = []
-        if not self.current_user.has_perm('pyplan.change_group_permissions'):
-            denied_modules = self._getDeniedModules()
-
-        if module_id in denied_modules or calcEngine.isChild(module_id, denied_modules):
-            raise exceptions.NotAcceptable(
-                'Your department does not have access to this module.')
-        if denied_modules:
-            res['nodes'] = list(
-                filter(
-                    lambda item: not denied_modules or not item['nodeClass']
-                    == 'module' or not item['identifier'] in denied_modules, res['nodes']
-                )
-            )
         return res
 
     def getArrows(self, module_id):

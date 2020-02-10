@@ -1,13 +1,6 @@
 import pandas as pd
 
 
-class PyplanFunctions(object):
-
-    @staticmethod
-    def register(local):
-        local["selector"] = Selector
-
-
 class Selector(object):
     """ Class to manage UI Pyplan selectors.
     """

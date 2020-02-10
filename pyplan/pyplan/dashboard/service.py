@@ -110,17 +110,17 @@ class DashboardManagerService(BaseService):
         usercompany_id = self.client_session.userCompanyId
         model_id = self.client_session.modelInfo.modelId
 
-        dashboards = Dashboard.objects.filter(            
+        dashboards = Dashboard.objects.filter(
             Q(
-              # shared to specific users, me included
-              Q(usercompanies__pk=usercompany_id) |
-              # shared to departments where I belong
-              Q(departments__usercompanies__pk=usercompany_id) |
-              # public but not mine
-              (Q(is_public=True) & ~Q(owner_id=usercompany_id)),
-              # from the same company
-              owner__company__pk=company_id,
-              model=model_id
+                # shared to specific users, me included
+                Q(usercompanies__pk=usercompany_id) |
+                # shared to departments where I belong
+                Q(departments__usercompanies__pk=usercompany_id) |
+                # public but not mine
+                (Q(is_public=True) & ~Q(owner_id=usercompany_id)),
+                # from the same company
+                owner__company__pk=company_id,
+                model=model_id
             ) |
             # my dashboards
             Q(model=model_id,
@@ -140,7 +140,8 @@ class DashboardManagerService(BaseService):
             owner__company__pk=company_id,
             model=model_id,
         )
-        dashboards_from_shared_reports = Dashboard.objects.filter(report__in=reports)
+        dashboards_from_shared_reports = Dashboard.objects.filter(
+            report__in=reports)
         dashboards_response = dashboards | dashboards_from_shared_reports
 
         return dashboards_response.order_by('name').distinct()
@@ -150,7 +151,8 @@ class DashboardManagerService(BaseService):
         model_id = self.client_session.modelInfo.modelId
 
         dashboards = Dashboard.objects.filter(
-            Q(departments__isnull=False) | Q(usercompanies__isnull=False) | Q(is_public=True),
+            Q(departments__isnull=False) | Q(
+                usercompanies__isnull=False) | Q(is_public=True),
             owner__pk=usercompany_id,
             model=model_id,
         )
@@ -171,7 +173,8 @@ class DashboardManagerService(BaseService):
         result.itemType = "linechart"
 
         item_properties = NodeProperties()
-        value_suffix = calcEngine.getNodeProperty(nodeQuery.node, eNodeProperty.UNITS.value)
+        value_suffix = calcEngine.getNodeProperty(
+            nodeQuery.node, eNodeProperty.UNITS.value)
 
         if value_suffix:
             value_suffix = f" {value_suffix}"
@@ -180,15 +183,19 @@ class DashboardManagerService(BaseService):
         item_properties.tooltip.valueSuffix = value_suffix
 
         # Main
-        original_id = calcEngine.getNodeProperty(nodeQuery.node, eNodeProperty.ORIGINAL_ID.value)
+        original_id = calcEngine.getNodeProperty(
+            nodeQuery.node, eNodeProperty.ORIGINAL_ID.value)
         if not original_id is None:
             node_id = original_id
         else:
             node_id = nodeQuery.node
 
-        node_title = calcEngine.getNodeProperty(nodeQuery.node, eNodeProperty.TITLE.value)
-        node_class = calcEngine.getNodeProperty(node_id, eNodeProperty.CLASS.value)
-        alias_class = calcEngine.getNodeProperty(nodeQuery.node, eNodeProperty.CLASS.value)
+        node_title = calcEngine.getNodeProperty(
+            nodeQuery.node, eNodeProperty.TITLE.value)
+        node_class = calcEngine.getNodeProperty(
+            node_id, eNodeProperty.CLASS.value)
+        alias_class = calcEngine.getNodeProperty(
+            nodeQuery.node, eNodeProperty.CLASS.value)
 
         item_properties.title.text = node_title
 
@@ -202,10 +209,12 @@ class DashboardManagerService(BaseService):
             object_type = "diagramviewer"
         elif node_class == "decision" and (calcEngine.isChoice(node_id) or calcEngine.isSelector(node_id)):
             item_type = "selector"
-            node_result = self._evaluateNode(node_id, result.dims, result.rows, result.columns)
+            node_result = self._evaluateNode(
+                node_id, result.dims, result.rows, result.columns)
         elif alias_class == "formnode":
             item_type = "formnode"
-            node_result = self._evaluateNode(nodeQuery.node, result.dims, result.rows, result.columns)
+            node_result = self._evaluateNode(
+                nodeQuery.node, result.dims, result.rows, result.columns)
             if calcEngine.isTable(node_id):
                 item_type = "nodetable"
                 edit_mode = True
@@ -213,7 +222,8 @@ class DashboardManagerService(BaseService):
             item_type = "button"
             item_properties.title.enabled = False
             item_properties.title.text = ""
-            node_result = self._evaluateNode(node_id, result.dims, result.rows, result.columns)
+            node_result = self._evaluateNode(
+                node_id, result.dims, result.rows, result.columns)
         elif calcEngine.isIndex(node_id):
             item_type = "indexlist"
             if calcEngine.isTime(node_id):
@@ -249,19 +259,21 @@ class DashboardManagerService(BaseService):
             )
 
             if calcEngine.isTable(node_id):
-                if not result.columns is None and len(result.columns)==0 and not result.dims is None and len(result.dims)>0:
+                if not result.columns is None and len(result.columns) == 0 and not result.dims is None and len(result.dims) > 0:
                     dim = result.dims[0]
                     result.dims.remove(dim)
                     result.columns.append(dim)
                 item_type = "nodetable"
                 item_properties.cubeOptions = dict(editMode=True)
-                if result.rows and len(result.rows)>0:
-                    item_properties.cubeOptions["rows"]=[str(xx.field).split(".")[0] for xx in result.rows]
-                if result.columns and len(result.columns)>0:
-                    item_properties.cubeOptions["cols"]=[str(xx.field).split(".")[0] for xx in result.columns]
+                if result.rows and len(result.rows) > 0:
+                    item_properties.cubeOptions["rows"] = [
+                        str(xx.field).split(".")[0] for xx in result.rows]
+                if result.columns and len(result.columns) > 0:
+                    item_properties.cubeOptions["cols"] = [
+                        str(xx.field).split(".")[0] for xx in result.columns]
             else:
                 item_type = "indicator"
-                if len(result.dims) > 0 or len(result.columns) > 0  or len(result.rows) > 0 or (not node_result is None and not node_result.series is None and len(node_result.series) > 1):
+                if len(result.dims) > 0 or len(result.columns) > 0 or len(result.rows) > 0 or (not node_result is None and not node_result.series is None and len(node_result.series) > 1):
                     item_type = "table"
 
         result.nodeId = nodeQuery.node
@@ -279,13 +291,6 @@ class DashboardManagerService(BaseService):
 
     def evaluateNode(self, nodeQuery):
         calcEngine = CalcEngine.factory(self.client_session)
-
-        denied_modules = []
-        if not self.current_user.has_perm('pyplan.change_group_permissions'):
-            denied_modules = self._getDeniedModules()
-
-        if denied_modules and (nodeQuery.node in denied_modules or calcEngine.isChild(nodeQuery.node, denied_modules)):
-            raise exceptions.NotAcceptable('Your department does not have access to this module.')
 
         return self._evaluateNode(
             nodeQuery.node, nodeQuery.dims, nodeQuery.rows,
@@ -311,7 +316,8 @@ class DashboardManagerService(BaseService):
         else:
             # Create
             calcEngine = CalcEngine.factory(self.client_session)
-            node_name = calcEngine.getNodeProperty(node_id, eNodeProperty.TITLE.value)
+            node_name = calcEngine.getNodeProperty(
+                node_id, eNodeProperty.TITLE.value)
             return Dashboard.objects.create(
                 model=self.client_session.modelInfo.modelId,
                 name=node_name,
@@ -341,7 +347,8 @@ class DashboardManagerService(BaseService):
         if "report_id" in data:
             dashboard.report = Report(id=data["report_id"])
         if "styles" in data:
-            dashboard.styles.set(DashboardStyle.objects.filter(pk__in=data['styles']))
+            dashboard.styles.set(
+                DashboardStyle.objects.filter(pk__in=data['styles']))
         return dashboard.save()
 
     def bulkDelete(self, ids):
@@ -363,7 +370,8 @@ class DashboardManagerService(BaseService):
         index_values = []
         if response:
             for index_value in response:
-                index_values.append(NodeDimensionValue(type=index_type, value=index_value))
+                index_values.append(NodeDimensionValue(
+                    type=index_type, value=index_value))
         newResponse['results'] = index_values
         return newResponse
 
@@ -430,7 +438,8 @@ class DashboardManagerService(BaseService):
     def getCubeMetadata(self, query):
         calcEngine = CalcEngine.factory(self.client_session)
         result = calcEngine.getCubeMetadata(PivotQuerySerializer(query).data)
-        original = calcEngine.getNodeProperty(query.cube, eNodeProperty.IDENTIFIER.value)
+        original = calcEngine.getNodeProperty(
+            query.cube, eNodeProperty.IDENTIFIER.value)
 
         # if not res is None and not res.nodeProperties is None:
         #     Dim srvWiki As New KnowledgeBaseService(token)
@@ -441,14 +450,6 @@ class DashboardManagerService(BaseService):
 
     def getCubeValues(self, pivotQuery: PivotQuery):
         calcEngine = CalcEngine.factory(self.client_session)
-
-        denied_modules = []
-        if not self.current_user.has_perm('pyplan.change_group_permissions'):
-            denied_modules = self._getDeniedModules()
-
-        if denied_modules and (pivotQuery.cube in denied_modules or calcEngine.isChild(pivotQuery.cube, denied_modules)):
-            raise exceptions.NotAcceptable('Your department does not have access to this module.')
-
         return calcEngine.getCubeValues(PivotQuerySerializer(pivotQuery).data)
 
     def setCubeChanges(self, changes):
@@ -469,7 +470,8 @@ class DashboardManagerService(BaseService):
         calcEngine = CalcEngine.factory(self.client_session)
         node_result = NodeResult()
 
-        props_to_get = [{"name": "numberFormat", "value": ""}, {"name": eNodeProperty.CLASS.value, "value": ""}]
+        props_to_get = [{"name": "numberFormat", "value": ""},
+                        {"name": eNodeProperty.CLASS.value, "value": ""}]
         node_properties = calcEngine.getNodeProperties(node, props_to_get)
         for prop in node_properties['properties']:
             if prop['name'] == "numberFormat" and prop['value']:
@@ -478,26 +480,32 @@ class DashboardManagerService(BaseService):
                 node_class = str(prop['value'])
 
         if calcEngine.isIndex(node):
-            node_result.indexValues = self.getIndexValues({'id': node})['results']
+            node_result.indexValues = self.getIndexValues({'id': node})[
+                'results']
 
         elif node_class == "formnode":
-            original_id = calcEngine.getNodeProperty(node, eNodeProperty.ORIGINAL_ID.value)
+            original_id = calcEngine.getNodeProperty(
+                node, eNodeProperty.ORIGINAL_ID.value)
             if original_id:
-                node_result = self._evaluateNode(original_id, dims, rows, columns)
+                node_result = self._evaluateNode(
+                    original_id, dims, rows, columns)
 
                 props_to_get = [
                     {"name": "numberFormat", "value": ""},
                     {"name": "formNodeExtraValue", "value": ""}
                 ]
-                node_properties = calcEngine.getNodeProperties(node, props_to_get)
+                node_properties = calcEngine.getNodeProperties(
+                    node, props_to_get)
 
                 if node_properties and node_properties['properties'] and len(node_properties['properties']) > 0:
                     node_result.nodeProperties['originalId'] = node
                     for prop in node_properties['properties']:
                         if prop['name'] == "formNodeExtraValue":
-                            node_result.nodeProperties['definition'] = str(prop['value'])
+                            node_result.nodeProperties['definition'] = str(
+                                prop['value'])
         elif node_class == "button":
-            node_result.nodeProperties['title'] = calcEngine.getNodeProperty(node, eNodeProperty.TITLE.value)
+            node_result.nodeProperties['title'] = calcEngine.getNodeProperty(
+                node, eNodeProperty.TITLE.value)
         elif node_class == "decision" and (calcEngine.isChoice(node) or calcEngine.isSelector(node)):
             node_result.nodeProperties["originalId"] = node
 
@@ -512,7 +520,8 @@ class DashboardManagerService(BaseService):
                         if inputNode["nodeClass"] == "index":
                             index = inputNode["id"]
                             break
-                    node_result.indexValues = self.getIndexValues({'id': index})['results']
+                    node_result.indexValues = self.getIndexValues({'id': index})[
+                        'results']
                     definition = node_result.nodeProperties["definition"]
                     start = definition.find("cp.choice(")
                     len_choice = 10
@@ -522,13 +531,16 @@ class DashboardManagerService(BaseService):
                         start = definition.find("choice(")
                         len_choice = 7
                     end = definition.find(")")
-                    characters = definition[start+len_choice:end].replace("(", "").replace(")", "")
+                    characters = definition[start +
+                                            len_choice:end].replace("(", "").replace(")", "")
                     arr = characters.split(",")
                     if len(arr) == 3 and "True" in arr[2]:
                         values = node_result.indexValues
-                        values.append(NodeDimensionValue(type="S", value="All"))
+                        values.append(NodeDimensionValue(
+                            type="S", value="All"))
 
-                current_result = calcEngine.getNodeProperty(node, eNodeProperty.RESULT.value)
+                current_result = calcEngine.getNodeProperty(
+                    node, eNodeProperty.RESULT.value)
                 if current_result:
                     for item in node_result.indexValues:
                         if item.value == current_result:
@@ -542,7 +554,8 @@ class DashboardManagerService(BaseService):
 
                     node_result.indexValues = []
                     for nn, itemValue in enumerate(selectorData["options"]):
-                        nodeValue = NodeDimensionValue(type="S", value=itemValue)
+                        nodeValue = NodeDimensionValue(
+                            type="S", value=itemValue)
                         if selectorData["multiselect"]:
                             if nn in selectorData["selected"]:
                                 nodeValue.selected = True
@@ -550,7 +563,7 @@ class DashboardManagerService(BaseService):
                             if nn == selectorData["selected"]:
                                 nodeValue.selected = True
                         node_result.indexValues.append(nodeValue)
-                    
+
         else:
             filter_list = list()
             for dim in dims + rows + columns:
@@ -609,23 +622,27 @@ class DashboardManagerService(BaseService):
 
             # nodeProperties as dynamic dictionary
             if "resultType" in eval_result_json:
-                node_result.nodeProperties.update({"resultType": eval_result_json["resultType"]})
+                node_result.nodeProperties.update(
+                    {"resultType": eval_result_json["resultType"]})
                 node_result.nodeProperties.update({"nodeId": node})
 
             if "scenario" in eval_result_json:
                 node_result.nodeProperties.update({"scenario": True})
 
             if "pageInfo" in eval_result_json:
-                node_result.pageInfo = NodeResultPageInfo(**eval_result_json["pageInfo"])
+                node_result.pageInfo = NodeResultPageInfo(
+                    **eval_result_json["pageInfo"])
 
             if "numberFormat" in eval_result_json:
-                node_result.nodeProperties.update({"numberFormat": eval_result_json["numberFormat"]})
+                node_result.nodeProperties.update(
+                    {"numberFormat": eval_result_json["numberFormat"]})
 
             # get dimensions
             node_result.newDims = self.getNodeIndexes(node)
 
             for newDim in node_result.newDims:
-                dim_in_filter = list(filter(lambda item: newDim.field == item.field, filter_list))
+                dim_in_filter = list(
+                    filter(lambda item: newDim.field == item.field, filter_list))
                 if len(dim_in_filter) > 0:
                     if hasattr(dim_in_filter[0], "currentLevel"):
                         newDim.currentLevel = dim_in_filter[0].currentLevel
@@ -646,6 +663,7 @@ class DashboardManagerService(BaseService):
             serializer = NodeDimensionSerializer(index_item)
             node_dimension = serializer.create(serializer.data)
             if include_values:
-                node_dimension.values = self.getIndexValues({'id': node_dimension.field})['results']
+                node_dimension.values = self.getIndexValues(
+                    {'id': node_dimension.field})['results']
             result.append(node_dimension)
         return result

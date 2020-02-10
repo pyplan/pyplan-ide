@@ -6837,7 +6837,7 @@ def add_demo_dashboards(apps, schema_editor):
         model='ex_ml_supplier_route_optim',
         name='Machine Learning Results',
         node=None,
-        order=1,
+        order=2,
         owner_id=1,
         definition=sro_ml_results_definition,
     )

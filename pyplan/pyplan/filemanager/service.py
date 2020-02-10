@@ -252,9 +252,8 @@ class FileManagerService(BaseService):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
         for source in sources:
-            src = f"{storage.base_location}/{source}"
-            dest_path, dest_name = source.rsplit('/', 1)
-            dest = f"{storage.base_location}/{target}/"
+            src = os.path.join(storage.base_location, source)
+            dest = os.path.join(storage.base_location, target)
             self._linuxCopy(src, dest)
         return True
 

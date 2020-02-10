@@ -4651,7 +4651,2147 @@ xarray_intro_definition = {
 				]
 }
 
+xarray_in_pyplan_definition = {"definitionLarge": [{
+						"x": 0,
+						"y": 0,
+						"dims": [],
+						"rows": [],
+						"index": 0,
+						"width": 8,
+						"height": 2,
+						"itemId": "d5f657d3-a8c9-4313-b6c4-b1fc3d63956c",
+						"nodeId": "",
+						"columns": [],
+						"itemType": "objectItem",
+						"objectType": "texteditor",
+						"itemProperties": {
+							"htmlcontent": "<span class=\"\" style=\"font-size: 2vmin;\"><font color=\"#006fdf\">Standard Xarray broadcasting and math operations using Pyplan indexes.&nbsp;</font></span><div><span class=\"\" style=\"font-size: 2vmin;\"><font color=\"#006fdf\">Click on indexes \"Product\" &amp; \"Region\" to see how filters work on interfaces</font></span></div>",
+							"generalBackgroundColor": "#eeeeee"
+						}
+					}, {
+						"x": 8,
+						"y": 0,
+						"dims": [],
+						"rows": [],
+						"index": 1,
+						"width": 4,
+						"height": 12,
+						"itemId": "8a8a4da8-4e2e-44c2-b7d6-9d1f3e5cd599",
+						"nodeId": "",
+						"columns": [],
+						"itemType": "objectItem",
+						"objectType": "diagramviewer",
+						"itemProperties": {
+							"diagramOptions": {
+								"id": "1edd13cd-7a76-4a33-86a8-47490550b661",
+								"posx": 0,
+								"posy": 0,
+								"zoom": 1,
+								"autoCenter": False,
+								"breadCrumb": True,
+								"contextMenu": False,
+								"currentModule": "xarray_in_pyplan",
+								"showBreadcrumb": True,
+								"listenMouseDown": True
+							}
+						}
+					}, {
+						"x": 0,
+						"y": 10,
+						"dims": [],
+						"rows": [],
+						"index": 2,
+						"width": 8,
+						"height": 2,
+						"itemId": "9f2a5270-7ffd-4893-aab4-c8b2102bbc24",
+						"nodeId": "",
+						"columns": [],
+						"itemType": "objectItem",
+						"objectType": "texteditor",
+						"itemProperties": {
+							"htmlcontent": "<p class=\"MsoNormal\" style=\"margin-bottom:0cm;margin-bottom:.0001pt;line-height:\nnormal\"><span lang=\"EN-GB\" style=\"font-size:10.0pt;font-family:&quot;Arial&quot;,sans-serif;\nmso-fareast-font-family:&quot;Times New Roman&quot;;color:#BF2F00;mso-ansi-language:EN-GB;\nmso-fareast-language:ES-AR\">In the last case, the dimension\n\"Products\" has been changed for the&nbsp;dimension \"New\nProducts\". Fruits quantities New List has been&nbsp;defined using \u201cchange\nindex\u201d in order to make it match with Fruits prices new list dimensions.</span><span lang=\"EN-GB\" style=\"font-size: 10pt; font-family: Arial, sans-serif;\"><o:p></o:p></span></p>\n\n<p class=\"MsoNormal\" style=\"margin-bottom:0cm;margin-bottom:.0001pt;line-height:\nnormal\"><span lang=\"EN-GB\" style=\"font-size:10.0pt;font-family:&quot;Arial&quot;,sans-serif;\nmso-fareast-font-family:&quot;Times New Roman&quot;;color:#BF2F00;mso-ansi-language:EN-GB;\nmso-fareast-language:ES-AR\">Pyplan keeps intersection between the two indexes\nadding 0 to elements which do not exist in the resultant index in this\ncase&nbsp;[\"Grapes\"].</span><span lang=\"EN-GB\" style=\"font-size: 10pt; font-family: Arial, sans-serif;\"><o:p></o:p></span></p>",
+							"generalBackgroundColor": "#eeeeee"
+						}
+					}, {
+						"x": 0,
+						"y": 2,
+						"dims": [],
+						"rows": [],
+						"index": 3,
+						"width": 2,
+						"height": 1,
+						"itemId": "beac876b-3019-4dd4-aeec-ec1bfe01b75b",
+						"nodeId": "",
+						"columns": [],
+						"itemType": "objectItem",
+						"objectType": "texteditor",
+						"itemProperties": {
+							"htmlcontent": "<font color=\"#006fdf\"><span style=\"font-size: 18.56px;\">Filters</span></font>",
+							"generalBackgroundColor": "#eeeeee"
+						}
+					}, {
+						"x": 2,
+						"y": 2,
+						"dims": [],
+						"rows": [{
+								"name": "Product",
+								"field": "product.fruits_prices",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [{
+										"type": "",
+										"value": "Orange",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "Apple",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "Banana",
+										"geoDef": None,
+										"selected": True
+									}
+								],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"index": 4,
+						"width": 2,
+						"height": 3,
+						"itemId": "708fd53a-ffb1-4d69-a907-ffba8503edd8",
+						"nodeId": "fruits_prices",
+						"columns": [],
+						"itemType": "table",
+						"objectType": None,
+						"itemProperties": {
+							"axes": {
+								"xAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"yAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"enabled": True
+							},
+							"unit": "",
+							"zoom": True,
+							"table": {
+								"styles": [{
+										"pos": 0,
+										"index": "_alltable_",
+										"style": {
+											"pagination": 100
+										},
+										"value": -1
+									}
+								]
+							},
+							"title": {
+								"text": "Fruits Prices",
+								"align": "center",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"margin": "",
+								"enabled": True,
+								"isCustom": False,
+								"verticalAlign": "top"
+							},
+							"detail": True,
+							"legend": {
+								"y": 0,
+								"align": "right",
+								"title": {
+									"text": ""
+								},
+								"layout": "vertical",
+								"enabled": True,
+								"borderWidth": 0,
+								"verticalAlign": "middle"
+							},
+							"tooltip": {
+								"valueSuffix": None,
+								"valueDecimals": 2
+							},
+							"subtitle": {
+								"text": "",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"enabled": True,
+								"verticalAlign": "top"
+							},
+							"drilldown": True,
+							"timeChart": {
+								"active": False,
+								"possible": False
+							},
+							"originalId": None
+						}
+					}, {
+						"x": 4,
+						"y": 2,
+						"dims": [],
+						"rows": [{
+								"name": "Product",
+								"field": "product.fruits_quantities",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [{
+										"type": "",
+										"value": "Orange",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "Apple",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "Banana",
+										"geoDef": None,
+										"selected": True
+									}
+								],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"index": 5,
+						"width": 2,
+						"height": 3,
+						"itemId": "5b3df4d3-723d-4dae-8127-f9fb8f11c4be",
+						"nodeId": "fruits_quantities",
+						"columns": [{
+								"name": "Region",
+								"field": "region.fruits_quantities",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [{
+										"type": "",
+										"value": "North",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "South",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "West",
+										"geoDef": None,
+										"selected": True
+									}
+								],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"itemType": "table",
+						"objectType": None,
+						"itemProperties": {
+							"axes": {
+								"xAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"yAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"enabled": True
+							},
+							"unit": "",
+							"zoom": True,
+							"table": {
+								"styles": [{
+										"pos": 0,
+										"index": "_alltable_",
+										"style": {
+											"pagination": 100
+										},
+										"value": -1
+									}
+								]
+							},
+							"title": {
+								"text": "Fruits Quantities",
+								"align": "center",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"margin": "",
+								"enabled": True,
+								"isCustom": False,
+								"verticalAlign": "top"
+							},
+							"detail": True,
+							"legend": {
+								"y": 0,
+								"align": "right",
+								"title": {
+									"text": ""
+								},
+								"layout": "vertical",
+								"enabled": True,
+								"borderWidth": 0,
+								"verticalAlign": "middle"
+							},
+							"tooltip": {
+								"valueSuffix": None,
+								"valueDecimals": 2
+							},
+							"subtitle": {
+								"text": "",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"enabled": True,
+								"verticalAlign": "top"
+							},
+							"drilldown": True,
+							"timeChart": {
+								"active": False,
+								"possible": False
+							},
+							"originalId": None
+						}
+					}, {
+						"x": 6,
+						"y": 2,
+						"dims": [],
+						"rows": [{
+								"name": "Product",
+								"field": "product.revenue",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [{
+										"type": "",
+										"value": "Orange",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "Apple",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "Banana",
+										"geoDef": None,
+										"selected": True
+									}
+								],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"index": 6,
+						"width": 2,
+						"height": 3,
+						"itemId": "2800edb6-25f5-4f2e-ab82-6a30981cc85a",
+						"nodeId": "revenue",
+						"columns": [{
+								"name": "Region",
+								"field": "region.revenue",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [{
+										"type": "",
+										"value": "North",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "South",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "West",
+										"geoDef": None,
+										"selected": True
+									}
+								],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"itemType": "table",
+						"objectType": None,
+						"itemProperties": {
+							"axes": {
+								"xAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"yAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"enabled": True
+							},
+							"unit": "",
+							"zoom": True,
+							"table": {
+								"styles": [{
+										"pos": 0,
+										"index": "_alltable_",
+										"style": {
+											"pagination": 100
+										},
+										"value": -1
+									}
+								]
+							},
+							"title": {
+								"text": "Revenue",
+								"align": "center",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"margin": "",
+								"enabled": True,
+								"isCustom": False,
+								"verticalAlign": "top"
+							},
+							"detail": True,
+							"legend": {
+								"y": 0,
+								"align": "right",
+								"title": {
+									"text": ""
+								},
+								"layout": "vertical",
+								"enabled": True,
+								"borderWidth": 0,
+								"verticalAlign": "middle"
+							},
+							"tooltip": {
+								"valueSuffix": None,
+								"valueDecimals": 2
+							},
+							"subtitle": {
+								"text": "",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"enabled": True,
+								"verticalAlign": "top"
+							},
+							"drilldown": True,
+							"timeChart": {
+								"active": False,
+								"possible": False
+							},
+							"originalId": None
+						}
+					}, {
+						"x": 0,
+						"y": 3,
+						"dims": [],
+						"rows": [],
+						"index": 7,
+						"width": 2,
+						"height": 1,
+						"itemId": "b7c46667-c85c-4714-b057-2b18d0cbe6bf",
+						"nodeId": "product",
+						"columns": [],
+						"itemType": "indexlist",
+						"objectType": None,
+						"itemProperties": {
+							"axes": {
+								"xAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"yAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"enabled": True
+							},
+							"unit": "",
+							"zoom": True,
+							"index": {
+								"ui": "default",
+								"dynamic": False,
+								"related": False,
+								"orientation": "h",
+								"singleSelect": False,
+								"currentSelectedValues": ["Orange", "Apple", "Banana"]
+							},
+							"title": {
+								"text": "Product",
+								"align": "center",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"margin": "",
+								"enabled": True,
+								"isCustom": False,
+								"verticalAlign": "top"
+							},
+							"detail": True,
+							"legend": {
+								"y": 0,
+								"align": "right",
+								"title": {
+									"text": ""
+								},
+								"layout": "vertical",
+								"enabled": True,
+								"borderWidth": 0,
+								"verticalAlign": "middle"
+							},
+							"nodeId": "product",
+							"tooltip": {
+								"valueSuffix": None,
+								"valueDecimals": 2
+							},
+							"subtitle": {
+								"text": "",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"enabled": True,
+								"verticalAlign": "top"
+							},
+							"drilldown": True,
+							"timeChart": {
+								"active": False,
+								"possible": False
+							},
+							"originalId": None
+						}
+					}, {
+						"x": 0,
+						"y": 4,
+						"dims": [],
+						"rows": [],
+						"index": 8,
+						"width": 2,
+						"height": 1,
+						"itemId": "d408c672-8d8b-4e55-a739-5b864796cfb6",
+						"nodeId": "region",
+						"columns": [],
+						"itemType": "indexlist",
+						"objectType": None,
+						"itemProperties": {
+							"axes": {
+								"xAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"yAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"enabled": True
+							},
+							"unit": "",
+							"zoom": True,
+							"index": {
+								"ui": "default",
+								"dynamic": False,
+								"related": False,
+								"orientation": "h",
+								"singleSelect": False,
+								"currentSelectedValues": ["North", "South", "West"]
+							},
+							"title": {
+								"text": "Region",
+								"align": "center",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"margin": "",
+								"enabled": True,
+								"isCustom": False,
+								"verticalAlign": "top"
+							},
+							"detail": True,
+							"legend": {
+								"y": 0,
+								"align": "right",
+								"title": {
+									"text": ""
+								},
+								"layout": "vertical",
+								"enabled": True,
+								"borderWidth": 0,
+								"verticalAlign": "middle"
+							},
+							"nodeId": "region",
+							"tooltip": {
+								"valueSuffix": None,
+								"valueDecimals": 2
+							},
+							"subtitle": {
+								"text": "",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"enabled": True,
+								"verticalAlign": "top"
+							},
+							"drilldown": True,
+							"timeChart": {
+								"active": False,
+								"possible": False
+							},
+							"originalId": None
+						}
+					}, {
+						"x": 0,
+						"y": 5,
+						"dims": [],
+						"rows": [],
+						"index": 9,
+						"width": 8,
+						"height": 2,
+						"itemId": "dc639535-a455-4d4f-82ef-82dc625dda36",
+						"nodeId": "",
+						"columns": [],
+						"itemType": "objectItem",
+						"objectType": "texteditor",
+						"itemProperties": {
+							"htmlcontent": "          \n        <font color=\"#006fdf\"><span style=\"caret-color: rgb(0, 111, 223); font-size: 20.34000015258789px;\">Pyplan solving dimensions intersection&nbsp;and alignment with indexes</span></font><div><span style=\"color: rgb(0, 111, 223); font-size: 18.56px;\">Click on indexes \"New Products\" &amp; \"Region\" to see how filters work on interfaces</span><font color=\"#006fdf\"><span style=\"caret-color: rgb(0, 111, 223); font-size: 20.34000015258789px;\"><br></span></font></div>",
+							"generalBackgroundColor": "#eeeeee"
+						}
+					}, {
+						"x": 0,
+						"y": 7,
+						"dims": [],
+						"rows": [],
+						"index": 10,
+						"width": 2,
+						"height": 1,
+						"itemId": "f0b26a7b-57bc-4791-b61d-8aa7e797fb56",
+						"nodeId": "",
+						"columns": [],
+						"itemType": "objectItem",
+						"objectType": "texteditor",
+						"itemProperties": {
+							"htmlcontent": "            \n        <font color=\"#006fdf\"><span style=\"font-size: 18.56px;\">Other Filters</span></font>",
+							"generalBackgroundColor": "#eeeeee"
+						}
+					}, {
+						"x": 2,
+						"y": 7,
+						"dims": [],
+						"rows": [{
+								"name": "New Products",
+								"field": "new_products.fruits_prices_new_list",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [{
+										"type": "",
+										"value": "Apple",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "Orange",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "Grapes",
+										"geoDef": None,
+										"selected": True
+									}
+								],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"index": 11,
+						"width": 2,
+						"height": 3,
+						"itemId": "8f11ca49-741b-47dc-a914-c0e7fbf50768",
+						"nodeId": "fruits_prices_new_list",
+						"columns": [],
+						"itemType": "table",
+						"objectType": None,
+						"itemProperties": {
+							"axes": {
+								"xAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"yAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"enabled": True
+							},
+							"unit": "",
+							"zoom": True,
+							"table": {
+								"styles": [{
+										"pos": 0,
+										"index": "_alltable_",
+										"style": {
+											"pagination": 100
+										},
+										"value": -1
+									}
+								]
+							},
+							"title": {
+								"text": "Fruits Prices New List",
+								"align": "center",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"margin": "",
+								"enabled": True,
+								"isCustom": False,
+								"verticalAlign": "top"
+							},
+							"detail": True,
+							"legend": {
+								"y": 0,
+								"align": "right",
+								"title": {
+									"text": ""
+								},
+								"layout": "vertical",
+								"enabled": True,
+								"borderWidth": 0,
+								"verticalAlign": "middle"
+							},
+							"tooltip": {
+								"valueSuffix": None,
+								"valueDecimals": 2
+							},
+							"subtitle": {
+								"text": "",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"enabled": True,
+								"verticalAlign": "top"
+							},
+							"drilldown": True,
+							"timeChart": {
+								"active": False,
+								"possible": False
+							},
+							"originalId": None
+						}
+					}, {
+						"x": 4,
+						"y": 7,
+						"dims": [],
+						"rows": [{
+								"name": "New Products",
+								"field": "new_products.fruits_quantities_new_list",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [{
+										"type": "",
+										"value": "Apple",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "Orange",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "Grapes",
+										"geoDef": None,
+										"selected": True
+									}
+								],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"index": 12,
+						"width": 2,
+						"height": 3,
+						"itemId": "4e9e90e7-e16b-48f5-a172-a10c10994bed",
+						"nodeId": "fruits_quantities_new_list",
+						"columns": [{
+								"name": "Region",
+								"field": "region.fruits_quantities_new_list",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [{
+										"type": "",
+										"value": "North",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "South",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "West",
+										"geoDef": None,
+										"selected": True
+									}
+								],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"itemType": "table",
+						"objectType": None,
+						"itemProperties": {
+							"axes": {
+								"xAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"yAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"enabled": True
+							},
+							"unit": "",
+							"zoom": True,
+							"table": {
+								"styles": [{
+										"pos": 0,
+										"index": "_alltable_",
+										"style": {
+											"pagination": 100
+										},
+										"value": -1
+									}
+								]
+							},
+							"title": {
+								"text": "Fruits Quantities New List",
+								"align": "center",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"margin": "",
+								"enabled": True,
+								"isCustom": False,
+								"verticalAlign": "top"
+							},
+							"detail": True,
+							"legend": {
+								"y": 0,
+								"align": "right",
+								"title": {
+									"text": ""
+								},
+								"layout": "vertical",
+								"enabled": True,
+								"borderWidth": 0,
+								"verticalAlign": "middle"
+							},
+							"tooltip": {
+								"valueSuffix": None,
+								"valueDecimals": 2
+							},
+							"subtitle": {
+								"text": "",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"enabled": True,
+								"verticalAlign": "top"
+							},
+							"drilldown": True,
+							"timeChart": {
+								"active": False,
+								"possible": False
+							},
+							"originalId": None
+						}
+					}, {
+						"x": 6,
+						"y": 7,
+						"dims": [],
+						"rows": [{
+								"name": "New Products",
+								"field": "new_products.revenue_new_price_order",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [{
+										"type": "",
+										"value": "Apple",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "Orange",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "Grapes",
+										"geoDef": None,
+										"selected": True
+									}
+								],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"index": 13,
+						"width": 2,
+						"height": 3,
+						"itemId": "7d8ef5bb-d753-49c6-9dc9-f33bc88d83b7",
+						"nodeId": "revenue_new_price_order",
+						"columns": [{
+								"name": "Region",
+								"field": "region.revenue_new_price_order",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [{
+										"type": "",
+										"value": "North",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "South",
+										"geoDef": None,
+										"selected": True
+									}, {
+										"type": "",
+										"value": "West",
+										"geoDef": None,
+										"selected": True
+									}
+								],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"itemType": "table",
+						"objectType": None,
+						"itemProperties": {
+							"axes": {
+								"xAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"yAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"enabled": True
+							},
+							"unit": "",
+							"zoom": True,
+							"table": {
+								"styles": [{
+										"pos": 0,
+										"index": "_alltable_",
+										"style": {
+											"pagination": 100
+										},
+										"value": -1
+									}
+								]
+							},
+							"title": {
+								"text": "Revenue new price order",
+								"align": "center",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"margin": "",
+								"enabled": True,
+								"isCustom": False,
+								"verticalAlign": "top"
+							},
+							"detail": True,
+							"legend": {
+								"y": 0,
+								"align": "right",
+								"title": {
+									"text": ""
+								},
+								"layout": "vertical",
+								"enabled": True,
+								"borderWidth": 0,
+								"verticalAlign": "middle"
+							},
+							"tooltip": {
+								"valueSuffix": None,
+								"valueDecimals": 2
+							},
+							"subtitle": {
+								"text": "",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"enabled": True,
+								"verticalAlign": "top"
+							},
+							"drilldown": True,
+							"timeChart": {
+								"active": False,
+								"possible": False
+							},
+							"originalId": None
+						}
+					}, {
+						"x": 0,
+						"y": 8,
+						"dims": [],
+						"rows": [],
+						"index": 14,
+						"width": 2,
+						"height": 1,
+						"itemId": "c6627b5e-8695-4ae3-984f-113833e8bcef",
+						"nodeId": "new_products",
+						"columns": [],
+						"itemType": "indexlist",
+						"objectType": None,
+						"itemProperties": {
+							"axes": {
+								"xAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"yAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"enabled": True
+							},
+							"unit": "",
+							"zoom": True,
+							"index": {
+								"ui": "default",
+								"dynamic": False,
+								"related": False,
+								"orientation": "h",
+								"singleSelect": False,
+								"currentSelectedValues": ["Apple", "Orange", "Grapes"]
+							},
+							"title": {
+								"text": "New Products",
+								"align": "center",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"margin": "",
+								"enabled": True,
+								"isCustom": False,
+								"verticalAlign": "top"
+							},
+							"detail": True,
+							"legend": {
+								"y": 0,
+								"align": "right",
+								"title": {
+									"text": ""
+								},
+								"layout": "vertical",
+								"enabled": True,
+								"borderWidth": 0,
+								"verticalAlign": "middle"
+							},
+							"nodeId": "new_products",
+							"tooltip": {
+								"valueSuffix": None,
+								"valueDecimals": 2
+							},
+							"subtitle": {
+								"text": "",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"enabled": True,
+								"verticalAlign": "top"
+							},
+							"drilldown": True,
+							"timeChart": {
+								"active": False,
+								"possible": False
+							},
+							"originalId": None
+						}
+					}, {
+						"x": 0,
+						"y": 9,
+						"dims": [],
+						"rows": [],
+						"index": 15,
+						"width": 2,
+						"height": 1,
+						"itemId": "65998326-c990-464e-af3c-81f562a5356e",
+						"nodeId": "region",
+						"columns": [],
+						"itemType": "indexlist",
+						"objectType": None,
+						"itemProperties": {
+							"axes": {
+								"xAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"yAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"enabled": True
+							},
+							"unit": "",
+							"zoom": True,
+							"index": {
+								"ui": "default",
+								"dynamic": False,
+								"related": False,
+								"orientation": "h",
+								"singleSelect": False,
+								"currentSelectedValues": ["North", "South", "West"]
+							},
+							"title": {
+								"text": "Region",
+								"align": "center",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"margin": "",
+								"enabled": True,
+								"isCustom": False,
+								"verticalAlign": "top"
+							},
+							"detail": True,
+							"legend": {
+								"y": 0,
+								"align": "right",
+								"title": {
+									"text": ""
+								},
+								"layout": "vertical",
+								"enabled": True,
+								"borderWidth": 0,
+								"verticalAlign": "middle"
+							},
+							"nodeId": "region",
+							"tooltip": {
+								"valueSuffix": None,
+								"valueDecimals": 2
+							},
+							"subtitle": {
+								"text": "",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"enabled": True,
+								"verticalAlign": "top"
+							},
+							"drilldown": True,
+							"timeChart": {
+								"active": False,
+								"possible": False
+							},
+							"originalId": None
+						}
+					}
+				]
+}
 
+my_first_app_definition = {"definitionLarge": [{
+						"x": 0,
+						"y": 0,
+						"dims": [],
+						"rows": [],
+						"index": 0,
+						"width": 2,
+						"height": 1,
+						"itemId": "c8275e67-dc0b-4de8-b118-e6d7cfc6edd0",
+						"nodeId": "market_scenario_selector_choice",
+						"columns": [],
+						"itemType": "selector",
+						"objectType": None,
+						"itemProperties": {
+							"axes": {
+								"xAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"yAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"enabled": True
+							},
+							"unit": "",
+							"zoom": True,
+							"title": {
+								"text": "Market Scenario Selector",
+								"align": "center",
+								"style": {
+									"text": "#000000",
+									"color": "#ffffff",
+									"fontWeight": "normal",
+									"backgroundColor": "#666666"
+								},
+								"margin": "",
+								"enabled": True,
+								"isCustom": False,
+								"verticalAlign": "top"
+							},
+							"detail": True,
+							"legend": {
+								"y": 0,
+								"align": "right",
+								"title": {
+									"text": ""
+								},
+								"layout": "vertical",
+								"enabled": True,
+								"borderWidth": 0,
+								"verticalAlign": "middle"
+							},
+							"tooltip": {
+								"valueSuffix": None,
+								"valueDecimals": 2
+							},
+							"subtitle": {
+								"text": "",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"enabled": True,
+								"verticalAlign": "top"
+							},
+							"drilldown": True,
+							"timeChart": {
+								"active": False,
+								"possible": False
+							},
+							"originalId": None,
+							"cubeOptions": None,
+							"multiselect": "0",
+							"generalBackgroundColor": "#ffffff"
+						}
+					}, {
+						"x": 2,
+						"y": 0,
+						"dims": [],
+						"rows": [],
+						"index": 1,
+						"width": 2,
+						"height": 1,
+						"itemId": "b68160fc-3edd-4852-916e-542ce69a9ece",
+						"nodeId": "sales_channel",
+						"columns": [],
+						"itemType": "indexlist",
+						"objectType": None,
+						"itemProperties": {
+							"axes": {
+								"xAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"yAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"enabled": True
+							},
+							"unit": "",
+							"zoom": True,
+							"title": {
+								"text": "Sales Channel",
+								"align": "center",
+								"style": {
+									"text": "#000000",
+									"color": "#ffffff",
+									"fontWeight": "normal",
+									"backgroundColor": "#666666"
+								},
+								"margin": "",
+								"enabled": True,
+								"isCustom": False,
+								"verticalAlign": "top"
+							},
+							"detail": True,
+							"legend": {
+								"y": 0,
+								"align": "right",
+								"title": {
+									"text": ""
+								},
+								"layout": "vertical",
+								"enabled": True,
+								"borderWidth": 0,
+								"verticalAlign": "middle"
+							},
+							"nodeId": "sales_channel",
+							"tooltip": {
+								"valueSuffix": None,
+								"valueDecimals": 2
+							},
+							"subtitle": {
+								"text": "",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"enabled": True,
+								"verticalAlign": "top"
+							},
+							"drilldown": True,
+							"timeChart": {
+								"active": False,
+								"possible": False
+							},
+							"originalId": None
+						}
+					}, {
+						"x": 4,
+						"y": 0,
+						"dims": [],
+						"rows": [],
+						"index": 2,
+						"width": 8,
+						"height": 1,
+						"itemId": "f1ca15a2-b304-42bb-80bc-7b62a33030d0",
+						"nodeId": "region",
+						"columns": [],
+						"itemType": "indexlist",
+						"objectType": None,
+						"itemProperties": {
+							"axes": {
+								"xAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"yAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"enabled": True
+							},
+							"unit": "",
+							"zoom": True,
+							"title": {
+								"text": "Region",
+								"align": "center",
+								"style": {
+									"text": "#000000",
+									"color": "#ffffff",
+									"fontWeight": "normal",
+									"backgroundColor": "#666666"
+								},
+								"margin": "",
+								"enabled": True,
+								"isCustom": False,
+								"verticalAlign": "top"
+							},
+							"detail": True,
+							"legend": {
+								"y": 0,
+								"align": "right",
+								"title": {
+									"text": ""
+								},
+								"layout": "vertical",
+								"enabled": True,
+								"borderWidth": 0,
+								"verticalAlign": "middle"
+							},
+							"nodeId": "region",
+							"tooltip": {
+								"valueSuffix": None,
+								"valueDecimals": 2
+							},
+							"subtitle": {
+								"text": "",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"enabled": True,
+								"verticalAlign": "top"
+							},
+							"drilldown": True,
+							"timeChart": {
+								"active": False,
+								"possible": False
+							},
+							"originalId": None,
+							"cubeOptions": None
+						}
+					}, {
+						"x": 0,
+						"y": 1,
+						"dims": [{
+								"name": "Time",
+								"field": "time.market_growth",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"rows": [{
+								"name": "Market Scenarios",
+								"field": "market_scenarios_.market_growth",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"index": 3,
+						"width": 12,
+						"height": 4,
+						"itemId": "1452b3fb-4c2f-4a47-b645-35b39cfcff1c",
+						"nodeId": "market_growth",
+						"columns": [],
+						"itemType": "nodetable",
+						"objectType": None,
+						"itemProperties": {
+							"axes": {
+								"xAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"yAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"enabled": True
+							},
+							"unit": "",
+							"zoom": True,
+							"table": {
+								"styles": [{
+										"pos": 0,
+										"index": "_alltable_",
+										"style": {
+											"pagination": 100
+										},
+										"value": -1
+									}
+								]
+							},
+							"title": {
+								"text": "Market Growth",
+								"align": "center",
+								"style": {
+									"text": "#000000",
+									"color": "#000000",
+									"fontWeight": "normal",
+									"backgroundColor": "#fff2cc"
+								},
+								"margin": "",
+								"enabled": True,
+								"isCustom": False,
+								"verticalAlign": "top"
+							},
+							"detail": True,
+							"legend": {
+								"y": 0,
+								"align": "right",
+								"title": {
+									"text": ""
+								},
+								"layout": "vertical",
+								"enabled": True,
+								"borderWidth": 0,
+								"verticalAlign": "middle"
+							},
+							"tooltip": {
+								"valueSuffix": None,
+								"valueDecimals": 2
+							},
+							"subtitle": {
+								"text": "",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"enabled": True,
+								"verticalAlign": "top"
+							},
+							"drilldown": True,
+							"timeChart": {
+								"active": False,
+								"possible": False
+							},
+							"originalId": None,
+							"validation": {},
+							"cubeOptions": {
+								"cols": ["time"],
+								"rows": ["market_scenarios_"],
+								"nodeId": "market_growth",
+								"filters": {},
+								"editMode": True,
+								"aggregator": "listUnique",
+								"rendererName": "Input Table",
+								"positionFilters": {},
+								"selectedMeasures": ["datavalue"]
+							},
+							"showRowTotal": False,
+							"showColumnTotal": False,
+							"generalBackgroundColor": "#fff2cc"
+						}
+					}, {
+						"x": 0,
+						"y": 5,
+						"dims": [{
+								"name": "Region",
+								"field": "region.revenue",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}, {
+								"name": "Sales Channel",
+								"field": "sales_channel.revenue",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"rows": [{
+								"name": "Item Type",
+								"field": "item_type.revenue",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"index": 4,
+						"width": 6,
+						"height": 8,
+						"itemId": "b8f44526-71e1-409e-94c6-ceb52b298b4c",
+						"nodeId": "revenue",
+						"columns": [{
+								"name": "Time",
+								"field": "time.revenue",
+								"isGeo": False,
+								"isTime": True,
+								"levels": [],
+								"values": [],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"itemType": "columnchart",
+						"objectType": None,
+						"itemProperties": {
+							"axes": {
+								"xAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"style": {
+											"fontSize": "11px"
+										},
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": False
+								},
+								"yAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"style": {
+											"fontSize": "11px"
+										},
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"enabled": False
+							},
+							"unit": "",
+							"zoom": True,
+							"table": {
+								"styles": [{
+										"pos": 0,
+										"index": "_alltable_",
+										"style": {
+											"pagination": 100
+										},
+										"value": -1
+									}
+								]
+							},
+							"title": {
+								"text": "Revenue",
+								"align": "center",
+								"style": {
+									"text": "#000000",
+									"color": "#000000",
+									"fontWeight": "normal"
+								},
+								"margin": "",
+								"enabled": True,
+								"isCustom": False,
+								"verticalAlign": "top"
+							},
+							"detail": True,
+							"labels": {
+								"inside": False,
+								"enabled": False
+							},
+							"legend": {
+								"y": 0,
+								"align": "right",
+								"title": {
+									"text": ""
+								},
+								"layout": "vertical",
+								"enabled": True,
+								"borderWidth": 0,
+								"verticalAlign": "middle"
+							},
+							"tooltip": {
+								"valueSuffix": None,
+								"valueDecimals": 2
+							},
+							"subtitle": {
+								"text": "",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"enabled": True,
+								"verticalAlign": "top"
+							},
+							"drilldown": True,
+							"timeChart": {
+								"active": False,
+								"possible": True
+							},
+							"originalId": None,
+							"numberFormat": "2,I,4,,1,0,4,0,$,5,,0"
+						}
+					}, {
+						"x": 6,
+						"y": 5,
+						"dims": [{
+								"name": "Region",
+								"field": "region.projected_units_sold",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}, {
+								"name": "Sales Channel",
+								"field": "sales_channel.projected_units_sold",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"rows": [{
+								"name": "Item Type",
+								"field": "item_type.projected_units_sold",
+								"isGeo": False,
+								"isTime": False,
+								"levels": [],
+								"values": [],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"index": 5,
+						"width": 6,
+						"height": 8,
+						"itemId": "03f8502c-e9b7-4bb0-8275-0526bb8f7da5",
+						"nodeId": "projected_units_sold",
+						"columns": [{
+								"name": "Time",
+								"field": "time.projected_units_sold",
+								"isGeo": False,
+								"isTime": True,
+								"levels": [],
+								"values": [],
+								"description": None,
+								"currentLevel": None,
+								"numberFormat": None
+							}
+						],
+						"itemType": "linechart",
+						"objectType": None,
+						"itemProperties": {
+							"axes": {
+								"xAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"style": {
+											"fontSize": "11px"
+										},
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": False
+								},
+								"yAxis": {
+									"max": None,
+									"min": None,
+									"title": {
+										"text": ""
+									},
+									"labels": {
+										"align": None,
+										"style": {
+											"fontSize": "11px"
+										},
+										"enabled": "True",
+										"rotation": None
+									},
+									"isSumList": [],
+									"showTitle": True
+								},
+								"enabled": False
+							},
+							"unit": "( units)",
+							"zoom": True,
+							"table": {
+								"styles": [{
+										"pos": 0,
+										"index": "_alltable_",
+										"style": {
+											"pagination": 100
+										},
+										"value": -1
+									}
+								]
+							},
+							"title": {
+								"text": "Projected Units Sold",
+								"align": "center",
+								"style": {
+									"text": "#000000",
+									"color": "#000000",
+									"fontWeight": "normal"
+								},
+								"margin": "",
+								"enabled": True,
+								"isCustom": False,
+								"verticalAlign": "top"
+							},
+							"detail": True,
+							"labels": {
+								"inside": False,
+								"enabled": False
+							},
+							"legend": {
+								"y": 0,
+								"align": "right",
+								"title": {
+									"text": ""
+								},
+								"layout": "vertical",
+								"enabled": True,
+								"borderWidth": 0,
+								"verticalAlign": "middle"
+							},
+							"tooltip": {
+								"valueSuffix": " units",
+								"valueDecimals": 2
+							},
+							"subtitle": {
+								"text": "",
+								"style": {
+									"text": "#000000",
+									"fontWeight": "normal"
+								},
+								"enabled": True,
+								"verticalAlign": "top"
+							},
+							"drilldown": True,
+							"timeChart": {
+								"active": False,
+								"possible": True
+							},
+							"originalId": None,
+							"numberFormat": "2,I,4,,1,0,4,0,$,5,,0"
+						}
+					}
+				]
+}
 
 def add_demo_dashboards(apps, schema_editor):
     Dashboard = apps.get_model('pyplan', 'Dashboard')
@@ -4737,6 +6877,22 @@ def add_demo_dashboards(apps, schema_editor):
         definition=xarray_intro_definition,
     )
 
+def update_demo_dashboards(apps, schema_editor):
+	Dashboard = apps.get_model('pyplan', 'Dashboard')
+	
+	Dashboard.objects.update_or_create(
+		model='xarray_in_pyplan',
+		name='Xarray in Pyplan',
+		owner_id=1,
+		defaults={"definition": xarray_in_pyplan_definition}
+	)
+
+	Dashboard.objects.update_or_create(
+		model='creating_my_first_model',
+		name='Interface 1',
+		owner_id=1,
+		defaults={"definition": my_first_app_definition}
+		)
 
 class Migration(migrations.Migration):
 
@@ -4746,4 +6902,5 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(add_demo_dashboards),
+        migrations.RunPython(update_demo_dashboards),
     ]

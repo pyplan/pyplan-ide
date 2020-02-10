@@ -14,7 +14,7 @@ from pyplan_engine.classes.Evaluator import Evaluator
 from pyplan_engine.classes.Helpers import Helpers
 from pyplan_engine.classes.IOEngine import IOEngine
 from pyplan_engine.classes.NodeInfo import NodeInfo
-from pyplan_engine.classes.PyplanFunctions import PyplanFunctions, Selector
+from pyplan_engine.classes.PyplanFunctions import Selector
 from pyplan_engine.classes.XHelpers import XHelpers
 
 
@@ -524,9 +524,8 @@ class BaseNode(object):
                 localRes = {
                     "getNode": self._model.getNode,
                     "cp": Helpers(self),
-                    "pp": XHelpers(self)
+                    "pp": XHelpers(self),
                 }
-                PyplanFunctions.register(localRes)
                 if not extraParams is None:
                     for keyParam in extraParams:
                         localRes[keyParam] = extraParams[keyParam]

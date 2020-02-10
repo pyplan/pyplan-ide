@@ -6793,6 +6793,7 @@ my_first_app_definition = {"definitionLarge": [{
 				]
 }
 
+
 def add_demo_dashboards(apps, schema_editor):
     Dashboard = apps.get_model('pyplan', 'Dashboard')
     Report = apps.get_model('pyplan', 'Report')
@@ -6813,6 +6814,15 @@ def add_demo_dashboards(apps, schema_editor):
         order=1,
         owner_id=1,
         definition=visualizations_definition,
+    )
+
+	Dashboard.objects.create(
+        model='ex_ml_supplier_route_optim',
+        name='Menu',
+        node=None,
+        order=1,
+        owner_id=1,
+        definition=sro_menu_definition,
     )
 
     sro_ml_visits_report = Report.objects.create(
@@ -6876,6 +6886,7 @@ def add_demo_dashboards(apps, schema_editor):
         owner_id=1,
         definition=xarray_intro_definition,
     )
+
 
 def update_demo_dashboards(apps, schema_editor):
 	Dashboard = apps.get_model('pyplan', 'Dashboard')

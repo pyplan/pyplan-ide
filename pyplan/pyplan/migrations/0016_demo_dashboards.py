@@ -6834,7 +6834,7 @@ def add_demo_dashboards(apps, schema_editor):
 
     Dashboard.objects.create(
         report=sro_ml_visits_report,
-        model='sro_ml_results_definition',
+        model='ex_ml_supplier_route_optim',
         name='Machine Learning Results',
         node=None,
         order=1,

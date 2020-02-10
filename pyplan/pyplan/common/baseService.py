@@ -109,5 +109,5 @@ class BaseService(object):
         if not self.current_user.has_perm(code):
             raise PermissionDenied()
 
-    def isLinux():
+    def isLinux(self):
         return platform in ['linux', 'linux2', 'darwin']

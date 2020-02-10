@@ -220,14 +220,16 @@ class FileManagerService(BaseService):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
         for source in sources:
-            src = f"{storage.base_location}/{source}"
-            dest_path, dest_name = source.rsplit('/', 1)
-            dest = f"{storage.base_location}/{dest_path}/Copy 1 of {dest_name}"
+            src = os.path.join(storage.base_location, source)
+            *dest_path, dest_name = source.rsplit('/', 1)
+            dest_path = ''.join(dest_path)
+            dest = os.path.join(storage.base_location,
+                                dest_path, f'Copy 1 of {dest_name}')
             n = 1
             while storage.exists(dest):
                 n += 1
-                dest = f"{storage.base_location}/{dest_path}/Copy {n} of {dest_name}"
-
+                dest = os.path.join(storage.base_location,
+                                    dest_path, f'Copy {n} of {dest_name}')
             result.append(self._linuxCopy(src, dest))
         return result
 

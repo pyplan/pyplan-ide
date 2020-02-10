@@ -1,4 +1,5 @@
 from importlib import import_module
+from sys import platform
 
 from django.conf import settings
 from django.contrib.sessions.models import Session
@@ -107,3 +108,6 @@ class BaseService(object):
         """
         if not self.current_user.has_perm(code):
             raise PermissionDenied()
+
+    def isLinux():
+        return platform in ['linux', 'linux2', 'darwin']

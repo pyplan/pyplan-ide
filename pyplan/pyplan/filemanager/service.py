@@ -190,14 +190,13 @@ class FileManagerService(BaseService):
         create:
         Duplicate file or Folder.
         """
-
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
-
-        return self._linuxCopy(
-            f"{storage.base_location}/{source}",
-            f"{storage.base_location}/{destination}"
-        )
+        src = os.path.join(storage.base_location, source)
+        dest = os.path.join(storage.base_location, destination)
+        if self.isLinux():
+            return self._linuxCopy(src, dest)
+        return self._copy(src, dest)
 
     def ensureUserWorkspace(self):
         storage = FileSystemStorage(
@@ -230,7 +229,10 @@ class FileManagerService(BaseService):
                 n += 1
                 dest = os.path.join(storage.base_location,
                                     dest_path, f'Copy {n} of {dest_name}')
-            result.append(self._linuxCopy(src, dest))
+            if self.isLinux():
+                result.append(self._linuxCopy(src, dest))
+            else:
+                result.append(self._copy(src, dest))
         return result
 
     def moveFiles(self, sources, target):
@@ -238,9 +240,10 @@ class FileManagerService(BaseService):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
         for source in sources:
-            src = f"{storage.base_location}/{source}"
-            dest_path, dest_name = source.rsplit('/', 1)
-            dest = f"{storage.base_location}/{target}/{dest_name}"
+            src = os.path.join(storage.base_location, source)
+            *dest_path, dest_name = source.rsplit('/', 1)
+            dest_path = ''.join(dest_path)
+            dest = os.path.join(storage.base_location, target, dest_name)
             result.append(self.recursive_overwrite(src, dest))
             if os.path.isdir(src):
                 shutil.rmtree(src)
@@ -254,17 +257,21 @@ class FileManagerService(BaseService):
         for source in sources:
             src = os.path.join(storage.base_location, source)
             dest = os.path.join(storage.base_location, target)
-            self._linuxCopy(src, dest)
+            if self.isLinux():
+                self._linuxCopy(src, dest)
+            else:
+                self._copy(src, dest)
         return True
 
     def copyToMyWorkspace(self, source):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
-
-        target = f"{storage.base_location}/{self.client_session.company_code}/{self.current_user.username}"
-
-        src = f"{storage.base_location}/{source}"
-        return self._linuxCopy(src, target)
+        target = os.path.join(
+            storage.base_location, self.client_session.company_code, self.current_user.username)
+        src = os.path.join(storage.base_location, source)
+        if self.isLinux():
+            return self._linuxCopy(src, target)
+        return self._copy(src, target)
 
     def deleteFiles(self, sources):
         storage = FileSystemStorage(

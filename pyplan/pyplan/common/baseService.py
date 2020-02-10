@@ -1,14 +1,12 @@
 from importlib import import_module
-from itertools import chain
 
 from django.conf import settings
+from django.contrib.sessions.models import Session
 from django.utils import timezone
 from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 
-from pyplan.pyplan.department.models import Department
 from pyplan.pyplan.security.classes.clientSession import ClientSession
 from pyplan.pyplan.security.serializers import ClientSessionSerializer
-from django.contrib.sessions.models import Session
 
 
 class BaseService(object):
@@ -109,30 +107,3 @@ class BaseService(object):
         """
         if not self.current_user.has_perm(code):
             raise PermissionDenied()
-
-    def _getDeniedFolders(self):
-        """
-        Denied Folders per current usercompany Department
-        {"folders": ["folder"]}
-        """
-        userc_departments = Department.objects.filter(
-            usercompanies__pk=self.client_session.userCompanyId, denied_items__folders__isnull=False).all()
-
-        return list(chain.from_iterable(
-            map(lambda item: item.denied_items['folders'], userc_departments)))
-
-    def _getDeniedModules(self):
-        """
-        Denied Model Modules per current usercompany Department
-        {"modules": [{"model_id": "model_a", "modules_ids": ["module_one"]}]}
-        """
-        userc_departments = Department.objects.filter(
-            usercompanies__pk=self.client_session.userCompanyId, denied_items__modules__isnull=False).all()
-
-        all_den_mods = list(chain.from_iterable(
-            map(lambda item: item.denied_items['modules'], userc_departments)))
-
-        curr_model_den_mods = list(
-            filter(lambda item: item['model_id'] == self.client_session.modelInfo.modelId, all_den_mods))
-
-        return list(chain.from_iterable(map(lambda item: item['modules_ids'], curr_model_den_mods)))

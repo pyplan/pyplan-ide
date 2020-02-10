@@ -59,7 +59,8 @@ class UploadFilesSerializer(serializers.Serializer):
 
 class UnzipFileSerializer(serializers.Serializer):
     source = serializers.CharField(required=True, max_length=200)
-    targetFolder = serializers.CharField(required=True, max_length=200)
+    targetFolder = serializers.CharField(
+        required=True, allow_blank=True, max_length=200)
 
 
 class SourcesListSerializer(serializers.Serializer):

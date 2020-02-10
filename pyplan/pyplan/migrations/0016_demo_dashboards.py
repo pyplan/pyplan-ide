@@ -4741,7 +4741,7 @@ def add_demo_dashboards(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('pyplan', '0013_guestuser_permissions_20190919_1715'),
+        ('pyplan', '0015_dashboard_and_report_uuid_20191210_1853'),
     ]
 
     operations = [

@@ -316,8 +316,8 @@ class FileManagerService(BaseService):
     def unzipFile(self, source, target_folder):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
-        src = f"{storage.base_location}/{source}"
-        dest = f"{storage.base_location}/{target_folder}"
+        src = os.path.join(storage.base_location, source)
+        dest = os.path.join(storage.base_location, target_folder)
 
         # Unzip the file, creating subdirectories as needed
         zfobj = zipfile.ZipFile(src)

@@ -308,9 +308,9 @@ class ReportView(object):
         serializer.is_valid(raise_exception=True)
         try:
             service = ReportManagerService(request)
-            file_created = service.exportItemsAndPublish(serializer.data)
-            if file_created:
-                return Response(file_created, status=status.HTTP_200_OK)
+            external_link = service.exportItemsAndPublish(serializer.data)
+            if external_link:
+                return Response(external_link, status=status.HTTP_200_OK)
             return Response('There was an error publishing the item', status=status.HTTP_406_NOT_ACCEPTABLE)
         except Exception as ex:
             raise exceptions.NotAcceptable(detail=ex)

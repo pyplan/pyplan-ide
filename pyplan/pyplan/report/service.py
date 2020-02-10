@@ -256,7 +256,7 @@ class ReportManagerService(BaseService):
 
     def exportItemsAndPublish(self, data):
 
-        response = False
+        response = None
 
         # We create the json file to be imported inside the model folder
         reports = Report.objects.filter(pk__in=data['report_ids'])
@@ -297,7 +297,7 @@ class ReportManagerService(BaseService):
             req = requests.put(
                 'http://localhost:8000/api/reportManager/publishItems/', files=files, data=values)
 
-            response = True
+            response = req.text
 
         return response
 

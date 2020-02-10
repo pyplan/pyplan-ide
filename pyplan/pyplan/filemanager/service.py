@@ -107,28 +107,23 @@ class FileManagerService(BaseService):
 
         items = storage.listdir(base_path)
 
-        denied_folders = []
-        if not self.current_user.has_perm('pyplan.change_group_permissions'):
-            denied_folders = self._getDeniedFolders()
-
         # folders
         for item in sorted(items[0], key=str.lower):
             full_path = f"{base_path}{item}"
-            if not denied_folders or not item in denied_folders:
-                result.append(
-                    FileEntry(
-                        show=not item.startswith('.'),
-                        text=item,
-                        type=eFileTypes.MY_FOLDER,
-                        data=FileEntryData(
-                            fileSize=None,
-                            fullPath=full_path,
-                            # specialFolderType=eSpecialFolder.MODELS_PATH
-                            lastUpdateTime=storage.get_modified_time(
-                                full_path),
-                        )
+            result.append(
+                FileEntry(
+                    show=not item.startswith('.'),
+                    text=item,
+                    type=eFileTypes.MY_FOLDER,
+                    data=FileEntryData(
+                        fileSize=None,
+                        fullPath=full_path,
+                        # specialFolderType=eSpecialFolder.MODELS_PATH
+                        lastUpdateTime=storage.get_modified_time(
+                            full_path),
                     )
                 )
+            )
         # files
         for item in sorted(items[1], key=str.lower):
             full_path = f"{base_path}{item}"
@@ -400,14 +395,12 @@ class FileManagerService(BaseService):
     # Private
 
     def _zipdir(self, path, ziph):
-        denied_folders = self._getDeniedFolders()
         # ziph is zipfile handle
         for root, dirs, files in os.walk(path):
             # check if folder is not in any department denied folders
-            if not denied_folders or not any(list(map(lambda item: item in denied_folders, root.rsplit('/')))):
-                for file in files:
-                    ziph.write(os.path.join(root, file), os.path.relpath(
-                        os.path.join(root, file), os.path.join(path, '..')))
+            for file in files:
+                ziph.write(os.path.join(root, file), os.path.relpath(
+                    os.path.join(root, file), os.path.join(path, '..')))
 
     def _generate_csv_from_excel(self, filename):
         """Generate compressed csv from excel file

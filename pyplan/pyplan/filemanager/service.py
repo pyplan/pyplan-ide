@@ -210,8 +210,8 @@ class FileManagerService(BaseService):
     def renameFile(self, source, new_name):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
-        src = f"{storage.base_location}/{source}"
-        dest = f"{src[0:src.rfind('/')+1]}{new_name}"
+        src = os.path.join(storage.base_location, source)
+        dest = os.path.join(src[0:src.rfind('/')+1], new_name)
         os.rename(src, dest)
         return dest
 

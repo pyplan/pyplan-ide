@@ -9,6 +9,7 @@ urlpatterns = [
     path('openModel/<uid>', views.openModel),
     path('closeModel/<uid>', views.closeModel),
     path('saveModel/<uid>', views.saveModel),
+    path('connectToWS/<uid>', views.connectToWS),
     path('exportModule/<uid>', views.exportModule),
     path('importModule/<uid>', views.importModule),
     path('getDiagram/<uid>', views.getDiagram),
@@ -24,7 +25,6 @@ urlpatterns = [
     path('deleteNodes/<uid>', views.deleteNodes),
     path('copyAsValues/<uid>', views.copyAsValues),
     path('setNodeIdFromTitle/<uid>', views.setNodeIdFromTitle),
-
 
     path('getModelProperties/<uid>', views.getModelProperties),
     path('setModelProperties/<uid>', views.setModelProperties),

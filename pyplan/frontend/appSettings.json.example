@@ -10,6 +10,12 @@
       "data": {
         "clientId": "LINKEDIN_CLIENT_ID"
       }
+    },
+    {
+      "app": "google",
+      "data": {
+        "clientId": "GOOGLE_CLIENT_ID"
+      }
     }
   ],
   "__customer": {

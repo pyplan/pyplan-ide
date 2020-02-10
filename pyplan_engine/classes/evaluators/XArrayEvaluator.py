@@ -718,6 +718,26 @@ class XArrayEvaluator(BaseEvaluator):
         nodeDic[nodeId].definition = newDef
         return True
 
+    def previewNode(self, nodeDic, nodeId):
+        if not nodeDic[nodeId].result is None:
+            _result = nodeDic[nodeId].result
+            res = {
+                "resultType": str(type(_result)),
+                "dims": [],
+                "console": nodeDic[nodeId].lastEvaluationConsole,
+                "preview": ""
+            }
+            _preview = ""
+            _preview = f"{type(_result)} - dtype: {(_result.dtype)}"
+            _preview += f"\n\n{_result.coords}"
+            _preview += f"\n\nTotal cells: {_result.sizes} = {_result.size} cells"
+            _preview += f"\n\nSample data: \n {_result.data}"
+            res["preview"] = _preview
+
+            return json.dumps(res)
+        else:
+            return self.generateEmptyPreviewResponse(nodeDic, nodeId)
+
     def kindToString(self, kind):
         """Returns the data type on human-readable string
         """

@@ -100,8 +100,12 @@ class BaseEvaluator(object):
             if callable(nodeDic[nodeId].result):  # is function
                 import inspect
                 import jsonpickle
-                res["preview"] += "\nparams: " + \
-                    str(inspect.getargspec(nodeDic[nodeId].result)[0])
+                try:
+                    res["preview"] += "\nparams: " + \
+                        str(inspect.getargspec(nodeDic[nodeId].result)[0])
+                except Exception as ex:
+                    # in some cases, inspect throws an error when trying to obtain the parameters of a function
+                    pass
             return json.dumps(res)
         else:
             return self.generateEmptyPreviewResponse(nodeDic, nodeId)

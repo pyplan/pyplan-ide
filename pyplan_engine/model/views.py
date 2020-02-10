@@ -88,6 +88,26 @@ def saveModel(request, uid):
 
 @api_view(['POST'])
 @schema(AutoSchema(manual_fields=[
+    coreapi.Field('company_code', required=True, location='form',
+                  type='string', description='Company Code'),
+    coreapi.Field('session_key', required=True, location='form',
+                  type='string', description='Session Key'),
+]))
+def connectToWS(request, uid):
+    """Connect to WS"""
+    try:
+        if uid in engines:
+            company_code = request.data.get('company_code')
+            session_key = request.data.get('session_key')
+            engines[uid].model.connectToWS(company_code, session_key)
+            return Response()
+        return manageNoEngine()
+    except Exception as e:
+        return genericApiException(e)
+
+
+@api_view(['POST'])
+@schema(AutoSchema(manual_fields=[
     coreapi.Field('moduleId', required=True, location='form',
                   type='string', description='ModuleId to export'),
     coreapi.Field('filename', required=True, location='form',
@@ -504,7 +524,7 @@ def evaluateNode(request, uid):
             _dims = None
             _rows = None
             _columns = None
-            _summaryBy = "sum"
+            _summaryBy = 'sum'
             _bottomTotal = False
             _rightTotal = False
             _fromRow = 0
@@ -519,10 +539,10 @@ def evaluateNode(request, uid):
                 _summaryBy = request.data.get('summaryBy')
             if not request.data.get('bottomTotal') is None:
                 _bottomTotal = str(request.data.get(
-                    'bottomTotal')).lower() == "true"
+                    'bottomTotal')).lower() == 'true'
             if not request.data.get('rightTotal') is None:
                 _rightTotal = str(request.data.get(
-                    'rightTotal')).lower() == "true"
+                    'rightTotal')).lower() == 'true'
             if not request.data.get('fromRow') is None:
                 _fromRow = request.data.get('fromRow')
             if not request.data.get('toRow') is None:

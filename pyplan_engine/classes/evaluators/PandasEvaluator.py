@@ -343,64 +343,44 @@ class PandasEvaluator(BaseEvaluator):
                     item["count"] = len(item["values"])
 
             _cols = [x.split(".")[0] for x in query["columns"]]
+
+            useCustomFillMeasures = False
+            try:
+                # test if have groupMeasures property
+                _aa = _result.groupMeasures
+                useCustomFillMeasures = True
+            except AttributeError as ex:
+                pass
+
+            _measures = list(query["measures"])
+            _agg = dict()
+            for measure in _measures:
+                _agg[measure] = "sum"
+                try:
+                    if measure in _result.aggMeasures:
+                        _agg[measure] = _result.aggMeasures[measure]
+                except Exception as ex:
+                    pass
+
             if len(_cols) == 0:
-                listResult = _filteredResult[query["measures"]].sum(
-                ).reset_index().values.tolist()
+
+                _groupedDF = _filteredResult[_measures].agg(_agg)
+
+                if useCustomFillMeasures:
+                    self._applyGroupMeasures(_groupedDF, _result.groupMeasures)
+
+                listResult = _groupedDF.reset_index().values.tolist()
                 if len(listResult) > 0 and len(listResult[0]) > 1:
                     if np.isinf(listResult[0][1]):
                         listResult[0][1] = None
                 return [["data_index", "data_value"]] + listResult
             else:
-                """
-                # cambiado por lo de abajo para tome columnas con string
-                dfValues = pd.DataFrame.pivot_table(_filteredResult, index=_cols, aggfunc=np.sum)
-                firstCol = query["columns"] + ["data_index","data_value"]
-                res = [firstCol] + dfValues.reset_index().melt(id_vars=_cols,  value_vars=query["measures"]).values.tolist()
-                return res
-                """
 
-                """
-                @cambiado por lo de abajo para permitir multiples agrupaciones por medida...muy picante
-                t1= _filteredResult.stack() 
-                t1.index.set_names("data_index",level=t1.index.nlevels-1,inplace=True)
-                t2 = t1.iloc[t1.index.get_level_values("data_index").isin(query["measures"]) ].reset_index()[_cols + ["data_index",0]]  
-
-                firstCol = query["columns"] + ["data_index","data_value"]
-                t3 = t2.groupby( _cols + ["data_index"]).aggregate({0:"sum"}).reset_index()
-                res = [firstCol] + t3.values[:10000].tolist()
-                t1=None
-                t2=None
-                t3=None
-                _result = None
-                return res
-
-                @cambiado por lo de abajo para permitir custom measures ... extra picante
-                """
-                _measures = list(query["measures"])
-                useCustomFillMeasures = False
-                try:
-                    # test if have groupMeasures property
-                    _aa = _result.groupMeasures
-                    useCustomFillMeasures = True
-                except AttributeError as ex:
-                    pass
-
-                _groupedDF = None
-                if useCustomFillMeasures:
-                    _groupedDF = _filteredResult.groupby(
-                        _cols, sort=False).sum()
-                else:
-                    _agg = dict()
-                    for measure in _measures:
-                        # TODO: POR AHORA sum, Mas adelante tomar de la query el tipo de agrupamiento
-                        _agg[measure] = "sum"
-                    _groupedDF = _filteredResult.groupby(
-                        _cols, sort=False).agg(_agg)
+                _groupedDF = _filteredResult.groupby(
+                    _cols, sort=False).agg(_agg)
 
                 if useCustomFillMeasures:
-                    for key in _result.groupMeasures:
-                        _groupedDF[key] = _result.groupMeasures[key](
-                            _groupedDF)
+                    self._applyGroupMeasures(_groupedDF, _result.groupMeasures)
 
                 finalDF = _groupedDF.reset_index().melt(id_vars=_cols,
                                                         value_vars=query["measures"], var_name="data_index", value_name="data_value")
@@ -422,6 +402,10 @@ class PandasEvaluator(BaseEvaluator):
                     finalDF[sortedColumns].values[:1000000].tolist()
                 _result = None
                 return res
+
+    def _applyGroupMeasures(self, groupedDF, groupMeasures):
+        for key in groupMeasures:
+            groupedDF[key] = groupMeasures[key](groupedDF)
 
     def getCubeDimensionValues(self, result, nodeDic, nodeId, query):
         _result = self.prepareDataframeForPivot(result)
@@ -452,12 +436,11 @@ class PandasEvaluator(BaseEvaluator):
         if isinstance(nodeDic[nodeId].result, pd.DataFrame):
             cube = nodeDic[nodeId].result
 
-            if self.isIndexed(cube):
+            if len(cube.index.names) > 1 or not cube.index.names[0] is None:
                 res["dims"] = list(cube.index.names)
 
             for idx, col in enumerate(cube.columns.values[:500]):
-                res["columns"].append(
-                    str(col) + " (" + kindToString(cube.dtypes[idx].kind) + ")")
+                res["columns"].append(f"{col} ({cube.dtypes[idx].name})")
 
             res["preview"] += "Rows: " + str(len(cube.index))
             #res += "\nColumns: " + ', '.join([''.join(row) for row in cube.columns.values[:500]])
@@ -566,4 +549,10 @@ class PandasEvaluator(BaseEvaluator):
                 df.groupMeasures = result.groupMeasures
             except:
                 pass
+            # try to keep aggMeasures
+            try:
+                df.aggMeasures = result.aggMeasures
+            except:
+                pass
+
         return df

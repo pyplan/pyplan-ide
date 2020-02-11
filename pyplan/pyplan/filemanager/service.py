@@ -287,7 +287,7 @@ class FileManagerService(BaseService):
             os.path.join(settings.MEDIA_ROOT, 'models'))
         files = []
         for source in sources:
-            full_path = f'{storage.base_location}/{source}'
+            full_path = os.path.join(storage.base_location, source)
             if not storage.exists(full_path):
                 raise exceptions.NotAcceptable(f'File {source} does not exist')
             else:
@@ -302,14 +302,14 @@ class FileManagerService(BaseService):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
 
-        src_0 = f"{storage.base_location}/{sources[0]}"
+        src_0 = os.path.join(storage.base_location, sources[0])
         if len(sources) is 1 and os.path.isfile(src_0):
             return open(src_0, 'rb'), os.path.relpath(src_0, os.path.join(src_0, '..'))
         else:
             temp = tempfile.SpooledTemporaryFile()
             with zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED) as zfobj:
                 for source in sources:
-                    src = f"{storage.base_location}/{source}"
+                    src = os.path.join(storage.base_location, source)
                     if os.path.isfile(src):
                         zfobj.write(src, os.path.relpath(
                             src, os.path.join(src, '..')))
@@ -343,7 +343,7 @@ class FileManagerService(BaseService):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
         zip_file = os.path.join(storage.base_location,
-                                f"{os.path.normpath(sources[0])}.zip")
+                                f'{os.path.normpath(sources[0])}.zip')
 
         if storage.exists(zip_file):
             file_name, file_extension = os.path.splitext(zip_file)
@@ -425,9 +425,8 @@ class FileManagerService(BaseService):
         """Generate compressed csv from excel file
         """
 
-        target_dir = os.path.dirname(filename)
         file_name, file_extension = os.path.splitext(filename)
-        target_dir = os.path.join(target_dir, file_name)
+        target_dir = os.path.join(os.path.dirname(filename), file_name)
 
         if not os.path.isdir(target_dir):
             os.mkdir(target_dir)
@@ -435,7 +434,7 @@ class FileManagerService(BaseService):
         wb = load_workbook(filename, data_only=True, read_only=True)
         for item in wb.defined_names.definedName:
             if not item.is_external and item.type == "RANGE" and item.attr_text and "!$" in item.attr_text:
-                target_filename = os.path.join(target_dir, item.name+".pkl")
+                target_filename = os.path.join(target_dir, f'{item.name}.pkl')
                 if os.path.isfile(target_filename):
                     os.remove(target_filename)
 

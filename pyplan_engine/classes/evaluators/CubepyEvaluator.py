@@ -605,6 +605,14 @@ class CubepyEvaluator(BaseEvaluator):
             f.close()
 
     def geoUnclusterData(self, result, nodeDic, nodeId, rowIndex, attIndex, latField="latitude", lngField="longitude", geoField="geoField", labelField="labelField", sizeField="sizeField", colorField="colorField", iconField="iconField"):
+        latField = "latitude" if latField is None else latField
+        lngField = "longitude" if lngField is None else lngField
+        geoField = "geoField" if geoField is None else geoField
+        labelField = "labelField" if labelField is None else labelField
+        sizeField = "sizeField" if sizeField is None else sizeField
+        colorField = "colorField" if colorField is None else colorField
+        iconField = "iconField" if iconField is None else iconField
+
         _tmp_for_geo = cubepy.Index('tmp_for_geo', [
                                     latField, lngField, geoField, labelField, sizeField, colorField, iconField])
         _idx = nodeDic[attIndex].result

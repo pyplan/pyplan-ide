@@ -109,7 +109,7 @@ class FileManagerService(BaseService):
 
         # folders
         for item in sorted(items[0], key=str.lower):
-            full_path = f"{base_path}{item}"
+            full_path = os.path.join(base_path, item)
             result.append(
                 FileEntry(
                     show=not item.startswith('.'),
@@ -126,7 +126,7 @@ class FileManagerService(BaseService):
             )
         # files
         for item in sorted(items[1], key=str.lower):
-            full_path = f"{base_path}{item}"
+            full_path = os.path.join(base_path, item)
             specialFileType = eSpecialFileType.FILE
             lowerItem = item.lower()
             if lowerItem.endswith('.ppl') | lowerItem.endswith('.cbpy') | \
@@ -342,7 +342,8 @@ class FileManagerService(BaseService):
     def zipFiles(self, sources):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
-        zip_file = os.path.join(storage.base_location, f"{os.path.normpath(sources[0])}.zip")
+        zip_file = os.path.join(storage.base_location,
+                                f"{os.path.normpath(sources[0])}.zip")
 
         if storage.exists(zip_file):
             file_name, file_extension = os.path.splitext(zip_file)
@@ -350,7 +351,8 @@ class FileManagerService(BaseService):
 
         with zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED) as zfobj:
             for source in sources:
-                src = os.path.join(storage.base_location, os.path.normpath(source))
+                src = os.path.join(storage.base_location,
+                                   os.path.normpath(source))
                 if os.path.isfile(src):
                     zfobj.write(src, os.path.relpath(
                         src, os.path.join(src, '..')))

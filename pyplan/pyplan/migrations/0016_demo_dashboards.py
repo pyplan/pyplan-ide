@@ -6807,7 +6807,9 @@ def add_demo_dashboards(apps, schema_editor):
         definition=california_power_plant_definition,
     )
 
-    Dashboard.objects.create(
+    """
+	# Comento porque había problemas con algunos gráficos de matplotlib
+	Dashboard.objects.create(
         model='visualization_libraries_in_pyplan',
         name='Visualizations',
         node=None,
@@ -6815,6 +6817,7 @@ def add_demo_dashboards(apps, schema_editor):
         owner_id=1,
         definition=visualizations_definition,
     )
+	"""
 
     sro_ml_visits_report = Report.objects.create(
         model='ex_ml_supplier_route_optim',

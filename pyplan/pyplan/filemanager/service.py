@@ -434,7 +434,7 @@ class FileManagerService(BaseService):
         wb = load_workbook(filename, data_only=True, read_only=True)
         for item in wb.defined_names.definedName:
             if not item.is_external and item.type == "RANGE" and item.attr_text and "!$" in item.attr_text:
-                target_filename = os.path.join(target_dir, item.name+".pkl")
+                target_filename = os.path.join(target_dir, f'{item.name}.pkl')
                 if os.path.isfile(target_filename):
                     os.remove(target_filename)
 

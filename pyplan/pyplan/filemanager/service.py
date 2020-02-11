@@ -256,7 +256,11 @@ class FileManagerService(BaseService):
             os.path.join(settings.MEDIA_ROOT, 'models'))
         for source in sources:
             src = os.path.join(storage.base_location, source)
-            dest = os.path.join(storage.base_location, target)
+            *src_path, src_name = source.rsplit('/', 1)
+            *dest_path, dest_name = target.rsplit('/', 1)
+            dest_path = ''.join(dest_path)
+            dest = os.path.join(storage.base_location,
+                                dest_path, dest_name, src_name)
             if self.isLinux():
                 self._linuxCopy(src, dest)
             else:

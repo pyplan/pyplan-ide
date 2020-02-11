@@ -172,7 +172,7 @@ class FileManagerService(BaseService):
             settings.MEDIA_ROOT, 'models', folder_path, name)
         # Moves file if it already exists
         if chunk is 0 and os.path.isfile(file_path):
-            new_name = f"{name}-{datetime.today().strftime('%Y%m%d-%H:%M:%S')}.old"
+            new_name = f"{name}-{datetime.today().strftime('%Y%m%d-%H%M%S')}.old"
             self._copy(
                 file_path,
                 os.path.join(settings.MEDIA_ROOT, 'models',
@@ -209,8 +209,10 @@ class FileManagerService(BaseService):
     def renameFile(self, source, new_name):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
-        src = os.path.join(storage.base_location, source)
-        dest = os.path.join(src[0:src.rfind('/')+1], new_name)
+        src = os.path.join(storage.base_location, os.path.normpath(source))
+        *src_path, src_name = src.rsplit(os.path.sep, 1)
+        src_path = ''.join(src_path)
+        dest = os.path.join(src_path, new_name)
         os.rename(src, dest)
         return dest
 
@@ -219,8 +221,9 @@ class FileManagerService(BaseService):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
         for source in sources:
+            source = os.path.normpath(source)
             src = os.path.join(storage.base_location, source)
-            *dest_path, dest_name = source.rsplit('/', 1)
+            *dest_path, dest_name = source.rsplit(os.path.sep, 1)
             dest_path = ''.join(dest_path)
             dest = os.path.join(storage.base_location,
                                 dest_path, f'Copy 1 of {dest_name}')
@@ -240,8 +243,9 @@ class FileManagerService(BaseService):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
         for source in sources:
+            source = os.path.normpath(source)
             src = os.path.join(storage.base_location, source)
-            *dest_path, dest_name = source.rsplit('/', 1)
+            *dest_path, dest_name = source.rsplit(os.path.sep, 1)
             dest_path = ''.join(dest_path)
             dest = os.path.join(storage.base_location, target, dest_name)
             result.append(self.recursive_overwrite(src, dest))
@@ -255,9 +259,10 @@ class FileManagerService(BaseService):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
         for source in sources:
+            source = os.path.normpath(source)
             src = os.path.join(storage.base_location, source)
-            *src_path, src_name = source.rsplit('/', 1)
-            *dest_path, dest_name = target.rsplit('/', 1)
+            *src_path, src_name = source.rsplit(os.path.sep, 1)
+            *dest_path, dest_name = target.rsplit(os.path.sep, 1)
             dest_path = ''.join(dest_path)
             dest = os.path.join(storage.base_location,
                                 dest_path, dest_name, src_name)
@@ -337,7 +342,7 @@ class FileManagerService(BaseService):
     def zipFiles(self, sources):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
-        zip_file = f"{storage.base_location}/{sources[0]}.zip"
+        zip_file = os.path.join(storage.base_location, f"{os.path.normpath(sources[0])}.zip")
 
         if storage.exists(zip_file):
             file_name, file_extension = os.path.splitext(zip_file)
@@ -345,7 +350,7 @@ class FileManagerService(BaseService):
 
         with zipfile.ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED) as zfobj:
             for source in sources:
-                src = f"{storage.base_location}/{source}"
+                src = os.path.join(storage.base_location, os.path.normpath(source))
                 if os.path.isfile(src):
                     zfobj.write(src, os.path.relpath(
                         src, os.path.join(src, '..')))

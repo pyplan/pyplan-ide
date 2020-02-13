@@ -1053,30 +1053,35 @@ class Model(object):
                 toSave['nodeList'].append(v.toObj())
 
         if fileName:
-            filename_to_save = f'{fileName}.tmp#'
-            filename_old = f'{fileName}.old#'
+            # Save existing model
+            if os.path.isfile(fileName):
+                filename_to_save = f'{fileName}.tmp#'
+                filename_old = f'{fileName}.old#'
 
-            # remove old .tmp file
-            if os.path.isfile(filename_to_save):
-                os.remove(filename_to_save)
-            # remove old .old file
-            if os.path.isfile(filename_old):
-                os.remove(filename_old)
+                # remove old .tmp file
+                if os.path.isfile(filename_to_save):
+                    os.remove(filename_to_save)
+                # remove old .old file
+                if os.path.isfile(filename_old):
+                    os.remove(filename_old)
 
-            with open(filename_to_save, 'w') as f:
-                f.write(jsonpickle.encode(toSave))
-                f.close()
+                with open(filename_to_save, 'w') as f:
+                    f.write(jsonpickle.encode(toSave))
+                    f.close()
 
-            # move old ppl to filename_old
-            os.rename(fileName, filename_old)
-            # move filename_to_save to ppl
-            os.rename(filename_to_save, fileName)
-            # remove old
-            if os.path.isfile(filename_old):
-                os.remove(filename_old)
-            toSave = None
-        else:
-            return jsonpickle.encode(toSave)
+                # move old ppl to filename_old
+                os.rename(fileName, filename_old)
+                # move filename_to_save to ppl
+                os.rename(filename_to_save, fileName)
+                # remove old
+                if os.path.isfile(filename_old):
+                    os.remove(filename_old)
+            # Save new model
+            else:
+                with open(fileName, 'w') as f:
+                    f.write(jsonpickle.encode(toSave))
+                    f.close()
+        return jsonpickle.encode(toSave)
 
     def openModel(self, fileName=None, textModel=None):
         """Open model.

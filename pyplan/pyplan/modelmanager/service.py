@@ -140,14 +140,14 @@ class ModelManagerService(BaseService):
         """Saves Model With New Name"""
         if self.checkModelOpen():
             currentPath = self.client_session.modelInfo.uri
-            folderPath = currentPath[:currentPath.rfind('/')+1]
-            file_path = f'{folderPath}{modelName}.ppl'
+            folderPath = currentPath[:currentPath.rfind(os.path.sep)+1]
+            file_path = os.path.join(folderPath, f'{modelName}.ppl')
             storage = FileSystemStorage(
                 os.path.join(settings.MEDIA_ROOT, 'models'))
             if not storage.exists(file_path):
                 calcEngine = CalcEngine.factory(self.client_session)
                 try:
-                    fullPath = f'{storage.base_location}/{file_path}'
+                    fullPath = os.path.join(storage.base_location, file_path)
                     newModel = calcEngine.saveModel(fullPath)
                     current_session = self.getSession()
                     res = current_session.modelInfo
@@ -188,7 +188,7 @@ class ModelManagerService(BaseService):
     def getToolbars(self):
         """Get Toolbars"""
         calcEngine = CalcEngine.factory(self.client_session)
-        return calcEngine.getToolbars(os.path.join(settings.MEDIA_ROOT, "models", self.client_session.companyName))
+        return calcEngine.getToolbars(os.path.join(settings.MEDIA_ROOT, 'models', self.client_session.companyName))
 
     def createNewModel(self, modelName):
         """Creates a new model """
@@ -196,16 +196,15 @@ class ModelManagerService(BaseService):
             storage = FileSystemStorage(
                 os.path.join(settings.MEDIA_ROOT, 'models'))
             company_code = self.client_session.company_code
-            user_full_path = f'{storage.base_location}/'
 
             folderSufix = 1
             new_model_name = modelName
-            while storage.exists(f'{user_full_path}{new_model_name}/'):
+            while storage.exists(os.path.join(storage.base_location, new_model_name)):
                 folderSufix += 1
                 new_model_name = f'{modelName}_{folderSufix}'
 
-            folder_path = f'{user_full_path}{new_model_name}/'
-            model_file = f'{folder_path}{new_model_name}.ppl'
+            folder_path = os.path.join(storage.base_location, new_model_name)
+            model_file = os.path.join(folder_path, f'{new_model_name}.ppl')
 
             if not storage.exists(folder_path):
                 os.mkdir(folder_path)
@@ -213,7 +212,7 @@ class ModelManagerService(BaseService):
             calcEngine = CalcEngine.factory(self.client_session)
             if calcEngine.createNewModel(model_file, new_model_name):
                 self.closeModel()
-                return self.openModel(os.path.join(user_full_path, new_model_name, new_model_name+".ppl"))
+                return self.openModel(os.path.join(storage.base_location, new_model_name, f'{new_model_name}.ppl'))
 
         except Exception as ex:
             raise ex
@@ -461,8 +460,8 @@ class ModelManagerService(BaseService):
                     for zfile in zfobj.filelist:
                         zfile.create_system = 0
                 temp.seek(0)
-                return temp, f'{file_path[file_path.rfind("/")+1:file_path.rfind(".")]}.zip'
-            return open(file_path, 'rb'), file_path[file_path.rfind('/')+1:]
+                return temp, f'{file_path[file_path.rfind(os.path.sep)+1:file_path.rfind(".")]}.zip'
+            return open(file_path, 'rb'), file_path[file_path.rfind(os.path.sep)+1:]
         raise exceptions.NotAcceptable("Engine couldn't create file")
 
     def exportCurrentNode(self, exportData, dashboardManagerService):
@@ -518,9 +517,8 @@ class ModelManagerService(BaseService):
                 for zfile in zfobj.filelist:
                     zfile.create_system = 0
             temp.seek(0)
-            return temp, f'{file_path[file_path.rfind("/")+1:file_path.rfind(".")]}.zip'
-        else:
-            return open(file_path, 'rb'), file_path[file_path.rfind('/')+1:]
+            return temp, f'{file_path[file_path.rfind(os.path.sep)+1:file_path.rfind(".")]}.zip'
+        return open(file_path, 'rb'), file_path[file_path.rfind(os.path.sep)+1:]
 
     def exportModuleToFile(self, exportData):
         """Export module to file"""
@@ -530,23 +528,25 @@ class ModelManagerService(BaseService):
             storage = FileSystemStorage(
                 os.path.join(settings.MEDIA_ROOT, 'models'))
             currentPath = self.client_session.modelInfo.uri
-            folderPath = currentPath[:currentPath.rfind('/')+1]
-            file_path = f'{storage.base_location}/{folderPath}{exportData.moduleId}.ppl'
+            folderPath = currentPath[:currentPath.rfind(os.path.sep)+1]
+            file_path = os.path.join(
+                storage.base_location, folderPath, f'{exportData.moduleId}.ppl')
         response = calcEngine.exportModule(exportData.moduleId, file_path)
         if response == 1:
-            return open(file_path, 'rb'), file_path[file_path.rfind('/')+1:]
-        else:
-            raise exceptions.NotAcceptable("Engine couldn't create file")
+            return open(file_path, 'rb'), file_path[file_path.rfind(os.path.sep)+1:]
+        raise exceptions.NotAcceptable("Engine couldn't create file")
 
     def importModuleFromFile(self, importModuleData):
         """Import module from file"""
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
         currentPath = self.client_session.modelInfo.uri
-        importModuleData.currentModelPath = f'{storage.base_location}/{currentPath}'
+        importModuleData.currentModelPath = os.path.join(
+            storage.base_location, currentPath)
         fullFileName = join(settings.TMP_ROOT, importModuleData.moduleFile)
         if not importModuleData.fromTemp:
-            fullFileName = f'{storage.base_location}/{importModuleData.moduleFile}'
+            fullFileName = os.path.join(
+                storage.base_location, importModuleData.moduleFile)
 
         if (importModuleData.importType.name == eImportType(0).name) or (importModuleData.importType.name == eImportType(2).name):
             calcEngine = CalcEngine.factory(self.client_session)
@@ -557,12 +557,9 @@ class ModelManagerService(BaseService):
                 if importModuleData.fromTemp:
                     os.remove(fullFileName)
                 return importModuleData
-            else:
-                raise exceptions.NotAcceptable("Error importing module")
-        else:
-            # TODO: implement eImportType(1).name (APPEND) case
-            raise exceptions.NotAcceptable(
-                "Import Type 'APPEND' not implemented")
+            raise exceptions.NotAcceptable("Error importing module")
+        # TODO: implement eImportType(1).name (APPEND) case
+        raise exceptions.NotAcceptable("Import Type 'APPEND' not implemented")
 
     def getFilesForImportWizard(self, extension):
         """
@@ -571,9 +568,9 @@ class ModelManagerService(BaseService):
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
         folderPath = self.client_session.modelInfo.uri[:self.client_session.modelInfo.uri.rfind(
-            '/')+1]
-        fullFolderPath = f'{storage.base_location}/{folderPath}'
-        extension = '.' + extension
+            os.path.sep)+1]
+        fullFolderPath = os.path.join(storage.base_location, folderPath)
+        extension = f'.{extension}'
         return self._findFilesEntriesInFolderByExtension(fullFolderPath, extension, True, [])
 
     def callWizard(self, wizardRequest):
@@ -597,13 +594,10 @@ class ModelManagerService(BaseService):
                     target=self._executeButtonThread, args=[nodeId])
                 thread.daemon = True
                 thread.start()
-                return True
-            else:
-                # Node is already running in background
-                return True
-        else:
-            raise exceptions.NotAcceptable(
-                "executeButton - There's no session")
+            # Node is already running in background
+            return True
+        raise exceptions.NotAcceptable(
+            "executeButton - There's no session")
 
     def isInBackground(self, nodeId):
         """
@@ -614,9 +608,7 @@ class ModelManagerService(BaseService):
         identifier = identifierPropertie['properties'][0]['value']
         if self.existSession(self.client_session.session_key):
             return (self.client_session.modelInfo.nodeIdInBackground == identifier)
-        else:
-            raise exceptions.NotAcceptable(
-                "isInBackground - There's no session")
+        raise exceptions.NotAcceptable("isInBackground - There's no session")
 
     def getSelector(self, node):
         """Return selector object definition"""
@@ -673,11 +665,12 @@ class ModelManagerService(BaseService):
                     # TODO: Revisar que siempre devuleve specialfolder type 0 aunque se trate de public o my folder etc.
                     # Esto estaba asi en .net pero es para revisar
                     fileEntry = FileEntry(
-                        text=str(entry.path[entry.path.rfind('/')+1:]),
+                        text=str(entry.path[entry.path.rfind(os.path.sep)+1:]),
                         type=eFileTypes.NOTHING,
                         data=FileEntryData(
                             # fullPath=entry.path,
-                            fullPath=str(entry.path[entry.path.rfind('/')+1:]),
+                            fullPath=str(
+                                entry.path[entry.path.rfind(os.path.sep)+1:]),
                             fileSize=fileStats.st_size,
                             lastUpdateTime=datetime.datetime.fromtimestamp(
                                 fileStats.st_mtime).isoformat()

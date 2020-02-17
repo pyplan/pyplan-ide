@@ -15,7 +15,6 @@ class PyplanAppConfig(AppConfig):
     verbose_name = "Pyplan API"
 
     def ready(self):
-        # TODO: if desktop_mode ?
         try:
             from django.contrib.sessions.models import Session
             Session.objects.all().delete()

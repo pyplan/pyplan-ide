@@ -292,10 +292,10 @@ class ReportManagerService(BaseService):
             # we publish the item
             files = {'files': open(zip_file, 'rb')}
             values = {'username': data['username'], 'uuid': data['uuid'],
-                      'model_id': data['model_id'], 'name': zip_file[zip_file.rfind('/'):]}
-            # TODO: change to my pyplan
+                      'model_id': data['model_id'], 'zip_name': zip_file[zip_file.rfind('/'):],
+                      'model_name': self.client_session.modelInfo.uri[self.client_session.modelInfo.uri.rfind('/')+1:]}
             req = requests.put(
-                'http://localhost:8000/api/reportManager/publishItems/', files=files, data=values)
+                'https://my.pyplan.org/api/reportManager/publishItems/', files=files, data=values)
 
             response = req.text
 

@@ -243,7 +243,7 @@ class DesktopType(IEngineType):
             page = f"?page={data['page']}"
 
         content = {
-            'node_id': '',
+            'node_id': node_id,
             'index_id': index_id,
         }
         if 'filter' in data:

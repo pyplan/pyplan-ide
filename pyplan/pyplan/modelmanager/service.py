@@ -195,7 +195,6 @@ class ModelManagerService(BaseService):
         try:
             storage = FileSystemStorage(
                 os.path.join(settings.MEDIA_ROOT, 'models'))
-            company_code = self.client_session.company_code
 
             folderSufix = 1
             new_model_name = modelName
@@ -570,8 +569,7 @@ class ModelManagerService(BaseService):
         folderPath = self.client_session.modelInfo.uri[:self.client_session.modelInfo.uri.rfind(
             os.path.sep)+1]
         fullFolderPath = os.path.join(storage.base_location, folderPath)
-        extension = f'.{extension}'
-        return self._findFilesEntriesInFolderByExtension(fullFolderPath, extension, True, [])
+        return self._findFilesEntriesInFolderByExtension(fullFolderPath, f'.{extension}', True, [])
 
     def callWizard(self, wizardRequest):
         """
@@ -623,7 +621,7 @@ class ModelManagerService(BaseService):
         # Moves file if it already exists
         while chunk is 0 and os.path.isfile(file_path):
             tempName = name.split('.')
-            name = tempName[0] + '_copy.' + tempName[1]
+            name = f'{tempName[0]}_copy.{tempName[1]}'
             file_path = os.path.join(settings.MEDIA_ROOT, 'tmp', name)
         # Appends all chunks of this request (chunks of chunks)
         # UI sends multiple requests with multiple chunks each per file

@@ -1,0 +1,31 @@
+﻿{
+  "__appName": "Pyplan",
+  "__appVersion": "1.0.0",
+  "__apiURL": "http://localhost:8000/api",
+  "__uiURL": "http://localhost:9000",
+  "__environmentName": "Testing",
+  "__socialLogins": [
+    {
+      "app": "linkedin",
+      "data": {
+        "clientId": "LINKEDIN_CLIENT_ID"
+      }
+    },
+    {
+      "app": "google",
+      "data": {
+        "clientId": "GOOGLE_CLIENT_ID"
+      }
+    }
+  ],
+  "__customer": {
+    // "customerTitle": "Sistema de Bases Metodol&oacute;gicas Online",
+    // "customerBaseColor": "#eaeaea",
+    // "customerLoaderColor": "#999",
+    // "customerColorSchema": "grey",
+    // "hideNavbar": true
+  },
+  "__customerStyles": {
+    "customerCode": "comgas" // "sbmo", "copel", "comgas"
+  }
+}

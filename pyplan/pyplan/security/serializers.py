@@ -8,8 +8,10 @@ class ClientSessionSerializer(serializers.Serializer):
     session_key = serializers.CharField()
     userId = serializers.CharField()
     userFullName = serializers.CharField()
-    userFirstName = serializers.CharField(allow_null=True, default=None)
-    userLastName = serializers.CharField(allow_null=True, default=None)
+    userFirstName = serializers.CharField(
+        allow_null=True, allow_blank=True, default=None)
+    userLastName = serializers.CharField(
+        allow_null=True, allow_blank=True, default=None)
     userName = serializers.CharField(
         required=False, allow_null=True, allow_blank=True)
     userCompanyId = serializers.IntegerField()
@@ -30,7 +32,7 @@ class ClientSessionSerializer(serializers.Serializer):
     created_at = serializers.DateTimeField(required=True, allow_null=False)
     departments = serializers.ListField(required=False, allow_null=True)
     my_uuid = serializers.UUIDField(allow_null=True, default=None)
-    my_username = serializers.CharField(allow_blank=True)
+    my_username = serializers.CharField(allow_null=True, allow_blank=True)
 
     def create(self, validated_data):
         instance = ClientSession()

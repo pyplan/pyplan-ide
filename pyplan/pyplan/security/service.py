@@ -398,6 +398,10 @@ class SecurityService(BaseService):
                     'uuid': str(self.client_session.userId),
                     'homePath': home_path,
                     'platform': platform.system(),
+                    'myUuid': str(self.client_session.my_uuid),
+                    'myUsername': str(self.client_session.my_username),
+                    'firstName': str(self.client_session.userFirstName),
+                    'lastName': str(self.client_session.userLastName),
                     'appVersion': appVersion,
                 }
                 requests.post(url=ping_url, json=payload)

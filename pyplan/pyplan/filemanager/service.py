@@ -309,7 +309,7 @@ class FileManagerService(BaseService):
         else:
             temp = tempfile.SpooledTemporaryFile()
             _zipFiles(sources, storage.base_location, temp,
-                      False, self._getDeniedFolders())
+                      False, None)
             return temp, f"{os.path.relpath(sources[0], os.path.join(sources[0], '..'))}.zip"
 
     def makeJsonStream(self, json_string: str):
@@ -335,7 +335,7 @@ class FileManagerService(BaseService):
         zip_file = os.path.join(storage.base_location,
                                 f'{os.path.normpath(sources[0])}.zip')
 
-        return _zipFiles(sources, storage.base_location, zip_file, False, self._getDeniedFolders())
+        return _zipFiles(sources, storage.base_location, zip_file, False, None)
 
     def getHome(self):
         company_id = self.getSession().companyId

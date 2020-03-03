@@ -196,7 +196,6 @@ class ModelManagerService(BaseService):
         try:
             storage = FileSystemStorage(
                 os.path.join(settings.MEDIA_ROOT, 'models'))
-            company_code = self.client_session.company_code
 
             folderSufix = 1
             new_model_name = modelName
@@ -571,8 +570,7 @@ class ModelManagerService(BaseService):
         folderPath = self.client_session.modelInfo.uri[:self.client_session.modelInfo.uri.rfind(
             os.path.sep)+1]
         fullFolderPath = os.path.join(storage.base_location, folderPath)
-        extension = f'.{extension}'
-        return self._findFilesEntriesInFolderByExtension(fullFolderPath, extension, True, [])
+        return self._findFilesEntriesInFolderByExtension(fullFolderPath, f'.{extension}', True, [])
 
     def callWizard(self, wizardRequest):
         """

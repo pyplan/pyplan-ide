@@ -9,6 +9,9 @@ class ClientSession(object):
         self.session_key = ""
         self.userId = ""
         self.userFullName = ""
+        self.userFirstName = ""
+        self.userLastName = ""
+        self.userName = ""
         self.userCompanyId = -1
         self.userIsSuperUser = False
         self.companyId = -1
@@ -26,3 +29,5 @@ class ClientSession(object):
         self.loginAction = None
         self.created_at = datetime.now()
         self.departments = []
+        self.my_uuid = None
+        self.my_username = ""

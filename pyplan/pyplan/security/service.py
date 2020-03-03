@@ -44,7 +44,12 @@ class SecurityService(BaseService):
                 client_session = ClientSession()
                 client_session.userId = self.current_user.id
                 client_session.userFullName = f"{self.current_user.first_name} {self.current_user.last_name}"
+                client_session.userFirstName = self.current_user.first_name
+                client_session.userLastName = self.current_user.last_name
+                client_session.userName = self.current_user.username
                 client_session.userIsSuperUser = self.current_user.is_superuser
+                client_session.my_uuid = self.current_user.my_uuid
+                client_session.my_username = self.current_user.my_username
                 login_action = dict()
                 found = False
                 for userCompany in self.current_user.usercompanies.all().iterator():
@@ -393,6 +398,10 @@ class SecurityService(BaseService):
                     'uuid': str(self.client_session.userId),
                     'homePath': home_path,
                     'platform': platform.system(),
+                    'myUuid': str(self.client_session.my_uuid),
+                    'myUsername': str(self.client_session.my_username),
+                    'firstName': str(self.client_session.userFirstName),
+                    'lastName': str(self.client_session.userLastName),
                     'appVersion': appVersion,
                 }
                 requests.post(url=ping_url, json=payload)

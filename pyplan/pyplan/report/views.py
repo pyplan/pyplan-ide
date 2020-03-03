@@ -14,9 +14,9 @@ from rest_framework.schemas import AutoSchema, ManualSchema
 
 from pyplan.pyplan.filemanager.service import FileManagerService
 
-from .serializers import (DuplicateItemsSerializer, ExportItemsSerializer,
-                          ImportItemsSerializer, ReportCreateUpdateSerializer,
-                          ReportGetNavigatorSerializer,
+from .serializers import (DuplicateItemsSerializer, ExportItemsAndPublishSerializer,
+                          ExportItemsSerializer, ImportItemsSerializer,
+                          ReportCreateUpdateSerializer, ReportGetNavigatorSerializer,
                           ReportGetSharesSerializer, ReportSerializer,
                           ReportSetSharesSerializer, SearchResultSerializer,
                           SetAsFavSerializer)
@@ -43,6 +43,8 @@ class ReportView(object):
             url(r'^reportManager/setAsFav/$', ReportView.setAsFav),
             url(r'^reportManager/dropOnReport/$', ReportView.dropOnReport),
             url(r'^reportManager/exportItems/$', ReportView.exportItems),
+            url(r'^reportManager/exportItemsAndPublish/$',
+                ReportView.exportItemsAndPublish),
             url(r'^reportManager/importItems/$', ReportView.importItems),
             url(r'^reportManager/(?P<pk>\d+)/shares/$', ReportView.getShares),
             url(r'^reportManager/(?P<pk>\d+)/setShares/$', ReportView.setShares),
@@ -51,8 +53,10 @@ class ReportView(object):
     @api_view(['GET'])
     @permission_required('pyplan.get_my_reports', raise_exception=True)
     @schema(AutoSchema(manual_fields=[
-        coreapi.Field("parent", required=False, location="query", description="Parent report"),
-        coreapi.Field("favs", required=False, location="query", description="bool"),
+        coreapi.Field("parent", required=False, location="query",
+                      description="Parent report"),
+        coreapi.Field("favs", required=False,
+                      location="query", description="bool"),
     ]))
     def myReports(request, *args, **kargs):
         parent = request.query_params.get("parent", None)
@@ -66,7 +70,8 @@ class ReportView(object):
     @api_view(['GET'])
     @permission_required('pyplan.get_my_reports', raise_exception=True)
     @schema(AutoSchema(manual_fields=[
-        coreapi.Field("parent", required=False, location="query", description="Parent report")
+        coreapi.Field("parent", required=False, location="query",
+                      description="Parent report")
     ]))
     def sharedWithMe(request, *args, **kargs):
         parent = request.query_params.get("parent", None)
@@ -79,7 +84,8 @@ class ReportView(object):
     @api_view(['GET'])
     @permission_required('pyplan.get_my_reports', raise_exception=True)
     @schema(AutoSchema(manual_fields=[
-        coreapi.Field("parent", required=False, location="query", description="Parent report")
+        coreapi.Field("parent", required=False, location="query",
+                      description="Parent report")
     ]))
     def mySharedReports(request, *args, **kargs):
         parent = request.query_params.get("parent", None)
@@ -92,7 +98,8 @@ class ReportView(object):
     @api_view(['POST'])
     @permission_required('pyplan.add_report', raise_exception=True)
     @schema(AutoSchema(manual_fields=[
-        coreapi.Field("parent", required=False, location="query", description="Parent report")
+        coreapi.Field("parent", required=False, location="query",
+                      description="Parent report")
     ]))
     def create(request, *args, **kargs):
         serializer = ReportCreateUpdateSerializer(data=request.data)
@@ -136,7 +143,8 @@ class ReportView(object):
             dashboard = service.getNavigator(report_id, dashboard_id)
             return Response(ReportGetNavigatorSerializer(dashboard).data)
         except Exception as ex:
-            raise exceptions.NotAcceptable(f"Error in ReportView.getNavigator(): {str(ex)}")
+            raise exceptions.NotAcceptable(
+                f"Error in ReportView.getNavigator(): {str(ex)}")
 
     @api_view(['DELETE'])
     @permission_required('pyplan.delete_report', raise_exception=True)
@@ -183,8 +191,10 @@ class ReportView(object):
     @api_view(['PUT'])
     @permission_classes((IsAuthenticated,))
     @schema(AutoSchema(manual_fields=[
-        coreapi.Field("report_ids", required=True, location="body", schema=coreschema.Array()),
-        coreapi.Field("dashboard_ids", required=True, location="body", schema=coreschema.Array()),
+        coreapi.Field("report_ids", required=True,
+                      location="body", schema=coreschema.Array()),
+        coreapi.Field("dashboard_ids", required=True,
+                      location="body", schema=coreschema.Array()),
     ]))
     def duplicateItems(request, *args, **kargs):
         serializer = DuplicateItemsSerializer(data=request.data)
@@ -198,8 +208,10 @@ class ReportView(object):
     @api_view(['PUT'])
     @permission_classes((IsAuthenticated,))
     @schema(AutoSchema(manual_fields=[
-        coreapi.Field("report_ids", required=True, location="body", schema=coreschema.Array()),
-        coreapi.Field("dashboard_ids", required=True, location="body", schema=coreschema.Array()),
+        coreapi.Field("report_ids", required=True,
+                      location="body", schema=coreschema.Array()),
+        coreapi.Field("dashboard_ids", required=True,
+                      location="body", schema=coreschema.Array()),
     ]))
     def copyToMyReports(request, *args, **kargs):
         serializer = DuplicateItemsSerializer(data=request.data)
@@ -213,8 +225,10 @@ class ReportView(object):
     @api_view(['PUT'])
     @permission_required('pyplan.change_report', raise_exception=True)
     @schema(AutoSchema(manual_fields=[
-        coreapi.Field("report_ids", required=True, location="body", schema=coreschema.Array()),
-        coreapi.Field("dashboard_ids", required=True, location="body", schema=coreschema.Array()),
+        coreapi.Field("report_ids", required=True,
+                      location="body", schema=coreschema.Array()),
+        coreapi.Field("dashboard_ids", required=True,
+                      location="body", schema=coreschema.Array()),
     ]))
     def setAsFav(request, *args, **kargs):
         serializer = SetAsFavSerializer(data=request.data)
@@ -228,9 +242,12 @@ class ReportView(object):
     @api_view(['PUT'])
     @permission_classes((IsAuthenticated,))
     @schema(AutoSchema(manual_fields=[
-        coreapi.Field("report_ids", required=True, location="body", schema=coreschema.Array()),
-        coreapi.Field("dashboard_ids", required=True, location="body", schema=coreschema.Array()),
-        coreapi.Field("report_id", required=False, location="query", description="Parent report ID"),
+        coreapi.Field("report_ids", required=True,
+                      location="body", schema=coreschema.Array()),
+        coreapi.Field("dashboard_ids", required=True,
+                      location="body", schema=coreschema.Array()),
+        coreapi.Field("report_id", required=False,
+                      location="query", description="Parent report ID"),
     ]))
     def dropOnReport(request, *args, **kargs):
         report_id = request.data.get("report_id", [])
@@ -245,8 +262,10 @@ class ReportView(object):
     @api_view(['PUT'])
     @permission_classes((IsAuthenticated,))
     @schema(AutoSchema(manual_fields=[
-        coreapi.Field("report_ids", required=True, location="body", schema=coreschema.Array()),
-        coreapi.Field("dashboard_ids", required=True, location="body", schema=coreschema.Array()),
+        coreapi.Field("report_ids", required=True,
+                      location="body", schema=coreschema.Array()),
+        coreapi.Field("dashboard_ids", required=True,
+                      location="body", schema=coreschema.Array()),
     ]))
     def exportItems(request, *args, **kargs):
         serializer = DuplicateItemsSerializer(data=request.data)
@@ -256,11 +275,13 @@ class ReportView(object):
             # 1. get data and file name
             data_to_export, file_name = service.exportItems(serializer.data)
             # 2. serialize data and convert to string
-            json_string = dumps(ExportItemsSerializer(data_to_export).data, indent=None)
+            json_string = dumps(ExportItemsSerializer(
+                data_to_export).data, indent=None)
             # 3. make file stream from json string
             file_stream = FileManagerService().makeJsonStream(json_string)
             # 4. stream file as http response
-            response = FileResponse(file_stream, as_attachment=True, filename=file_name)
+            response = FileResponse(
+                file_stream, as_attachment=True, filename=file_name)
             response['Content-Disposition'] = f'attachment; filename={file_name}'
             return response
         except Exception as ex:
@@ -269,9 +290,40 @@ class ReportView(object):
     @api_view(['PUT'])
     @permission_classes((IsAuthenticated,))
     @schema(AutoSchema(manual_fields=[
-        coreapi.Field("reports", required=True, location="body", schema=coreschema.Array()),
-        coreapi.Field("dashboards", required=True, location="body", schema=coreschema.Array()),
-        coreapi.Field("styles", required=True, location="body", schema=coreschema.Array()),
+        coreapi.Field("username", required=True,
+                      location="body", schema=coreschema.String),
+        coreapi.Field("uuid", required=True,
+                      location="body", schema=coreschema.String),
+        coreapi.Field("model_folder", required=True,
+                      location="body", schema=coreschema.String),
+        coreapi.Field("model_id", required=True,
+                      location="body", schema=coreschema.String),
+        coreapi.Field("report_ids", required=True,
+                      location="body", schema=coreschema.Array()),
+        coreapi.Field("dashboard_ids", required=True,
+                      location="body", schema=coreschema.Array())
+    ]))
+    def exportItemsAndPublish(request, *args, **kargs):
+        serializer = ExportItemsAndPublishSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        try:
+            service = ReportManagerService(request)
+            external_link = service.exportItemsAndPublish(serializer.data)
+            if external_link:
+                return Response(external_link, status=status.HTTP_200_OK)
+            return Response('There was an error publishing the item', status=status.HTTP_406_NOT_ACCEPTABLE)
+        except Exception as ex:
+            raise exceptions.NotAcceptable(detail=ex)
+
+    @api_view(['PUT'])
+    @permission_classes((IsAuthenticated,))
+    @schema(AutoSchema(manual_fields=[
+        coreapi.Field("reports", required=True, location="body",
+                      schema=coreschema.Array()),
+        coreapi.Field("dashboards", required=True,
+                      location="body", schema=coreschema.Array()),
+        coreapi.Field("styles", required=True, location="body",
+                      schema=coreschema.Array()),
     ]))
     def importItems(request, *args, **kargs):
         serializer = ImportItemsSerializer(data=request.data)

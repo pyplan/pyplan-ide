@@ -18,7 +18,7 @@ from pyplan.pyplan.usercompanies.models import UserCompany
 from .models import Report
 from .serializers import ExportItemsSerializer
 
-from pyplan.pyplan.common.utils import _zipFiles
+from pyplan.pyplan.common.utils import _zipFiles, _linuxRemove
 
 
 class ReportManagerService(BaseService):
@@ -274,7 +274,8 @@ class ReportManagerService(BaseService):
             to_save).data, indent=None)
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
-        file_path = f'{storage.base_location}/{data["model_folder"]}/itemsToPublish.json'
+        file_path = os.path.normpath(
+            f'{storage.base_location}/{data["model_folder"]}/itemsToPublish.json')
 
         # we write the json file
         if os.path.exists(file_path):
@@ -285,8 +286,8 @@ class ReportManagerService(BaseService):
 
         # now that the file is inside the model folder we generate a zipFile to be uploaded
         zip_file = None
-        zip_file = _zipFiles([data['model_folder']], storage.base_location,
-                             f"{storage.base_location}/{data['model_folder']}.zip", True, None)
+        zip_file = _zipFiles([os.path.normpath(data['model_folder'])], storage.base_location,
+                             os.path.normpath(f'{storage.base_location}/{data["model_folder"]}.zip'), True, None)
 
         if zip_file:
             # we publish the item
@@ -298,6 +299,11 @@ class ReportManagerService(BaseService):
                 'https://my.pyplan.org/api/reportManager/publishItems/', files=files, data=values)
 
             response = req.text
+
+         # remove zip file and interfaces file
+        _linuxRemove(zip_file)
+        _linuxRemove(os.path.normpath(
+            f'{storage.base_location}/{data["model_folder"]}/itemsToPublish.json'))
 
         return response
 

@@ -18,7 +18,7 @@ from pyplan.pyplan.usercompanies.models import UserCompany
 from .models import Report
 from .serializers import ExportItemsSerializer
 
-from pyplan.pyplan.common.utils import _zipFiles, _linuxRemove
+from pyplan.pyplan.common.utils import _zipFiles
 
 
 class ReportManagerService(BaseService):
@@ -274,8 +274,8 @@ class ReportManagerService(BaseService):
             to_save).data, indent=None)
         storage = FileSystemStorage(
             os.path.join(settings.MEDIA_ROOT, 'models'))
-        file_path = os.path.normpath(
-            f'{storage.base_location}/{data["model_folder"]}/itemsToPublish.json')
+        file_path = os.path.join(
+            storage.base_location, os.path.normpath(data['model_folder']), 'itemsToPublish.json')
 
         # we write the json file
         if os.path.exists(file_path):
@@ -287,23 +287,22 @@ class ReportManagerService(BaseService):
         # now that the file is inside the model folder we generate a zipFile to be uploaded
         zip_file = None
         zip_file = _zipFiles([os.path.normpath(data['model_folder'])], storage.base_location,
-                             os.path.normpath(f'{storage.base_location}/{data["model_folder"]}.zip'), True, None)
+                             os.path.join(storage.base_location, f'{os.path.normpath(data["model_folder"])}.zip'), True, None)
 
         if zip_file:
             # we publish the item
             files = {'files': open(zip_file, 'rb')}
             values = {'username': data['username'], 'uuid': data['uuid'],
-                      'model_id': data['model_id'], 'zip_name': zip_file[zip_file.rfind('/'):],
-                      'model_name': self.client_session.modelInfo.uri[self.client_session.modelInfo.uri.rfind('/')+1:]}
+                      'model_id': data['model_id'], 'zip_name': zip_file[zip_file.rfind(os.path.sep):],
+                      'model_name': self.client_session.modelInfo.uri[self.client_session.modelInfo.uri.rfind(os.path.sep)+1:]}
             req = requests.put(
                 'https://my.pyplan.org/api/reportManager/publishItems/', files=files, data=values)
 
             response = req.text
 
-         # remove zip file and interfaces file
-        _linuxRemove(zip_file)
-        _linuxRemove(os.path.normpath(
-            f'{storage.base_location}/{data["model_folder"]}/itemsToPublish.json'))
+        # remove zip file and interfaces file
+        storage.delete(zip_file)
+        storage.delete(file_path)
 
         return response
 

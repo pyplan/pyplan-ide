@@ -8,40 +8,6 @@ from django.conf import settings
 from rest_framework import exceptions
 
 
-def _linuxRemove(src):
-    src_path = src.replace(' ', '\ ')
-
-    # -f, --force
-    # Ignore nonexistant files, and never prompt before removing.
-    # -i
-    # Prompt before every removal.
-    # -I
-    # Prompt once before removing more than three files, or when removing recursively. This option is less intrusive than -i, but still gives protection against most mistakes.
-    # --interactive[=WHEN]
-    # Prompt according to WHEN: never, once (-I), or always (-i). If WHEN is not specified, then prompt always.
-    # --one-file-system
-    # When removing a hierarchy recursively, skip any directory that is on a file system different from that of the corresponding command line argument
-    # --no-preserve-root
-    # Do not treat "/" (the root directory) in any special way.
-    # --preserve-root
-    # Do not remove "/" (the root directory), which is the default behavior.
-    # -r, -R, --recursive
-    # Remove directories and their contents recursively.
-    # -d, --dir
-    # Remove empty directories. This option permits you to remove a directory without specifying -r/-R/--recursive, provided that the directory is empty. In other words, rm -d is equivalent to using rmdir.
-    # -v, --verbose
-    # Verbose mode; explain at all times what is being done.
-
-    cmd = f'rm -rf {src_path}'
-    popen = Popen(split(cmd), stdout=PIPE, universal_newlines=True)
-
-    stdout, stderr = popen.communicate()
-    if stderr:
-        raise exceptions.NotAcceptable(stderr)
-
-    return True
-
-
 def _linuxCopy(src, dest):
     src_path = src.replace(' ', '\ ')
     dest_path = dest.replace(' ', '\ ')

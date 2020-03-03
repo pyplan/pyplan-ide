@@ -34,12 +34,8 @@ def _linuxCopy(src, dest):
 
 def _uploadFile(action, my_file, folder_path, name, chunk, overwrite=False):
 
-    file_path = None
-
-    if action == 'publishItems':
-        file_path = os.path.join(settings.MEDIA_ROOT, folder_path, name)
-    else:
-        file_path = os.path.join(settings.MEDIA_ROOT, 'tmp', name)
+    file_path = os.path.join(
+        settings.MEDIA_ROOT, folder_path if action == 'publishItems' else 'tmp', name)
 
     while chunk is 0 and os.path.isfile(file_path):
         if overwrite:
@@ -48,7 +44,7 @@ def _uploadFile(action, my_file, folder_path, name, chunk, overwrite=False):
         else:
             # generate new file
             tempName = name.split('.')
-            name = tempName[0] + '_copy.' + tempName[1]
+            name = f'{tempName[0]}_copy.{tempName[1]}'
             file_path = os.path.join(settings.MEDIA_ROOT, 'tmp', name)
 
     # Appends all chunks of this request (chunks of chunks)
@@ -75,7 +71,7 @@ def _zipFiles(sources, sources_folder, target_file, overwrite=False, denied_fold
 
     with zipfile.ZipFile(target_file, 'w', zipfile.ZIP_DEFLATED) as zfobj:
         for source in sources:
-            src = f"{sources_folder}/{source}"
+            src = os.path.join(sources_folder, source)
             if os.path.isfile(src):
                 zfobj.write(src, os.path.relpath(src, os.path.join(src, '..')))
             else:
@@ -90,7 +86,7 @@ def _zipdir(path, ziph, denied_folders):
     # ziph is zipfile handle
     for root, dirs, files in os.walk(path):
         # check if folder is not in any department denied folders
-        if not denied_folders or not any(list(map(lambda item: item in denied_folders, root.rsplit('/')))):
+        if not denied_folders or not any(list(map(lambda item: item in denied_folders, root.rsplit(os.path.sep)))):
             for file in files:
                 ziph.write(os.path.join(root, file), os.path.relpath(
                     os.path.join(root, file), os.path.join(path, '..')))

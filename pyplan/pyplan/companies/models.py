@@ -1,10 +1,10 @@
 from django.db import models
+
 from pyplan.pyplan.preference.models import Preference
 from pyplan.pyplan.users.models import User
 
 
 class Company(models.Model):
-
     code = models.CharField(max_length=50, db_index=True, unique=True)
     name = models.CharField(max_length=255)
     system = models.BooleanField(default=False)

@@ -125,8 +125,7 @@ class Model(object):
         # Connect to WS
         self.company_code = company_code
         self.session_key = session_key
-        self.ws = WS.connect(company_code=company_code,
-                             session_key=session_key)
+        self.ws = WS(company_code=company_code, session_key=session_key)
 
     def createNode(self, identifier=None, nodeClass=None, moduleId=None, x=None, y=None, toObj=False, originalId=None):
         """Create new node"""
@@ -240,7 +239,10 @@ class Model(object):
         if self.existNode(nodeId):
             if not self.nodeDic[nodeId].originalId is None:
                 nodeId = self.nodeDic[nodeId].originalId
-            if not self.nodeDic[nodeId].result is None:
+            if self.nodeDic[nodeId].nodeClass in ["button", "module", "text"]:
+                self.evaluationVersion += 1
+                _dummy = self.nodeDic[nodeId].result  # for execute button
+            elif not self.nodeDic[nodeId].result is None:
                 self.evaluationVersion += 1
                 evaluator = Evaluator.createInstance(
                     self.nodeDic[nodeId].result)
@@ -1301,14 +1303,23 @@ class Model(object):
             [], [], self.getNode(nodeId).evaluationVersion, nodeId)
 
         for node in profile:
-            if self.nodeDic[node['nodeId']].isCircular():
+            node_of_profile = self.nodeDic[node['nodeId']]
+
+            if node_of_profile.isCircular():
                 node['calcTime'] = node['evaluationTime']
             else:
                 inputsTime = 0
-                for nodeInput in self.getNode(node['nodeId']).inputs:
-                    if(self.getNode(node['nodeId']).evaluationVersion == self.getNode(nodeInput).evaluationVersion and node['nodeId'] == self.getNode(nodeInput).profileParent):
-                        inputsTime = inputsTime + \
-                            self.getNode(nodeInput).lastEvaluationTime
+                for nodeInput in node_of_profile.inputs:
+                    node_of_input = self.getNode(nodeInput)
+                    if node_of_profile.evaluationVersion == node_of_input.evaluationVersion and node['nodeId'] == node_of_input.profileParent:
+                        if node_of_input.isCircular():
+                            #get circule node and their time
+                            nodes_in_circule = node_of_input.getSortedCyclicDependencies()
+                            for circular_node_id in nodes_in_circule:
+                                inputsTime = inputsTime + self.getNode(circular_node_id).lastEvaluationTime
+                        else:
+                            inputsTime = inputsTime + \
+                                node_of_input.lastEvaluationTime
                 node['calcTime'] = node['evaluationTime'] - inputsTime
             if node['calcTime'] < 0:
                 node['calcTime'] = 0

@@ -17,6 +17,11 @@ class DiagramShortcutViewSet(viewsets.ModelViewSet):
     permission_classes = (DiagramShortcutPermissions,)
     pagination_class = None
 
+    def list(self, request, *args, **kwargs):
+        service = DiagramShortcutService(self.request)
+        shortcuts = service.list()
+        return Response(DiagramShortcutSerializer(shortcuts, many=True).data)
+
     def create(self, request, *args, **kwargs):
         service = DiagramShortcutService(self.request)
 

@@ -397,8 +397,11 @@ class InputTemplateService(BaseService):
                     for change in row["changes"]:
                         sqlBuild.append(f", [{change['field']}]")
                     sqlBuild.append(f") VALUES ({usercompany_id}, datetime('now') ")
+                    for change in row["changes"]:
+                        sqlBuild.append(f", '{change['value']}'")
+
                     sqlBuild.append(");")
-                    res.append({"id": row["id"], "newId": row["id"], "rowIndex": -1})
+                    res.append({"id": row["id"], "newId": row["id"], "rowIndex": row["rowIndex"]})
 
                     try:
                         execute_result = cursor.execute(" ".join(sqlBuild), paramList)

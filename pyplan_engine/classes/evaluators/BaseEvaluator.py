@@ -82,7 +82,7 @@ class BaseEvaluator(object):
         res = {
             "resultType": "",
             "dims": [],
-            "console": "",
+            "console": nodeDic[nodeId].lastEvaluationConsole,
             "preview": msg
         }
         return json.dumps(res)

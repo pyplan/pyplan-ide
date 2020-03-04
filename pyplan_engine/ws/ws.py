@@ -1,10 +1,12 @@
-import asyncio
-from asyncio.futures import TimeoutError as ConnectionTimeoutError
 from json import dumps
 from logging import getLogger
 from os import getenv
+from time import sleep
 
-from websockets import connect as WSConnect
+from threading import Thread
+from websocket import WebSocketApp
+from .ws_settings import ws_settings
+
 
 PYPLAN_API_HOST = getenv(
     'PYPLAN_API_HOST', default='http://pyplanapi:8000/api')
@@ -15,47 +17,74 @@ logger = getLogger('django')
 
 
 class WS:
-    def __init__(self, ws=None, company_code=None, session_key=None):
-        self.ws = ws
+    def __init__(self, company_code: str, session_key: str):
         self.company_code = company_code
         self.session_key = session_key
+        self.ws = self._start()
 
-    @staticmethod
-    def connect(company_code: str, session_key: str):
-        async def _connect():
-            ws = await WSConnect(f'{WS_URI}/notifications/{company_code}/?sessionKey={session_key}')
-            await ws.send(dumps({
-                'command': 'join',
-                'room': session_key,
-                'message': 'Engine Joining!',
-                'company_code': company_code,
-            }))
-            return WS(ws, company_code, session_key)
+    def _start(self):
+        socket_uri = f'{WS_URI}/notifications/{self.company_code}/?sessionKey={self.session_key}'
+        ws = WebSocketApp(socket_uri, on_open=self._on_open,
+                          on_error=self._on_error, on_close=self._on_close)
+
+        def start_run(ws):
+            ws.run_forever(ping_interval=10)
+        th = Thread(target=start_run, args=(ws,))
+        th.start()
+
+        return ws
+
+    def _on_open(self, ws):
         try:
-            return asyncio.get_event_loop().run_until_complete(_connect())
-        except ConnectionTimeoutError as ex:
-            logger.error(
-                f'Connection Timeout Error in WebSocket connect: {str(ex)}')
-            return WS()
+            ws.send(dumps({
+                    'command': 'join',
+                    'room': self.session_key,
+                    'message': 'Engine Joining!',
+                    'company_code': self.company_code,
+                    }))
         except Exception as ex:
-            logger.error(f'Error in WebSocket connect: {str(ex)}')
-            return WS()
+            logger.error(f'Error in WebSocket join: {str(ex)}')
 
-    def sendMsg(self, message=''):
-        async def _sendMsg():
-            return await self.ws.send(dumps({
+    def _ensure_ws(self):
+        if self.ws is None or not self.ws.keep_running:
+            self._start()
+            nn = 0
+            while nn < 10:
+                if not self.ws is None and self.ws.keep_running:
+                    break
+                sleep(1)
+                nn += 1
+
+    def _on_close(self, ws):
+        logger.error(f'WebSocket has closed')
+
+    def _on_error(self, ws, error):
+        logger.error(f'Error in WebSocket: {str(error)}')
+
+    def sendMsg(self, message, title=None):
+        try:
+            self._ensure_ws()
+            self.ws.send(dumps({
+                'msg_type': ws_settings.MSG_TYPE_MESSAGE,
                 'command': 'send',
                 'room': self.session_key,
-                'type': 0,
-                'session_key': self.session_key,
+                'company_code': self.company_code,
                 'message': message,
+                'title': title if not title is None else '',
             }))
-        try:
-            if self.ws is None or self.ws.closed:
-                logger.error('WebSocket client is not stablished.')
-            return asyncio.get_event_loop().run_until_complete(_sendMsg())
-        except ConnectionTimeoutError as ex:
-            logger.error(
-                f'Connection Timeout Error in WebSocket sendMsg: {str(ex)}')
         except Exception as ex:
             logger.error(f'Error in WebSocket sendMsg: {str(ex)}')
+
+    def progressbar(self, progress, message=None):
+        try:
+            self._ensure_ws()
+            self.ws.send(dumps({
+                'msg_type': ws_settings.MSG_TYPE_PROGRESSBAR,
+                'command': 'send',
+                'room': self.session_key,
+                'company_code': self.company_code,
+                'progress': progress,
+                'message': message if not message is None else ''
+            }))
+        except Exception as ex:
+            logger.error(f'Error in WebSocket send: {str(ex)}')

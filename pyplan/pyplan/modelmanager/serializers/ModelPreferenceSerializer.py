@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from pyplan.pyplan.modelmanager.classes.modelPreference import ModelPreference
+
 
 class ModelPreferenceSerializer(serializers.Serializer):
     modelId = serializers.CharField(required=True)
@@ -11,17 +13,7 @@ class ModelPreferenceSerializer(serializers.Serializer):
     onOpenDashId = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
     def create(self, validated_data):
-        instance = ModelPreference()
-        instance.modelId = validated_data.get("modelId", instance.modelId)
-        instance.changeIdentifier = validated_data.get("changeIdentifier", instance.changeIdentifier)
-        instance.askBeforeRename = validated_data.get("askBeforeRename", instance.askBeforeRename)
-
-        instance.identifier = validated_data.get("identifier", instance.identifier)
-        instance.title = validated_data.get("title", instance.title)
-        instance.onOpenModel = validated_data.get("onOpenModel", instance.onOpenModel)
-        instance.onOpenDashId = validated_data.get("onOpenDashId", instance.onOpenDashId)
-
-        return instance
+        return ModelPreference(**validated_data)
 
     def createBlank(self):
         instance = ModelPreference()

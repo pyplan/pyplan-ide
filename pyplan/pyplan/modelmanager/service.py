@@ -17,6 +17,7 @@ from rest_framework import exceptions
 
 from pyplan.pyplan.common.baseService import BaseService
 from pyplan.pyplan.common.calcEngine import CalcEngine
+from pyplan.pyplan.common.utils import _uploadFile
 from pyplan.pyplan.department.models import Department
 from pyplan.pyplan.filemanager.classes.fileEntry import FileEntry, eFileTypes
 from pyplan.pyplan.filemanager.classes.fileEntryData import (FileEntryData,
@@ -24,8 +25,9 @@ from pyplan.pyplan.filemanager.classes.fileEntryData import (FileEntryData,
                                                              eSpecialFolder)
 from pyplan.pyplan.modelmanager.classes.eImportType import eImportType
 from pyplan.pyplan.modelmanager.classes.modelInfo import ModelInfo
+from pyplan.pyplan.modelmanager.classes.modelPreference import ModelPreference
 from pyplan.pyplan.security.functions import _getAllSessions
-from pyplan.pyplan.common.utils import _uploadFile
+from pyplan.pyplan.ws import sysMsg, ws_settings
 
 
 class ModelManagerService(BaseService):
@@ -142,13 +144,12 @@ class ModelManagerService(BaseService):
         if self.checkModelOpen():
             currentPath = self.client_session.modelInfo.uri
             folderPath = currentPath[:currentPath.rfind(os.path.sep)+1]
-            file_path = os.path.join(folderPath, f'{modelName}.ppl')
-            storage = FileSystemStorage(
-                os.path.join(settings.MEDIA_ROOT, 'models'))
+            file_path = join(folderPath, f'{modelName}.ppl')
+            storage = FileSystemStorage(join(settings.MEDIA_ROOT, 'models'))
             if not storage.exists(file_path):
                 calcEngine = CalcEngine.factory(self.client_session)
                 try:
-                    fullPath = os.path.join(storage.base_location, file_path)
+                    fullPath = join(storage.base_location, file_path)
                     newModel = calcEngine.saveModel(fullPath)
                     current_session = self.getSession()
                     res = current_session.modelInfo
@@ -189,22 +190,21 @@ class ModelManagerService(BaseService):
     def getToolbars(self):
         """Get Toolbars"""
         calcEngine = CalcEngine.factory(self.client_session)
-        return calcEngine.getToolbars(os.path.join(settings.MEDIA_ROOT, 'models', self.client_session.companyName))
+        return calcEngine.getToolbars(join(settings.MEDIA_ROOT, 'models', self.client_session.companyName))
 
     def createNewModel(self, modelName):
         """Creates a new model """
         try:
-            storage = FileSystemStorage(
-                os.path.join(settings.MEDIA_ROOT, 'models'))
+            storage = FileSystemStorage(join(settings.MEDIA_ROOT, 'models'))
 
             folderSufix = 1
             new_model_name = modelName
-            while storage.exists(os.path.join(storage.base_location, new_model_name)):
+            while storage.exists(join(storage.base_location, new_model_name)):
                 folderSufix += 1
                 new_model_name = f'{modelName}_{folderSufix}'
 
-            folder_path = os.path.join(storage.base_location, new_model_name)
-            model_file = os.path.join(folder_path, f'{new_model_name}.ppl')
+            folder_path = join(storage.base_location, new_model_name)
+            model_file = join(folder_path, f'{new_model_name}.ppl')
 
             if not storage.exists(folder_path):
                 os.mkdir(folder_path)
@@ -212,8 +212,7 @@ class ModelManagerService(BaseService):
             calcEngine = CalcEngine.factory(self.client_session)
             if calcEngine.createNewModel(model_file, new_model_name):
                 self.closeModel()
-                return self.openModel(os.path.join(storage.base_location, new_model_name, f'{new_model_name}.ppl'))
-
+                return self.openModel(join(storage.base_location, new_model_name, f'{new_model_name}.ppl'))
         except Exception as ex:
             raise ex
 
@@ -244,7 +243,14 @@ class ModelManagerService(BaseService):
         """Set  model preferences"""
         calcEngine = CalcEngine.factory(self.client_session)
         result = calcEngine.setModelProperties(modelPreferences)
-        return result.text == "ok"
+        if result.text == 'ok':
+            model_pref = ModelPreference(**modelPreferences)
+            if model_pref.identifier or model_pref.title:
+                self.client_session.modelInfo.modelId = model_pref.identifier
+                self.client_session.modelInfo.name = model_pref.title
+                self.saveSession()
+            return self.client_session
+        return False
 
     def closeModel(self):
         """Close current model"""
@@ -421,11 +427,10 @@ class ModelManagerService(BaseService):
                 return True
             except Exception as ex:
                 raise exceptions.NotAcceptable(
-                    f"Error in trying to set the node z property:{str(ex)}")
+                    f"Error trying to set the node z property:{str(ex)}")
 
     def setNodeIdFromTitle(self, node_id):
         """Sets the nodeId from its title"""
-        res = node_id
         calcEngine = CalcEngine.factory(self.client_session)
         new_id = calcEngine.setNodeIdFromTitle(node_id)
         return new_id["node_id"]
@@ -526,10 +531,10 @@ class ModelManagerService(BaseService):
         file_path = join(settings.TMP_ROOT, f'{exportData.moduleId}.ppl')
         if exportData.exportType != "1":
             storage = FileSystemStorage(
-                os.path.join(settings.MEDIA_ROOT, 'models'))
+                join(settings.MEDIA_ROOT, 'models'))
             currentPath = self.client_session.modelInfo.uri
             folderPath = currentPath[:currentPath.rfind(os.path.sep)+1]
-            file_path = os.path.join(
+            file_path = join(
                 storage.base_location, folderPath, f'{exportData.moduleId}.ppl')
         response = calcEngine.exportModule(exportData.moduleId, file_path)
         if response == 1:
@@ -539,14 +544,13 @@ class ModelManagerService(BaseService):
     def importModuleFromFile(self, importModuleData):
         """Import module from file"""
         storage = FileSystemStorage(
-            os.path.join(settings.MEDIA_ROOT, 'models'))
+            join(settings.MEDIA_ROOT, 'models'))
         currentPath = self.client_session.modelInfo.uri
-        importModuleData.currentModelPath = os.path.join(
+        importModuleData.currentModelPath = join(
             storage.base_location, currentPath)
         fullFileName = join(settings.TMP_ROOT, importModuleData.moduleFile)
         if not importModuleData.fromTemp:
-            fullFileName = os.path.join(
-                storage.base_location, importModuleData.moduleFile)
+            fullFileName = join(storage.base_location, importModuleData.moduleFile)
 
         if (importModuleData.importType.name == eImportType(0).name) or (importModuleData.importType.name == eImportType(2).name):
             calcEngine = CalcEngine.factory(self.client_session)
@@ -565,11 +569,10 @@ class ModelManagerService(BaseService):
         """
         Get files for use in import wizard 
         """
-        storage = FileSystemStorage(
-            os.path.join(settings.MEDIA_ROOT, 'models'))
+        storage = FileSystemStorage(join(settings.MEDIA_ROOT, 'models'))
         folderPath = self.client_session.modelInfo.uri[:self.client_session.modelInfo.uri.rfind(
             os.path.sep)+1]
-        fullFolderPath = os.path.join(storage.base_location, folderPath)
+        fullFolderPath = join(storage.base_location, folderPath)
         return self._findFilesEntriesInFolderByExtension(fullFolderPath, f'.{extension}', True, [])
 
     def callWizard(self, wizardRequest):
@@ -657,8 +660,7 @@ class ModelManagerService(BaseService):
                         type=eFileTypes.NOTHING,
                         data=FileEntryData(
                             # fullPath=entry.path,
-                            fullPath=str(
-                                entry.path[entry.path.rfind(os.path.sep)+1:]),
+                            fullPath=str(entry.path[entry.path.rfind(os.path.sep)+1:]),
                             fileSize=fileStats.st_size,
                             lastUpdateTime=datetime.datetime.fromtimestamp(
                                 fileStats.st_mtime).isoformat()
@@ -692,12 +694,29 @@ class ModelManagerService(BaseService):
             result = calcEngine.executeButton(identifier)
             #message.error = False
             #message.result = evalResult
-            print("executeButtonThreadFinished")
+            # Notify to WebSocket channel that the thread has finished
+            sysMsg(
+                self.client_session.session_key,
+                ws_settings.MSG_TYPE_MESSAGE,
+                ws_settings.NOTIFICATION_LEVEL_SUCCESS,
+                content={
+                    'title': 'Finished processing.',
+                    'message': f'ID: {identifier}',
+                }
+            )
         except Exception as ex:
-            #message.error = True
-            #message.result = "Error execute button " & identifier & ". " & MainLib.Helpers.getFullError(ex)
-            raise exceptions.NotAcceptable(
-                f"Error when performing execute button thread:{str(ex)}")
+            error_msg = f'Error when performing execute button thread: {str(ex)}'
+            # Notify to WebSocket channel that the thread has finished with error
+            sysMsg(
+                self.client_session.session_key,
+                ws_settings.MSG_TYPE_MESSAGE,
+                ws_settings.NOTIFICATION_LEVEL_ERROR,
+                content={
+                    'title': 'Finished processing with errors',
+                    'message': error_msg,
+                }
+            )
+            raise exceptions.NotAcceptable(error_msg)
         finally:
             self.client_session.modelInfo.nodeIdInBackground = ''
             self.saveSession()
@@ -706,10 +725,9 @@ class ModelManagerService(BaseService):
         """Install python library"""
         calcEngine = CalcEngine.factory(self.client_session)
 
-        pos = self.client_session.modelInfo.uri.find(
-            "/", self.client_session.modelInfo.uri.find("/", 1)+1)
+        pos = self.client_session.modelInfo.uri.find("/", self.client_session.modelInfo.uri.find("/", 1)+1)
         current_path = self.client_session.modelInfo.uri[:pos]
-        target_path = os.path.join(settings.MEDIA_ROOT, 'models', current_path)
+        target_path = join(settings.MEDIA_ROOT, 'models', current_path)
         result = calcEngine.installLibrary(lib, target_path)
         return result
 

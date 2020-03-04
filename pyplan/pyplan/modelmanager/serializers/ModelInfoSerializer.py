@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from pyplan.pyplan.modelmanager.classes.modelInfo import ModelInfo
+from ..classes.modelInfo import ModelInfo
 
 
 class ModelInfoSerializer(serializers.Serializer):

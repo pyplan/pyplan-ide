@@ -36,45 +36,30 @@ class DashboardView(object):
     def register():
         return [
             url(r'^dashboardManager/myDashboards/$', DashboardView.myDashboards),
-            url(r'^dashboardManager/companyDashboards/$',
-                DashboardView.companyDashboards),
+            url(r'^dashboardManager/companyDashboards/$', DashboardView.companyDashboards),
             url(r'^dashboardManager/sharedWithMe/$', DashboardView.sharedWithMe),
-            url(r'^dashboardManager/allMyDashboards/',
-                DashboardView.allMyDashboards),
-            url(r'^dashboardManager/mySharedDashboards/$',
-                DashboardView.mySharedDashboards),
-            url(r'^dashboardManager/by_id/(?P<pk>[0-9a-f-]+)/$',
-                DashboardView.get),
-            url(r'^dashboardManager/getNodeFullData/$',
-                DashboardView.getNodeFullData),
+            url(r'^dashboardManager/allMyDashboards/', DashboardView.allMyDashboards),
+            url(r'^dashboardManager/mySharedDashboards/$', DashboardView.mySharedDashboards),
+            url(r'^dashboardManager/by_id/(?P<pk>[0-9a-f-]+)/$', DashboardView.get),
+            url(r'^dashboardManager/getNodeFullData/$', DashboardView.getNodeFullData),
             url(r'^dashboardManager/evaluateNode/$', DashboardView.evaluateNode),
             url(r'^dashboardManager/getOrCreate/$', DashboardView.getOrCreate),
             url(r'^dashboardManager/$', DashboardView.create),
             url(r'^dashboardManager/(?P<pk>\d+)/$', DashboardView.update),
             url(r'^dashboardManager/bulkDelete/$', DashboardView.bulkDelete),
             url(r'^dashboardManager/changeOrder/$', DashboardView.changeOrder),
-            url(r'^dashboardManager/getIndexValues/$',
-                DashboardView.getIndexValues),
-            url(r'^dashboardManager/getNodeIndexes/$',
-                DashboardView.getNodeIndexes),
-            url(r'^dashboardManager/isResultComputed/$',
-                DashboardView.isResultComputed),
-            url(r'^dashboardManager/lastOpenDashboards/$',
-                DashboardView.lastOpenDashboards),
+            url(r'^dashboardManager/getIndexValues/$', DashboardView.getIndexValues),
+            url(r'^dashboardManager/getNodeIndexes/$', DashboardView.getNodeIndexes),
+            url(r'^dashboardManager/isResultComputed/$', DashboardView.isResultComputed),
+            url(r'^dashboardManager/lastOpenDashboards/$', DashboardView.lastOpenDashboards),
             url(r'^dashboardManager/copy/$', DashboardView.copy),
             url(r'^dashboardManager/(?P<pk>\d+)/shares/$', DashboardView.getShares),
-            url(r'^dashboardManager/(?P<pk>\d+)/setShares/$',
-                DashboardView.setShares),
-            url(r'^dashboardManager/(?P<pk>\d+)/externalLink/$',
-                DashboardView.getExternalLink),
-            url(r'^dashboardManager/pivotGrid/getCubeMetadata/$',
-                DashboardView.getCubeMetadata),
-            url(r'^dashboardManager/pivotGrid/getCubeValues/$',
-                DashboardView.getCubeValues),
-            url(r'^dashboardManager/pivotGrid/setCubeChanges/$',
-                DashboardView.setCubeChanges),
-            url(r'^dashboardManager/pivotGrid/getDimensionValues/$',
-                DashboardView.getDimensionValues),
+            url(r'^dashboardManager/(?P<pk>\d+)/setShares/$', DashboardView.setShares),
+            url(r'^dashboardManager/(?P<pk>\d+)/externalLink/$', DashboardView.getExternalLink),
+            url(r'^dashboardManager/pivotGrid/getCubeMetadata/$', DashboardView.getCubeMetadata),
+            url(r'^dashboardManager/pivotGrid/getCubeValues/$', DashboardView.getCubeValues),
+            url(r'^dashboardManager/pivotGrid/setCubeChanges/$', DashboardView.setCubeChanges),
+            url(r'^dashboardManager/pivotGrid/getDimensionValues/$', DashboardView.getDimensionValues),
         ]
 
     @api_view(['GET'])
@@ -126,15 +111,9 @@ class DashboardView(object):
 
     @api_view(['GET'])
     @permission_required('pyplan.list_dashboards', raise_exception=True)
-    @schema(AutoSchema(manual_fields=[
-        coreapi.Field("parent", required=False, location="query",
-                      description="Parent report")
-    ]))
     def mySharedDashboards(request, *args, **kargs):
-        report_id = request.query_params.get("report_id", None)
-
         service = DashboardManagerService(request)
-        response = service.mySharedDashboards(report_id)
+        response = service.mySharedDashboards()
 
         return Response(DashboardSerializer(response, many=True, context={'request': request}).data)
 

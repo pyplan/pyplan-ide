@@ -18,6 +18,7 @@ from openpyxl import load_workbook
 from rest_framework import exceptions
 
 from pyplan.pyplan.common.baseService import BaseService
+from pyplan.pyplan.common.utils import _linuxCopy, _unzipFile, _zipFiles
 from pyplan.pyplan.companies.models import Company
 from pyplan.pyplan.preference.models import Preference
 from pyplan.pyplan.user_company_preference.models import UserCompanyPreference
@@ -25,8 +26,6 @@ from pyplan.pyplan.user_company_preference.models import UserCompanyPreference
 from .classes.fileEntry import FileEntry, eFileTypes
 from .classes.fileEntryData import (FileEntryData, eSpecialFileType,
                                     eSpecialFolder)
-
-from pyplan.pyplan.common.utils import _zipFiles, _unzipFile
 
 
 class FileManagerService(BaseService):
@@ -196,7 +195,7 @@ class FileManagerService(BaseService):
         src = os.path.join(storage.base_location, source)
         dest = os.path.join(storage.base_location, destination)
         if self.isLinux():
-            return self._linuxCopy(src, dest)
+            return _linuxCopy(src, dest)
         return self._copy(src, dest)
 
     def ensureUserWorkspace(self):
@@ -234,7 +233,7 @@ class FileManagerService(BaseService):
                 dest = os.path.join(storage.base_location,
                                     dest_path, f'Copy {n} of {dest_name}')
             if self.isLinux():
-                result.append(self._linuxCopy(src, dest))
+                result.append(_linuxCopy(src, dest))
             else:
                 result.append(self._copy(src, dest))
         return result
@@ -262,13 +261,13 @@ class FileManagerService(BaseService):
         for source in sources:
             source = os.path.normpath(source)
             src = os.path.join(storage.base_location, source)
-            *src_path, src_name = source.rsplit(os.path.sep, 1)
+            *_, src_name = source.rsplit(os.path.sep, 1)
             *dest_path, dest_name = target.rsplit(os.path.sep, 1)
             dest_path = ''.join(dest_path)
             dest = os.path.join(storage.base_location,
                                 dest_path, dest_name, src_name)
             if self.isLinux():
-                self._linuxCopy(src, dest)
+                _linuxCopy(src, dest)
             else:
                 self._copy(src, dest)
         return True
@@ -280,7 +279,7 @@ class FileManagerService(BaseService):
             storage.base_location, self.client_session.company_code, self.current_user.username)
         src = os.path.join(storage.base_location, source)
         if self.isLinux():
-            return self._linuxCopy(src, target)
+            return _linuxCopy(src, target)
         return self._copy(src, target)
 
     def deleteFiles(self, sources):
@@ -401,7 +400,7 @@ class FileManagerService(BaseService):
 
         wb = load_workbook(filename, data_only=True, read_only=True)
         for item in wb.defined_names.definedName:
-            if not item.is_external and item.type == "RANGE" and item.attr_text and "!$" in item.attr_text:
+            if not item.is_external and item.type == 'RANGE' and item.attr_text and '!$' in item.attr_text:
                 target_filename = os.path.join(target_dir, f'{item.name}.pkl')
                 if os.path.isfile(target_filename):
                     os.remove(target_filename)
@@ -427,12 +426,11 @@ class FileManagerService(BaseService):
                         _finalCols = []
                         for _col in cols:
                             if _col is None:
-                                _finalCols.append("Unnamed" + str(nn))
+                                _finalCols.append(f'Unnamed{str(nn)}')
                                 nn += 1
                             else:
                                 _finalCols.append(_col)
-                        df = pd.DataFrame(
-                            values, columns=_finalCols).dropna(how="all")
+                        df = pd.DataFrame(values, columns=_finalCols).dropna(how='all')
                         df.to_pickle(target_filename, compression='gzip')
 
     def recursive_overwrite(self, src, dest, ignore=None):
@@ -467,25 +465,3 @@ class FileManagerService(BaseService):
                     'Directory not copied. Error: %s' % e)
         except Exception as e:
             raise e
-
-    def _linuxCopy(self, src, dest):
-        src_path = src.replace(' ', '\ ')
-        dest_path = dest.replace(' ', '\ ')
-
-        # -R, -r, --recursive
-        #   copy directories recursively
-        # -u, --update
-        #   copy only when the SOURCE file is newer
-        #   than the destination file or when the
-        #   destination file is missing
-        # -v, --verbose
-        #   explain what is being done
-
-        cmd = f'cp -ruv {src_path} {dest_path}'
-        popen = Popen(split(cmd), stdout=PIPE, universal_newlines=True)
-
-        stdout, stderr = popen.communicate()
-        if stderr:
-            raise exceptions.NotAcceptable(stderr)
-
-        return True

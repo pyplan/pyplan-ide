@@ -133,9 +133,17 @@ class Intellisense(object):
                                 toAppend["completeText"] = extraText + \
                                     node.identifier
                                 if filterOptions["fillDetail"] and node.nodeClass == "function":
-                                    params = node.definition[node.definition.find(
-                                        "(")+1:node.definition.find(")")]
-                                    toAppend["params"] = params
+                                    try:
+                                        _fn = node.result
+                                        toAppend["params"] = str(
+                                            inspect.signature(_fn))
+                                        toAppend["description"] = str(
+                                            inspect.getdoc(_fn))
+                                    except Exception as ex:
+                                        params = node.definition[node.definition.find(
+                                            "(")+1:node.definition.find(")")]
+                                        toAppend["params"] = params
+
                                 res.append(toAppend)
 
         if filterOptions["fillDetail"]:

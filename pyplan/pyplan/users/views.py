@@ -1,11 +1,13 @@
-from rest_framework import viewsets, status
-from rest_framework.response import Response
+from rest_framework import status, viewsets
 from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
+
 from .models import User
-from .permissions import UserPermissions
-from .serializers import CreateUserSerializer, UserSerializer, UpdateUserSerializer, FullUserSerializer
-from .service import UserService
 from .pagination import UserPagination
+from .permissions import UserPermissions
+from .serializers import (CreateUserSerializer, UpdateUserSerializer,
+                          UserSerializer)
+from .service import UserService
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -32,7 +34,7 @@ class UserViewSet(viewsets.ModelViewSet):
             if user_id:
                 service = UserService(request)
                 response = service.retrieve(user_id)
-                return Response(FullUserSerializer(response).data, status=status.HTTP_200_OK)
+                return Response(UserSerializer(response).data, status=status.HTTP_200_OK)
             return Response("Could not find user id ", status=status.HTTP_406_NOT_ACCEPTABLE)
         except Exception as ex:
             return Response(str({ex}), status=status.HTTP_406_NOT_ACCEPTABLE)

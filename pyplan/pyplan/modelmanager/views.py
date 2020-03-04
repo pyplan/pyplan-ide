@@ -12,6 +12,7 @@ from pyplan.pyplan.activity.serializers import ActivitySerializer
 from pyplan.pyplan.activity.service import ActivityService
 from pyplan.pyplan.dashboard.service import DashboardManagerService
 from pyplan.pyplan.filemanager.serializers import FileEntrySerializer
+from pyplan.pyplan.security.serializers import ClientSessionSerializer
 
 from .classes.node import Node
 from .serializers.CopyAsValuesParamSerializer import \
@@ -300,10 +301,12 @@ class ModelManagerView(object):
         serializer.is_valid(raise_exception=True)
         try:
             service = ModelManagerService(request)
-            return Response(service.setModelPreferences(serializer.validated_data))
+            result = service.setModelPreferences(serializer.validated_data)
+            if result:
+                return Response(ClientSessionSerializer(result).data)
+            raise exceptions.NotAcceptable('There was an error changing model preferences.')
         except Exception as ex:
-            raise exceptions.NotAcceptable(
-                f"Error in setting model preferences:{str(ex)}")
+            raise exceptions.NotAcceptable(f'Error in setting model preferences:{str(ex)}')
 
     @staticmethod
     @api_view(['GET'])

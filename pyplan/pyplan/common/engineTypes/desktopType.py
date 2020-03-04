@@ -1,20 +1,15 @@
 import json
 import os
-import logging
-import requests
 
 from django.conf import settings
 from django.contrib.sessions.models import Session
 from rest_framework import exceptions
+
+from pyplan.pyplan.common.classes.eNodeProperty import eNodeProperty
+from pyplan.pyplan.common.engineTypes.engineType import IEngineType
+from pyplan.pyplan.modelmanager.classes.modelInfo import ModelInfo
 from pyplan_engine.classes.CalcEngine import CalcEngine
 
-from pyplan.pyplan.app_pool.models import AppPool
-from pyplan.pyplan.common.classes.eNodeProperty import eNodeProperty
-from pyplan.pyplan.common.engineManager import EngineManager
-from pyplan.pyplan.common.redisService import RedisService
-from pyplan.pyplan.modelmanager.serializers.ModelInfoSerializer import (
-    ModelInfo, ModelInfoSerializer)
-from pyplan.pyplan.common.engineTypes.engineType import IEngineType
 from .serializers import IndexValuesReqSerializer
 
 
@@ -25,6 +20,7 @@ class DesktopType(IEngineType):
     def __init__(self, clientSession):
 
         if DesktopType.calcEngine is None:
+            self.currentSession = clientSession
             self.createEngine(clientSession)
 
     def createEngine(self, clientSession):
@@ -63,6 +59,17 @@ class DesktopType(IEngineType):
             user_dic["departments"] = self.currentSession.departments
             self.setNodeProperties(
                 "pyplan_user", [{"name": "definition", "value": f"result = {json.dumps(user_dic)}"}])
+            # Connect to WS
+            self.connectToWS(self.currentSession.company_code, self.currentSession.session_key)
+
+    def connectToWS(self, company_code: str = None, session_key: str = None):
+        """Connect to WebSocket"""
+        if company_code and session_key:
+            # ToDo: finish this
+            response = DesktopType.calcEngine.model.connectToWS(
+                company_code, session_key)
+            return response.status_code is 200
+        return None
 
     def getModelName(self):
         """Return model name"""
@@ -81,6 +88,10 @@ class DesktopType(IEngineType):
     def getModelPreferences(self):
         """Get model preferences"""
         return DesktopType.calcEngine.model.getModelProperties()
+
+    def connectToWS(self, company_code: str = None, session_key: str = None):
+        """Connect to WebSocket"""
+        return DesktopType.calcEngine.model.connectToWS(company_code, session_key)
 
     def getDiagram(self, module_id=None):
         """Get diagram"""
@@ -191,7 +202,7 @@ class DesktopType(IEngineType):
     ):
 
         response = DesktopType.calcEngine.model.evaluateNode(
-            node_id, dims, rows, columns, summary_by, bottom_total, right_total,  from_row, to_row)
+            node_id, dims, rows, columns, summary_by, bottom_total, right_total, from_row, to_row)
 
         try:
             return json.loads(response)

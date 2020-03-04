@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from pyplan.pyplan.companies.serializers import CompanySerializer
+from pyplan.pyplan.companies.serializers import CompanySerializer, LightCompanySerializer
 
 from .models import Department
 
@@ -14,6 +14,13 @@ class DepartmentSerializer(serializers.ModelSerializer):
         model = Department
         fields = '__all__'
 
+class LightDepartmentSerializer(serializers.ModelSerializer):
+    company = LightCompanySerializer(default=None)
+
+    class Meta:
+        model = Department
+        fields = ('id', 'code', 'name', 'company',)
+        depth = 1
 
 class DepartmentCreateUpdateSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=50, required=True)

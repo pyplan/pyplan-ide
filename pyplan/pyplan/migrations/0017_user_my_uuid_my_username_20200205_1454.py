@@ -21,4 +21,10 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 blank=True, default='', max_length=150, null=True),
         ),
+        migrations.AlterField(
+            model_name='department',
+            name='company',
+            field=models.ForeignKey(on_delete=models.deletion.CASCADE,
+                                    related_name='departments', to='pyplan.Company'),
+        ),
     ]

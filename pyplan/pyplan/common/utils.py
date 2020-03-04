@@ -1,8 +1,8 @@
 import os
 import zipfile
-from uuid import uuid4
 from shlex import split
 from subprocess import PIPE, Popen
+from uuid import uuid4
 
 from django.conf import settings
 from rest_framework import exceptions
@@ -24,7 +24,7 @@ def _linuxCopy(src, dest):
     cmd = f'cp -ruv {src_path} {dest_path}'
     popen = Popen(split(cmd), stdout=PIPE, universal_newlines=True)
 
-    stdout, stderr = popen.communicate()
+    _, stderr = popen.communicate()
     if stderr:
         raise exceptions.NotAcceptable(stderr)
 

@@ -33,6 +33,9 @@ class IEngineType(ABC):
     def openModel(self, file): raise NotImplementedError
 
     @abstractmethod
+    def connectToWS(self, company_code: str = None, session_key: str = None): raise NotImplementedError
+
+    @abstractmethod
     def getDiagram(self, module_id=None): raise NotImplementedError
 
     @abstractmethod

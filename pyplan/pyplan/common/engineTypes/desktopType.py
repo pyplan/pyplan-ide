@@ -65,7 +65,6 @@ class DesktopType(IEngineType):
     def connectToWS(self, company_code: str = None, session_key: str = None):
         """Connect to WebSocket"""
         if company_code and session_key:
-            # ToDo: finish this
             response = DesktopType.calcEngine.model.connectToWS(
                 company_code, session_key)
             return response.status_code is 200

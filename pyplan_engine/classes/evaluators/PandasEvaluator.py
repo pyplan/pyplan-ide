@@ -12,6 +12,7 @@ from cubepy.cube import kindToString
 class PandasEvaluator(BaseEvaluator):
 
     PAGESIZE = 100
+    MAX_COLUMS = 5000
 
     def evaluateNode(self, result, nodeDic, nodeId, dims=None, rows=None, columns=None, summaryBy="sum", bottomTotal=False, rightTotal=False, fromRow=0, toRow=0):
         sby = np.nansum
@@ -117,7 +118,8 @@ class PandasEvaluator(BaseEvaluator):
             res = dfResult.iloc[_range].to_json(
                 orient='split', date_format='iso')
         else:
-            res = dfResult[:300].to_json(orient='split', date_format='iso')
+            res = dfResult[:PandasEvaluator.MAX_COLUMS].to_json(
+                orient='split', date_format='iso')
 
         return self.createResult(res, type(theResult), resultIsJson=True, pageInfo=pageInfo, node=nodeDic[nodeId],  onRow=(_rows[0] if len(_rows) > 0 else None), onColumn=(_columns[0] if len(_columns) > 0 else None))
 

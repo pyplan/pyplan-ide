@@ -15,6 +15,7 @@ from pyplan_engine.common.classes.indexValuesReq import IndexValuesReq
 class XArrayEvaluator(BaseEvaluator):
 
     PAGESIZE = 100
+    MAX_COLUMS = 5000
 
     def evaluateNode(self, result, nodeDic, nodeId, dims=None, rows=None, columns=None, summaryBy="sum", bottomTotal=False, rightTotal=False, fromRow=0, toRow=0):
         if isinstance(result, xr.DataArray):
@@ -149,9 +150,9 @@ class XArrayEvaluator(BaseEvaluator):
         elif len(_rows) == 0:
             onColumn = _columns[0]
             res = {
-                "columns": self.checkDateFormat(finalIndexes[:300]).tolist(),
+                "columns": self.checkDateFormat(finalIndexes[:XArrayEvaluator.MAX_COLUMS]).tolist(),
                 "index": finalColumns,
-                "data": [finalValues[:300].tolist()]
+                "data": [finalValues[:XArrayEvaluator.MAX_COLUMS].tolist()]
             }
         elif len(_columns) == 0:
 
@@ -185,15 +186,16 @@ class XArrayEvaluator(BaseEvaluator):
                 }
 
             res = {
-                "columns": self.checkDateFormat(finalColumns[:300]).tolist(),
+                "columns": self.checkDateFormat(finalColumns[:XArrayEvaluator.MAX_COLUMS]).tolist(),
                 "index": self.checkDateFormat(finalIndexes[fromRow-1:toRow]).tolist(),
-                "data": finalValues[fromRow-1:toRow, :300].tolist()
+                "data": finalValues[fromRow-1:toRow, :XArrayEvaluator.MAX_COLUMS].tolist()
             }
 
             # add total rows
             if not _totalRow is None:
                 res["index"].append("Total")
-                res["data"].append(_totalRow[:300].tolist())
+                res["data"].append(
+                    _totalRow[:XArrayEvaluator.MAX_COLUMS].tolist())
 
         return self.createResult(res, type(tmp), onRow=onRow, onColumn=onColumn, node=nodeDic[nodeId], pageInfo=pageInfo)
 

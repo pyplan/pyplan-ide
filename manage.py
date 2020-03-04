@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import os
 import sys
-import environ
 
+import environ
 
 if __name__ == "__main__":
 
@@ -19,9 +19,10 @@ if __name__ == "__main__":
     os.environ.setdefault("USE_MULTIPROCESS", "1")
     os.environ.setdefault("FREE_MEMORY_FOR_NEW_SESSION", "0.5")
     os.environ.setdefault("MAX_MEMORY_FOR_SESSION", "64")
+    os.environ.setdefault("PYPLAN_API_HOST", "http://localhost:9740/api")
 
     # read .env file
-    if os.path.isfile(".env"):
+    if os.path.isfile('.env'):
         environ.Env.read_env(env_file='.env')
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pyplan.config.settings")

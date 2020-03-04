@@ -7,6 +7,15 @@ from .models import DiagramShortcut
 
 class DiagramShortcutService(BaseService):
 
+    def list(self):
+        """ List DiagramShortcut
+        only for the requesting user and company
+        """
+        return DiagramShortcut.objects.filter(
+            model=self.client_session.modelInfo.modelId,
+            usercompany_id=self.client_session.userCompanyId
+        )
+
     def create(self, data):
         """ Creates DiagramShortcut
         using model and usercompany_id from client_session

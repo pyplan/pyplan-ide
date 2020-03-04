@@ -369,9 +369,9 @@ class FileManagerView(object):
                 serializer.data.get("source"),
                 serializer.data.get("targetFolder")
             )
+            return Response(status=status.HTTP_200_OK)
         except Exception as ex:
             return Response(str(ex), status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_200_OK)
 
     @staticmethod
     @api_view(['GET'])
@@ -392,9 +392,9 @@ class FileManagerView(object):
             response = service.zipFiles(
                 serializer.data.get("sources")
             )
+            return Response(response, status=status.HTTP_200_OK)
         except Exception as ex:
             return Response(str(ex), status=status.HTTP_400_BAD_REQUEST)
-        return Response(response, status=status.HTTP_200_OK)
 
     @staticmethod
     @api_view(['GET'])

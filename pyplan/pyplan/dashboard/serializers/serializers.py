@@ -4,7 +4,7 @@ from pyplan.pyplan.common.classes.filterChoices import filterChoices
 from pyplan.pyplan.dashboardstyle.serializers import DashboardStyleSerializer
 from pyplan.pyplan.department.serializers import DepartmentSerializer
 from pyplan.pyplan.usercompanies.serializers import UserCompanySerializer
-from pyplan.pyplan.users.serializers import UserSerializer
+from pyplan.pyplan.users.serializers import LightUserSerializer
 
 from ..models import Dashboard
 
@@ -209,7 +209,7 @@ class DashboardGetIndexValuesSerializer(serializers.Serializer):
 
 class UserCompanyGetSharesSerializer(serializers.Serializer):
     id = serializers.IntegerField()
-    user = UserSerializer()
+    user = LightUserSerializer()
 
 
 class DepartmentGetSharesSerializer(serializers.Serializer):

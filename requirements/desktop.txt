@@ -2,12 +2,15 @@
 Django==2.2.5
 django-configurations==2.1
 
+# WebSocket
+channels==2.4.0
+
 # Model Tools
 django-model-utils==3.2.0
 jsonfield==2.0.2
 
 # WebSocket
-websockets==8.1
+websocket_client==0.57.0
 
 # Rest apis
 djangorestframework==3.10.2

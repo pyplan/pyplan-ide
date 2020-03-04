@@ -28,12 +28,17 @@ class PureXArrayDynamic(BaseDynamic):
             node.model.inCyclicEvaluate = True
             for nodeId in nodesInCyclic:
                 _nodeObj = node.model.getNode(nodeId)
-                cyclicNodes.append({
+                startTime = dt.datetime.now()
+                cyclic_item = {
                     "node": _nodeObj,
                     "initialize": self.generateInitDef(node, _nodeObj.bypassCircularEvaluator().result, dynamicIndex),
                     "loopDefinition": self.generateLoopDef(node, _nodeObj.definition, nodesInCyclic),
                     "calcTime": 0.
-                })
+                }
+                endTime = dt.datetime.now()
+                cyclic_item["calcTime"] = cyclic_item["calcTime"] + \
+                    (endTime - startTime).total_seconds()
+                cyclicNodes.append(cyclic_item)
         except Exception as e:
             raise e
         finally:
@@ -43,10 +48,14 @@ class PureXArrayDynamic(BaseDynamic):
 
         # initialice var dictionary
         for _node in cyclicNodes:
+            startTime = dt.datetime.now()
             _id = _node["node"].identifier
             cyclicDic[_id] = evaluate(_node["initialize"])
             if not initialValues is None and _id in initialValues:
                 cyclicDic[_id] = cyclicDic[_id] + evaluate(initialValues[_id])
+            endTime = dt.datetime.now()
+            _node["calcTime"] = _node["calcTime"] + \
+                (endTime - startTime).total_seconds()
 
         # initialice vars in t-1
         for _var in dynamicVars:

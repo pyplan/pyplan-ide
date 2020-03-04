@@ -1,14 +1,48 @@
-from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
+
+from pyplan.pyplan.companies.models import Company
+from pyplan.pyplan.companies.serializers import (CompanySerializer,
+                                                 LightCompanySerializer)
+from pyplan.pyplan.department.models import Department
+from pyplan.pyplan.department.serializers import LightDepartmentSerializer
+
 from .models import User
-from pyplan.pyplan.companies.serializers import CompanySerializer
 
 
 class UserSerializer(serializers.ModelSerializer):
     active = serializers.BooleanField()
     langCode = serializers.CharField()
     imageURL = serializers.CharField()
-    companies = CompanySerializer(many=True, read_only=True)
+    companies = serializers.SerializerMethodField(read_only=True, default=[])
+    departments = serializers.SerializerMethodField(required=False, default=[])
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'first_name', 'last_name', 'email',
+                  'langCode', 'active', 'last_login', 'imageURL', 'companies', 'departments',)
+        read_only_fields = ('username', )
+
+    def get_companies(self, obj):
+        request = self.context.get('request')
+        queryset = Company.objects.filter(users__pk=obj.pk)
+        if not (request.user.is_superuser or request.user.is_staff):
+            queryset = queryset.filter(
+                pk__in=request.user.companies.values_list('id', flat=True))
+        return LightCompanySerializer(queryset, many=True).data
+
+    def get_departments(self, obj):
+        request = self.context.get('request')
+        queryset = Department.objects.filter(usercompanies__user__pk=obj.pk)
+        if not (request.user.is_superuser or request.user.is_staff):
+            queryset = queryset.filter(
+                company__pk__in=request.user.companies.values_list('id', flat=True))
+        return LightDepartmentSerializer(queryset, many=True).data
+
+
+class LightUserSerializer(serializers.ModelSerializer):
+    active = serializers.BooleanField()
+    langCode = serializers.CharField()
+    imageURL = serializers.CharField()
 
     class Meta:
         model = User
@@ -29,42 +63,6 @@ class UpdateUserFromUISerializer(serializers.Serializer):
     langCode = serializers.CharField(required=False, allow_null=True)
     imageURL = serializers.CharField(required=False, allow_null=True)
     companies = CompanySerializer(many=True, required=False, default=[])
-
-# cant import any serializers from department serializers due to circular references with the company serializer
-
-
-class FakeDepartmentSerializer(serializers.Serializer):
-    id = serializers.CharField(required=True)
-    code = serializers.CharField(max_length=50, required=True)
-    name = serializers.CharField(max_length=255, required=True)
-    engine_definitions = serializers.JSONField(required=False, default={})
-    login_action = serializers.JSONField(required=False, default={})
-    denied_items = serializers.JSONField(required=False, default={})
-    company_id = serializers.CharField(required=True)
-
-
-class AssignedCompaniesSerializer(serializers.Serializer):
-    id = serializers.CharField()
-    code = serializers.CharField()
-    name = serializers.CharField()
-    system = serializers.CharField()
-    active = serializers.BooleanField()
-    licence = serializers.CharField()
-    departments = FakeDepartmentSerializer(many=True, default=[])
-
-
-class FullUserSerializer(serializers.Serializer):
-    id = serializers.CharField()
-    username = serializers.CharField()
-    first_name = serializers.CharField()
-    last_name = serializers.CharField()
-    email = serializers.CharField()
-    active = serializers.BooleanField()
-    last_login = serializers.DateTimeField()
-    langCode = serializers.CharField()
-    imageURL = serializers.CharField()
-    companies = CompanySerializer(many=True)
-    assigned = AssignedCompaniesSerializer(many=True)
 
 
 class CreateUserFromUISerializer(serializers.ModelSerializer):
@@ -97,15 +95,11 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
 class UpdateUserSerializer(serializers.ModelSerializer):
     id = serializers.CharField(required=True)
-    first_name = serializers.CharField(
-        max_length=30, allow_null=True, required=False, allow_blank=True)
-    last_name = serializers.CharField(
-        max_length=30, allow_null=True, required=False, allow_blank=True)
+    first_name = serializers.CharField(max_length=30, allow_null=True, required=False, allow_blank=True)
+    last_name = serializers.CharField(max_length=30, allow_null=True, required=False, allow_blank=True)
     email = serializers.EmailField(required=False)
-    langCode = serializers.CharField(
-        max_length=10, allow_null=True, required=False)
-    password = serializers.CharField(
-        allow_null=True, required=False, allow_blank=True)
+    langCode = serializers.CharField(max_length=10, allow_null=True, required=False)
+    password = serializers.CharField(allow_null=True, required=False, allow_blank=True)
 
     def update(self, request, validated_data):
         user = User.objects.get(pk=validated_data['id'])

@@ -30,10 +30,19 @@ class Common(Configuration):
         'rest_framework.authtoken',  # token authentication
         'django_filters',            # for filtering rest endpoints
         'corsheaders',               # adds CORS headers to responses
+        'channels',                  # websockets
 
         # Your apps
         'pyplan.pyplan.PyplanAppConfig',
     )
+
+    # Channels
+    ASGI_APPLICATION = 'pyplan.config.urls.application'
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        },
+    }
 
     SITE_ID = 1
 

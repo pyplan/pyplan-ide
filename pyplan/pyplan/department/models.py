@@ -14,7 +14,7 @@ class Department(models.Model):
     denied_items = JSONField(
         blank=True, null=True, help_text='{ "folders": ["folder_a"], "modules": [{ "model_id": "model_a", "modules_ids": ["id_of_module"] }] }')
 
-    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='departments')
 
     def __str__(self):
-        return f"[{self.company.code}] - {self.code} - {self.name}"
+        return f'[{self.company.code}] - {self.code} - {self.name}'

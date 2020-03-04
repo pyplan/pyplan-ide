@@ -49,24 +49,29 @@ class DashboardManagerService(BaseService):
 
         dashboards = Dashboard.objects.filter(
             model=model_id,
-            node__isnull=True,
         )
 
-        if report_id and report_id.isnumeric():
-            dashboards = dashboards.filter(
-                report__pk=int(report_id),
-            )
-        else:
-            dashboards = dashboards.filter(
-                owner_id=usercompany_id,
-                report__pk__isnull=True,
-            )
         if type(favs) is bool and favs:
-            dashboards = dashboards.filter(
+            dashboards = Dashboard.objects.filter(
+                owner_id=usercompany_id,
                 is_fav=True,
             )
+        else:
+            dashboards = Dashboard.objects.filter(
+                node__isnull=True,
+            )
 
-        return dashboards.order_by("order").distinct()
+            if report_id and report_id.isnumeric():
+                dashboards = dashboards.filter(
+                    report__pk=int(report_id),
+                )
+            else:
+                dashboards = dashboards.filter(
+                    owner_id=usercompany_id,
+                    report__pk__isnull=True,
+                )
+
+        return dashboards.order_by('order').distinct()
 
     def sharedWithMe(self, report_id):
         company_id = self.client_session.companyId
@@ -147,24 +152,12 @@ class DashboardManagerService(BaseService):
         return dashboards_response.order_by('name').distinct()
 
     def mySharedDashboards(self, report_id):
-        usercompany_id = self.client_session.userCompanyId
-        model_id = self.client_session.modelInfo.modelId
-
         dashboards = Dashboard.objects.filter(
-            Q(departments__isnull=False) | Q(
-                usercompanies__isnull=False) | Q(is_public=True),
-            owner__pk=usercompany_id,
-            model=model_id,
+            Q(departments__isnull=False) | Q(usercompanies__isnull=False) | Q(is_public=True),
+            owner__pk=self.client_session.userCompanyId,
+            model=self.client_session.modelInfo.modelId
         )
-        if report_id and isinstance(report_id, int):
-            dashboards = dashboards.filter(
-                report__pk=int(report_id),
-            )
-        else:
-            dashboards = dashboards.filter(
-                report__pk__isnull=True,
-            )
-        return dashboards.order_by("order").distinct()
+        return dashboards.order_by('order').distinct()
 
     def getNodeFullData(self, nodeQuery):
         calcEngine = CalcEngine.factory(self.client_session)

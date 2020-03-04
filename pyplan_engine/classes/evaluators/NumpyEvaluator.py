@@ -1,26 +1,24 @@
 import json
 
 import numpy as np
-
-import cubepy
-from pyplan_engine.classes.evaluators.BaseEvaluator import BaseEvaluator
-from pyplan_engine.classes.evaluators.CubepyEvaluator import CubepyEvaluator
+import pandas as pd
+import xarray as xr
+from pyplan_engine.classes.evaluators.XArrayEvaluator import XArrayEvaluator
 from pyplan_engine.common.classes.filterChoices import filterChoices
 from pyplan_engine.common.classes.indexValuesReq import IndexValuesReq
 from cubepy.cube import kindToString
 
 
-class NumpyEvaluator(BaseEvaluator):
+class NumpyEvaluator(XArrayEvaluator):
 
     AXISNAME = "Axis "
 
     def evaluateNode(self, result, nodeDic, nodeId, dims=None, rows=None, columns=None, summaryBy="sum", bottomTotal=False, rightTotal=False, fromRow=0, toRow=0):
-        evaluator = CubepyEvaluator()
         cube = self.createCube(nodeDic[nodeId].identifier, result)
-        return evaluator.evaluateNode(cube, nodeDic, nodeId, dims, rows, columns, summaryBy, bottomTotal, rightTotal, fromRow, toRow)
+        return super().evaluateNode(cube, nodeDic, nodeId, dims, rows, columns, summaryBy, bottomTotal, rightTotal, fromRow, toRow)
 
     def hasDim(self, result, dim):
-        return True if dim in result.dims else False
+        return True if dim.split(".")[0] in result.dims else False
 
     def getIndexes(self, node, result=None):
         res = []
@@ -63,33 +61,50 @@ class NumpyEvaluator(BaseEvaluator):
                     filter(lambda item: not text1 in str(item).lower(), res))
         return res
 
+    def addToFilter(self, nodeDic, dim, filters):
+        if "values" in dim and dim["values"] is not None and len(dim["values"]) > 0:
+            field = str(dim["field"]).split(".")[0]
+            # chek if the node id of the index we are using to filter has changed
+
+            nodeId = None
+            indexType = self.getIndexType(nodeDic, nodeId, field)
+
+            # check if the indexes have change
+            _values = None
+            if indexType == "S":
+                _values = [str(xx["value"]) for xx in dim["values"]]
+            else:
+                _values = [int(xx["value"]) for xx in dim["values"]]
+
+            all_values = None
+            npValues = np.array(_values)
+            if len(npValues) > 0:
+                filters[field] = npValues
+
     def getIndexType(self, nodeDic, nodeId, indexId):
         return "N"
 
     def getCubeValues(self, result, nodeDic, nodeId, query):
         cube = self.createCube(nodeDic[nodeId].identifier, result)
-        evaluator = CubepyEvaluator()
-        return evaluator.getCubeValues(cube, nodeDic, nodeId, query)
+        return super().getCubeValues(cube, nodeDic, nodeId, query)
 
     def getCubeDimensionValues(self, result, nodeDic, nodeId, query):
         cube = self.createCube(nodeDic[nodeId].identifier, result)
-        evaluator = CubepyEvaluator()
-        return evaluator.getCubeDimensionValues(cube, nodeDic, nodeId, query)
+        return super().getCubeDimensionValues(cube, nodeDic, nodeId, query)
 
     def getCubeMetadata(self, result, nodeDic, nodeId):
         cube = self.createCube(nodeDic[nodeId].identifier, result)
-        evaluator = CubepyEvaluator()
-        return evaluator.getCubeMetadata(cube, nodeDic, nodeId)
+        return super().getCubeMetadata(cube, nodeDic, nodeId)
 
     def createCube(self, nodeId, npArray):
-        _dimsNames = [self.AXISNAME +
-                      str(x)+"."+nodeId for x in range(npArray.ndim)]
+        _dimsNames = [self.AXISNAME + str(x) for x in range(npArray.ndim)]
         _dimsValues = [list(x) for x in (range(npArray.shape[y])
                                          for y in range(npArray.ndim))]
-        _indexes = [cubepy.Index(_dimsNames[x], _dimsValues[x])
+        _indexes = [pd.Index(_dimsValues[x], name=_dimsNames[x])
                     for x in range(len(_dimsNames))]
-        _cube = cubepy.Cube(_indexes, npArray)
-        return _cube
+
+        data_array = xr.DataArray(npArray, _indexes)
+        return data_array
 
     def isTable(self, node):
         res = "0"

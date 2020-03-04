@@ -33,19 +33,23 @@ class ReportManagerService(BaseService):
         reports = Report.objects.filter(
             model=model_id,
         )
-        if parent_id and parent_id.isnumeric():
-            reports = reports.filter(
-                parent__pk=int(parent_id),
-            )
-        else:
-            reports = reports.filter(
-                owner_id=usercompany_id,
-                parent__pk__isnull=True,
-            )
+
         if type(favs) is bool and favs:
             reports = reports.filter(
-                is_fav=True,
+                owner_id=usercompany_id,
+                is_fav=True
             )
+        else:
+            if parent_id and parent_id.isnumeric():
+                reports = reports.filter(
+                    parent__pk=int(parent_id),
+                )
+            else:
+                reports = reports.filter(
+                    owner_id=usercompany_id,
+                    parent__pk__isnull=True,
+                )
+
         return reports.order_by('order').distinct()
 
     def sharedWithMe(self, parent):
@@ -75,24 +79,12 @@ class ReportManagerService(BaseService):
         return reports.order_by('order').distinct()
 
     def mySharedReports(self, parent):
-        usercompany_id = self.client_session.userCompanyId
-        model_id = self.client_session.modelInfo.modelId
-
         reports = Report.objects.filter(
-            Q(departments__isnull=False) | Q(
-                usercompanies__isnull=False) | Q(is_public=True),
-            owner__pk=usercompany_id,
-            model=model_id,
+            Q(departments__isnull=False) | Q(usercompanies__isnull=False) | Q(is_public=True),
+            owner__pk=self.client_session.userCompanyId,
+            model=self.client_session.modelInfo.modelId
         )
-        if parent and isinstance(parent, int):
-            reports = reports.filter(
-                parent__pk=int(parent),
-            )
-        else:
-            reports = reports.filter(
-                parent__pk__isnull=True,
-            )
-        return reports.order_by("order").distinct()
+        return reports.order_by('order').distinct()
 
     def createReport(self, data):
         user_company = UserCompany(id=self.client_session.userCompanyId)

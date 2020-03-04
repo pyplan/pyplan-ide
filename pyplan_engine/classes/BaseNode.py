@@ -34,7 +34,7 @@ class BaseNode(object):
         self._result = None
         self._isCalc = False
         self._title = None
-        self.description = None
+        self._description = None
         self.units = None
         self.numberFormat = None
         self.color = None
@@ -246,6 +246,16 @@ class BaseNode(object):
         self._title = value
         if self.isCalc:
             self.postCalculate()
+
+    @property
+    def description(self):
+        if not self.originalId is None and self.model.existNode(self.originalId):
+            return self.model.getNode(self.originalId).description
+        return self._description
+
+    @description.setter
+    def description(self, value):
+        self._description = value
 
     @property
     def definition(self):
@@ -524,7 +534,7 @@ class BaseNode(object):
                 localRes = {
                     "getNode": self._model.getNode,
                     "cp": Helpers(self),
-                    "pp": XHelpers(self),
+                    "pp": XHelpers(self)
                 }
                 if not extraParams is None:
                     for keyParam in extraParams:
@@ -551,17 +561,17 @@ class BaseNode(object):
                     self.lastEvaluationConsole = memoryIO.getvalue()
                     memoryIO = None
 
-                    if 'this' in localRes:
-                        self._result = localRes['this']
-                        self._resultMemory = Helpers.getResultSize(
-                            self._result)
-                    elif 'result' in localRes:
-                        self._result = localRes['result']
-                        self._resultMemory = Helpers.getResultSize(
-                            self._result)
-                    else:
-                        self._result = None
-                        if self.nodeClass not in ["button", "module", "text"]:
+                    if self.nodeClass not in ["button", "module", "text"]:
+                        if 'this' in localRes:
+                            self._result = localRes['this']
+                            self._resultMemory = Helpers.getResultSize(
+                                self._result)
+                        elif 'result' in localRes:
+                            self._result = localRes['result']
+                            self._resultMemory = Helpers.getResultSize(
+                                self._result)
+                        else:
+                            self._result = None
                             if self.lastEvaluationConsole != "":
                                 self._result = str(self.lastEvaluationConsole)
                             else:
@@ -642,7 +652,7 @@ class BaseNode(object):
 
     def getSortedCyclicDependencies(self):
         """
-        Return list of nodes in circular dependencyes, sortered by execition order
+        Return list of nodes in circular dependencyes, sortered by execution order
         """
         res = []
         if self.isCircular():

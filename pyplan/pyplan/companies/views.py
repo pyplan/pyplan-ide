@@ -7,10 +7,11 @@ from pyplan.pyplan.company_preference.service import CompanyPreferenceService
 from pyplan.pyplan.preference.serializers import PreferenceSerializer
 
 from .models import Company
-from .permissions import CompanyPermissions
-from .serializers import CompanySerializer, CreateCompanySerializer, CompanyWithGroupsAndDeptsSerializer, UpdateCompanySerializer
-from .service import CompaniesService
 from .pagination import CompanyPagination
+from .permissions import CompanyPermissions
+from .serializers import (CompanySerializer, CreateCompanySerializer,
+                          FullCompanySerializer, UpdateCompanySerializer)
+from .service import CompaniesService
 
 
 class CompanyViewSet(viewsets.ModelViewSet):
@@ -28,16 +29,19 @@ class CompanyViewSet(viewsets.ModelViewSet):
             return UpdateCompanySerializer
         return CompanySerializer
 
-    @action(methods=['get'], detail=False)
-    def list_with_groups_and_depts(self, request):
+    def list(self, request, *args, **kwargs):
         try:
             service = CompaniesService(request)
-            response = service.list_with_groups_and_depts()
-            if len(response) > 0:
-                return Response(CompanyWithGroupsAndDeptsSerializer(response, many=True).data)
+            queryset = service.list()
+            if queryset:
+                page = self.paginate_queryset(queryset)
+                if page is not None:
+                    serializer = FullCompanySerializer(page, many=True)
+                    return self.get_paginated_response(serializer.data)
+                return Response(FullCompanySerializer(queryset, many=True).data)
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as ex:
-            return Response(str(ex), status.HTTP_406_NOT_ACCEPTABLE)
+            return Response(str(ex), status=status.HTTP_406_NOT_ACCEPTABLE)
 
     @action(methods=['get'], detail=False)
     def preferences(self, request):

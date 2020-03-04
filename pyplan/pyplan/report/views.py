@@ -53,10 +53,8 @@ class ReportView(object):
     @api_view(['GET'])
     @permission_required('pyplan.get_my_reports', raise_exception=True)
     @schema(AutoSchema(manual_fields=[
-        coreapi.Field("parent", required=False, location="query",
-                      description="Parent report"),
-        coreapi.Field("favs", required=False,
-                      location="query", description="bool"),
+        coreapi.Field("parent", required=False, location="query", description="Parent report"),
+        coreapi.Field("favs", required=False, location="query", description="bool"),
     ]))
     def myReports(request, *args, **kargs):
         parent = request.query_params.get("parent", None)
@@ -83,15 +81,9 @@ class ReportView(object):
 
     @api_view(['GET'])
     @permission_required('pyplan.get_my_reports', raise_exception=True)
-    @schema(AutoSchema(manual_fields=[
-        coreapi.Field("parent", required=False, location="query",
-                      description="Parent report")
-    ]))
     def mySharedReports(request, *args, **kargs):
-        parent = request.query_params.get("parent", None)
-
         service = ReportManagerService(request)
-        response = service.mySharedReports(parent)
+        response = service.mySharedReports()
 
         return Response(ReportSerializer(response, many=True, context={'request': request}).data)
 

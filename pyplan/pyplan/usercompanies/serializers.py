@@ -1,8 +1,12 @@
 from rest_framework import serializers
-from .models import UserCompany
-from pyplan.pyplan.users.models import User
+
 from pyplan.pyplan.companies.serializers import CompanySerializer
-from pyplan.pyplan.users.serializers import CreateUserFromUISerializer, UpdateUserFromUISerializer
+from pyplan.pyplan.users.models import User
+from pyplan.pyplan.users.serializers import (CreateUserFromUISerializer,
+                                             UpdateUserFromUISerializer)
+
+from .models import UserCompany
+
 
 class UserCompanyCreateUpdateSerializer(serializers.Serializer):
     companies = serializers.ListField(child=serializers.JSONField(), required=True)

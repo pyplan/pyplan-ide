@@ -37,7 +37,7 @@ class CustomAuthToken(ObtainAuthToken):
         token, created = Token.objects.get_or_create(user=user)
         # token_expire_handler will check, if the token is expired it will generate new one
         is_expired, token = _TokenHelpers.token_expire_handler(token)
-        companies = CompanySerializer(user.companies.all(), many=True).data
+        companies = CompanySerializer(user.companies.filter(active=True), many=True).data
         return Response({
             'id': user.pk,
             'token': token.key,

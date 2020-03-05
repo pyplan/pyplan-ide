@@ -52,12 +52,12 @@ class DashboardManagerService(BaseService):
         )
 
         if type(favs) is bool and favs:
-            dashboards = Dashboard.objects.filter(
+            dashboards = dashboards.filter(
                 owner_id=usercompany_id,
                 is_fav=True,
             )
         else:
-            dashboards = Dashboard.objects.filter(
+            dashboards = dashboards.filter(
                 node__isnull=True,
             )
 

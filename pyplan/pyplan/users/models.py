@@ -18,8 +18,7 @@ class User(AbstractUser):
     deleted = models.BooleanField(default=False)
     companies = models.ManyToManyField('Company', through='UserCompany')
     my_uuid = models.UUIDField(null=True, default=None)
-    my_username = models.CharField(
-        max_length=150, default='', null=True, blank=True)
+    my_username = models.CharField(max_length=150, default=None, null=True, blank=True)
 
     def get_user_permissions(self):
         """

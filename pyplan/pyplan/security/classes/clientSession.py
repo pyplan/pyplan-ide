@@ -30,4 +30,4 @@ class ClientSession(object):
         self.created_at = datetime.now()
         self.departments = []
         self.my_uuid = None
-        self.my_username = ""
+        self.my_username = None

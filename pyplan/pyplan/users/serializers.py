@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'first_name', 'last_name', 'email',
-                  'langCode', 'active', 'last_login', 'imageURL', 'companies', 'departments',)
+                  'langCode', 'active', 'last_login', 'imageURL', 'companies', 'departments', 'my_uuid', 'my_username')
         read_only_fields = ('username', )
 
     def get_companies(self, obj):

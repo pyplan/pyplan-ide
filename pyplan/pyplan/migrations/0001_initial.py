@@ -25,13 +25,17 @@ class Migration(migrations.Migration):
             fields=[
                 ('password', models.CharField(max_length=128, verbose_name='password')),
                 ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
-                ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
-                ('username', models.CharField(error_messages={'unique': 'A user with that username already exists.'}, help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.', max_length=150, unique=True, validators=[django.contrib.auth.validators.UnicodeUsernameValidator()], verbose_name='username')),
+                ('is_superuser', models.BooleanField(default=False,
+                                                     help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
+                ('username', models.CharField(error_messages={'unique': 'A user with that username already exists.'}, help_text='Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
+                                              max_length=150, unique=True, validators=[django.contrib.auth.validators.UnicodeUsernameValidator()], verbose_name='username')),
                 ('first_name', models.CharField(blank=True, max_length=30, verbose_name='first name')),
                 ('last_name', models.CharField(blank=True, max_length=150, verbose_name='last name')),
                 ('email', models.EmailField(blank=True, max_length=254, verbose_name='email address')),
-                ('is_staff', models.BooleanField(default=False, help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
-                ('is_active', models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
+                ('is_staff', models.BooleanField(default=False,
+                                                 help_text='Designates whether the user can log into this admin site.', verbose_name='staff status')),
+                ('is_active', models.BooleanField(
+                    default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active')),
                 ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('active', models.BooleanField(default=True)),
@@ -40,6 +44,8 @@ class Migration(migrations.Migration):
                 ('imageURL', models.CharField(max_length=200, null=True)),
                 ('fromAD', models.BooleanField(default=False)),
                 ('deleted', models.BooleanField(default=False)),
+                ('my_uuid', models.UUIDField(default=None, null=True)),
+                ('my_username', models.CharField(max_length=150, null=True, blank=True, default=None)),
             ],
             options={
                 'verbose_name': 'user',
@@ -89,7 +95,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(blank=True, max_length=255, null=True)),
                 ('engine_definitions', jsonfield.fields.JSONField(blank=True, null=True)),
                 ('login_action', jsonfield.fields.JSONField(blank=True, null=True)),
-                ('denied_items', jsonfield.fields.JSONField(blank=True, help_text='{ "folders": ["folder_a"], "modules": [{ "model_id": "model_a", "modules_ids": ["id_of_module"] }] }', null=True)),
+                ('denied_items', jsonfield.fields.JSONField(
+                    blank=True, help_text='{ "folders": ["folder_a"], "modules": [{ "model_id": "model_a", "modules_ids": ["id_of_module"] }] }', null=True)),
                 ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pyplan.Company')),
             ],
         ),
@@ -135,7 +142,8 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='NodeExternalLink',
             fields=[
-                ('external_link', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, related_name='node_external_link', serialize=False, to='pyplan.ExternalLink')),
+                ('external_link', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, parent_link=True,
+                                                       primary_key=True, related_name='node_external_link', serialize=False, to='pyplan.ExternalLink')),
                 ('node_id', models.CharField(max_length=255)),
             ],
             bases=('pyplan.externallink',),
@@ -146,7 +154,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('definition', jsonfield.fields.JSONField(null=True)),
                 ('preference', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='pyplan.Preference')),
-                ('user_company', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='pyplan.UserCompany')),
+                ('user_company', models.ForeignKey(
+                    on_delete=django.db.models.deletion.DO_NOTHING, to='pyplan.UserCompany')),
             ],
         ),
         migrations.AddField(
@@ -157,7 +166,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='usercompany',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='usercompanies', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING,
+                                    related_name='usercompanies', to=settings.AUTH_USER_MODEL),
         ),
         migrations.CreateModel(
             name='Report',
@@ -168,10 +178,14 @@ class Migration(migrations.Migration):
                 ('is_fav', models.BooleanField(default=False)),
                 ('is_public', models.BooleanField(default=False)),
                 ('order', models.IntegerField(default=0)),
-                ('departments', models.ManyToManyField(blank=True, related_name='shared_reports', to='pyplan.Department')),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='reports', to='pyplan.UserCompany')),
-                ('parent', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='reports', to='pyplan.Report')),
-                ('usercompanies', models.ManyToManyField(blank=True, related_name='shared_reports', to='pyplan.UserCompany')),
+                ('departments', models.ManyToManyField(blank=True,
+                                                       related_name='shared_reports', to='pyplan.Department')),
+                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING,
+                                            related_name='reports', to='pyplan.UserCompany')),
+                ('parent', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE,
+                                             related_name='reports', to='pyplan.Report')),
+                ('usercompanies', models.ManyToManyField(blank=True,
+                                                         related_name='shared_reports', to='pyplan.UserCompany')),
             ],
             options={
                 'permissions': (('get_my_reports', 'Can get my reports'), ('organize_reports', 'Can organize reports')),
@@ -180,7 +194,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='preference',
             name='module',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='pyplan.PreferenceModule'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    to='pyplan.PreferenceModule'),
         ),
         migrations.CreateModel(
             name='InputTemplate',
@@ -200,7 +215,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='externallink',
             name='owner',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='external_links', to='pyplan.UserCompany'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING,
+                                    related_name='external_links', to='pyplan.UserCompany'),
         ),
         migrations.CreateModel(
             name='EmailQueue',
@@ -226,7 +242,8 @@ class Migration(migrations.Migration):
                 ('model', models.CharField(max_length=255)),
                 ('node_id', models.CharField(max_length=255)),
                 ('name', models.CharField(blank=True, max_length=255, null=True)),
-                ('usercompany', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='diagram_shortcuts', to='pyplan.UserCompany')),
+                ('usercompany', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                                  related_name='diagram_shortcuts', to='pyplan.UserCompany')),
             ],
         ),
         migrations.CreateModel(
@@ -235,7 +252,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=500)),
                 ('definition', jsonfield.fields.JSONField(null=True)),
-                ('style_type', models.IntegerField(choices=[(-1, 'All'), (0, 'Range map color'), (1, 'Range indicator'), (2, 'Range gauge'), (3, 'Color series'), (4, 'Icons')], default=-1)),
+                ('style_type', models.IntegerField(choices=[
+                 (-1, 'All'), (0, 'Range map color'), (1, 'Range indicator'), (2, 'Range gauge'), (3, 'Color series'), (4, 'Icons')], default=-1)),
                 ('owner', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='pyplan.UserCompany')),
             ],
         ),
@@ -246,7 +264,8 @@ class Migration(migrations.Migration):
                 ('comment', models.TextField()),
                 ('extra_data', models.TextField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('dashboard', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='pyplan.Dashboard')),
+                ('dashboard', models.ForeignKey(null=True,
+                                                on_delete=django.db.models.deletion.CASCADE, to='pyplan.Dashboard')),
                 ('owner', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='pyplan.UserCompany')),
             ],
             options={
@@ -256,17 +275,20 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='dashboard',
             name='departments',
-            field=models.ManyToManyField(blank=True, related_name='shared_dashboards', to='pyplan.Department'),
+            field=models.ManyToManyField(
+                blank=True, related_name='shared_dashboards', to='pyplan.Department'),
         ),
         migrations.AddField(
             model_name='dashboard',
             name='owner',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='dashboards', to='pyplan.UserCompany'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING,
+                                    related_name='dashboards', to='pyplan.UserCompany'),
         ),
         migrations.AddField(
             model_name='dashboard',
             name='report',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='dashboards', to='pyplan.Report'),
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='dashboards', to='pyplan.Report'),
         ),
         migrations.AddField(
             model_name='dashboard',
@@ -276,7 +298,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='dashboard',
             name='usercompanies',
-            field=models.ManyToManyField(blank=True, related_name='shared_dashboards', to='pyplan.UserCompany'),
+            field=models.ManyToManyField(
+                blank=True, related_name='shared_dashboards', to='pyplan.UserCompany'),
         ),
         migrations.CreateModel(
             name='CompanyPreference',
@@ -304,8 +327,10 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('model', models.CharField(max_length=255)),
                 ('modelinfo', jsonfield.fields.JSONField(blank=True, null=True)),
-                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='app_pool', to='pyplan.Company')),
-                ('usercompany', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='app_pool', to='pyplan.UserCompany')),
+                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                              related_name='app_pool', to='pyplan.Company')),
+                ('usercompany', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE,
+                                                  related_name='app_pool', to='pyplan.UserCompany')),
             ],
         ),
         migrations.CreateModel(
@@ -313,11 +338,13 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('type', models.CharField(choices=[(pyplan.pyplan.activity.models.ActivityType('model'), 'model'), (pyplan.pyplan.activity.models.ActivityType('dashboard'), 'dashboard')], max_length=50)),
+                ('type', models.CharField(choices=[(pyplan.pyplan.activity.models.ActivityType(
+                    'model'), 'model'), (pyplan.pyplan.activity.models.ActivityType('dashboard'), 'dashboard')], max_length=50)),
                 ('model_path', models.CharField(max_length=500)),
                 ('model_name', models.CharField(max_length=254)),
                 ('info', jsonfield.fields.JSONField(null=True)),
-                ('usercompany', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='activities', to='pyplan.UserCompany')),
+                ('usercompany', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                                  related_name='activities', to='pyplan.UserCompany')),
             ],
             options={
                 'ordering': ['-updated_at'],
@@ -331,26 +358,32 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='user',
             name='groups',
-            field=models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.Group', verbose_name='groups'),
+            field=models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
+                                         related_name='user_set', related_query_name='user', to='auth.Group', verbose_name='groups'),
         ),
         migrations.AddField(
             model_name='user',
             name='user_permissions',
-            field=models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.Permission', verbose_name='user permissions'),
+            field=models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set',
+                                         related_query_name='user', to='auth.Permission', verbose_name='user permissions'),
         ),
         migrations.CreateModel(
             name='ReportExternalLink',
             fields=[
-                ('external_link', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, related_name='report_external_link', serialize=False, to='pyplan.ExternalLink')),
-                ('report', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='external_links', to='pyplan.Report')),
+                ('external_link', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, parent_link=True,
+                                                       primary_key=True, related_name='report_external_link', serialize=False, to='pyplan.ExternalLink')),
+                ('report', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                             related_name='external_links', to='pyplan.Report')),
             ],
             bases=('pyplan.externallink',),
         ),
         migrations.CreateModel(
             name='DashboardExternalLink',
             fields=[
-                ('external_link', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, related_name='dashboard_external_link', serialize=False, to='pyplan.ExternalLink')),
-                ('dashboard', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='external_links', to='pyplan.Dashboard')),
+                ('external_link', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, parent_link=True,
+                                                       primary_key=True, related_name='dashboard_external_link', serialize=False, to='pyplan.ExternalLink')),
+                ('dashboard', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                                related_name='external_links', to='pyplan.Dashboard')),
             ],
             bases=('pyplan.externallink',),
         ),

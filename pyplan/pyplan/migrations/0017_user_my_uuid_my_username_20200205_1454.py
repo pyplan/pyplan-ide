@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             model_name='user',
             name='my_username',
             field=models.CharField(
-                blank=True, default='', max_length=150, null=True),
+                blank=True, default=None, max_length=150, null=True),
         ),
         migrations.AlterField(
             model_name='department',

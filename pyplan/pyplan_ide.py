@@ -19,6 +19,7 @@ def main():
     os.environ.setdefault("USE_MULTIPROCESS", "1")
     os.environ.setdefault("FREE_MEMORY_FOR_NEW_SESSION", "0.5")
     os.environ.setdefault("MAX_MEMORY_FOR_SESSION", "64")
+    os.environ.setdefault("PYPLAN_API_HOST", "http://localhost:9740/api")
 
     # read .env file
     if os.path.isfile(".env"):

@@ -9,6 +9,7 @@ import threading
 import unicodedata
 import zipfile
 from itertools import chain
+from numbers import Number
 from os.path import join
 
 from django.conf import settings
@@ -511,7 +512,7 @@ class ModelManagerService(BaseService):
                 f.write(str(item.name))
                 f.write(exportData.columnFormat)
                 for d in item.data:
-                    f.write(str(d).replace(".", decimalSep))
+                    f.write(str(d).replace(".", decimalSep) if isinstance(d, Number) else str(d))
                     f.write(exportData.columnFormat)
                 f.write('\n')
 

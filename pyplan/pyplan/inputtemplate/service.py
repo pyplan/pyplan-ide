@@ -401,7 +401,8 @@ class InputTemplateService(BaseService):
                         sqlBuild.append(f", '{change['value']}'")
 
                     sqlBuild.append(");")
-                    res.append({"id": row["id"], "newId": row["id"], "rowIndex": row["rowIndex"]})
+                    res.append({"id": row["id"], "newId": row["id"],
+                                "rowIndex": row["rowIndex"] if "rowIndex" in row else -1})
 
                     try:
                         execute_result = cursor.execute(" ".join(sqlBuild), paramList)

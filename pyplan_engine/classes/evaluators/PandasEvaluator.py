@@ -341,7 +341,6 @@ class PandasEvaluator(BaseEvaluator):
                         "count": 0,
                         "values": _filteredResult.index.get_level_values(col.split(".")[0]).unique().tolist()
                     }
-                    # "values": _filteredResult[col.split(".")[0]].unique().tolist()
                     item["count"] = len(item["values"])
 
             _cols = [x.split(".")[0] for x in query["columns"]]
@@ -356,7 +355,8 @@ class PandasEvaluator(BaseEvaluator):
 
             _measures = list(query["measures"])
             _agg = dict()
-            for measure in _measures:
+
+            for measure in list(_result.columns):
                 _agg[measure] = "sum"
                 try:
                     if measure in _result.aggMeasures:
@@ -364,46 +364,32 @@ class PandasEvaluator(BaseEvaluator):
                 except Exception as ex:
                     pass
 
-            if len(_cols) == 0:
+            _groupedDF = _filteredResult.agg(_agg).to_frame("Total").T if len(
+                _cols) == 0 else _filteredResult.groupby(_cols, sort=False).agg(_agg)
 
-                _groupedDF = _filteredResult[_measures].agg(_agg)
+            if useCustomFillMeasures:
+                self._applyGroupMeasures(_groupedDF, _result.groupMeasures)
 
-                if useCustomFillMeasures:
-                    self._applyGroupMeasures(_groupedDF, _result.groupMeasures)
+            finalDF = _groupedDF.reset_index().melt(id_vars=_cols,
+                                                    value_vars=query["measures"], var_name="data_index", value_name="data_value")
 
-                listResult = _groupedDF.reset_index().values.tolist()
-                if len(listResult) > 0 and len(listResult[0]) > 1:
-                    if np.isinf(listResult[0][1]):
-                        listResult[0][1] = None
-                return [["data_index", "data_value"]] + listResult
-            else:
+            # fill inf values only if is numeric
+            _kind = finalDF["data_value"].dtype.kind
+            if _kind in {'i', 'u', 'f', 'c'}:
+                if np.isinf(finalDF["data_value"]).any():
+                    finalDF["data_value"][np.isinf(
+                        finalDF["data_value"])] = 0
 
-                _groupedDF = _filteredResult.groupby(
-                    _cols, sort=False).agg(_agg)
+            # fill nan values
+            finalDF["data_value"].fillna(0, inplace=True)
 
-                if useCustomFillMeasures:
-                    self._applyGroupMeasures(_groupedDF, _result.groupMeasures)
-
-                finalDF = _groupedDF.reset_index().melt(id_vars=_cols,
-                                                        value_vars=query["measures"], var_name="data_index", value_name="data_value")
-
-                # fill inf values only if is numeric
-                _kind = finalDF["data_value"].dtype.kind
-                if _kind in {'i', 'u', 'f', 'c'}:
-                    if np.isinf(finalDF["data_value"]).any():
-                        finalDF["data_value"][np.isinf(
-                            finalDF["data_value"])] = 0
-
-                # fill nan values
-                finalDF["data_value"].fillna(0, inplace=True)
-
-                firstCol = query["columns"] + ["data_index", "data_value"]
-                sortedColumns = [
-                    x.split(".")[0] for x in query["columns"]] + ["data_index", "data_value"]
-                res = [firstCol] + \
-                    finalDF[sortedColumns].values[:1000000].tolist()
-                _result = None
-                return res
+            firstCol = query["columns"] + ["data_index", "data_value"]
+            sortedColumns = [
+                x.split(".")[0] for x in query["columns"]] + ["data_index", "data_value"]
+            res = [firstCol] + \
+                finalDF[sortedColumns].values[:1000000].tolist()
+            _result = None
+            return res
 
     def _applyGroupMeasures(self, groupedDF, groupMeasures):
         for key in groupMeasures:

@@ -29,13 +29,30 @@ It includes many tutorials, examples and demos
 
 - [python 3.7](https://www.python.org/downloads/release/python-375/)
 
+
+
 ## Installing and running Pyplan
 
-You can install Pyplan in your computer following the instructions below. In order to publish your apps or run Pyplan online, you will need to [create an account here](https://my.pyplan.com).
+You can install Pyplan in your computer following the instructions below. In order to publish your apps or run Pyplan online, you will need to [create an account here](https://my.pyplan.org).
+
+### Installing using **Conda**
+
+```bash
+# Install
+conda config --append channels pyplan
+conda config --append channels conda-forge
+conda create -n pyplan-ide python=3.7
+conda activate pyplan-ide
+conda install pyplan-ide
+
+# Run
+conda activate
+pyplan
+```
 
 ### Installing using **PIP**
 
-On Linux/Mac:
+On Linux:
 
 Open the terminal and run this commands:
 
@@ -92,21 +109,6 @@ This message will appear, make sure that `pyplan-ide` is selected.
 #### Run
 
 - Click launch on **pyplan-ide** app
-
-### Alternatively you can also install it using **Conda**
-
-```bash
-# Install
-conda config --append channels pyplan
-conda config --append channels conda-forge
-conda create -n pyplan-ide python=3.7
-conda activate pyplan-ide
-conda install pyplan-ide
-
-# Run
-conda activate
-pyplan
-```
 
 ## User Guide
 

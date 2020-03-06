@@ -288,7 +288,7 @@ class ReportManagerService(BaseService):
                       'model_id': data['model_id'], 'zip_name': zip_file[zip_file.rfind(os.path.sep):],
                       'model_name': self.client_session.modelInfo.uri[self.client_session.modelInfo.uri.rfind(os.path.sep)+1:]}
             req = requests.put(
-                'https://my.pyplan.org/api/reportManager/publishItems/', files=files, data=values)
+                'https://api.pyplan.com/api/reportManager/publishItems/', files=files, data=values)
 
             response = req.text
 

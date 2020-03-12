@@ -3,17 +3,19 @@ import sqlite3
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Q
 from rest_framework import exceptions
 
 from pyplan.pyplan.common.baseService import BaseService
 from pyplan.pyplan.companies.models import Company
 from pyplan.pyplan.preference.models import Preference
+from pyplan.pyplan.department.models import Department
+from pyplan.pyplan.usercompanies.models import UserCompany
 
 from .models import InputTemplate
 
 
 class InputTemplateService(BaseService):
-    pass
 
     def _connect(self, entity):
 
@@ -52,10 +54,6 @@ class InputTemplateService(BaseService):
             key = entity.code
             cursor = conn.cursor()
 
-            if "enableHistoryChanges" in entity.definition:
-                # TODO: create table for changes
-                pass
-
             if not self.exists(key, cursor=cursor):
 
                 indexes = f"CREATE INDEX [{entity.code}_userId] ON [{entity.code}]([userId] ASC); "
@@ -80,14 +78,11 @@ class InputTemplateService(BaseService):
 
                 sql += ", userId INTEGER"
                 sql += ", lastUpdate DATETIME"
-                sql += ", [departments] TEXT )"
+                sql += ", [departments] TEXT "
+                sql += ", [users] TEXT )"
 
                 cursor.executescript(sql)
                 cursor.executescript(indexes)
-
-                if "enableHistoryChanges" in entity.definition and entity.definition["enableHistoryChanges"]:
-                    pass
-                    # TODO: implement trigger
 
                 return True
         finally:
@@ -110,6 +105,11 @@ class InputTemplateService(BaseService):
             usercompany_id = self.client_session.userCompanyId
             res = InputTemplate.objects.filter(owner__id=usercompany_id)
 
+        # apply security on department list
+        if len(res) > 0:
+            my_departments = self.getMyDepartments().split(",")
+            res = res.filter(Q(departments__pk__isnull=True) | Q(departments__pk__in=my_departments))
+
         return res
 
     def getMetadata(self, id=None, code=None):
@@ -119,6 +119,8 @@ class InputTemplateService(BaseService):
             input_template = InputTemplate.objects.get(pk=id)
         else:
             input_template = InputTemplate.objects.get(code=code)
+        
+        self._checkInputTemplateSecurity(input_template)
         res = input_template.definition
         res["code"] = input_template.code
         res["name"] = input_template.name
@@ -134,9 +136,8 @@ class InputTemplateService(BaseService):
         else:
             input_template = InputTemplate.objects.get(code=params["code"])
 
-        # TODO: check security
-        # TODO: check if related entity has filter by group
-
+        self._checkInputTemplateSecurity(input_template)
+        self._fillSecurityInRelatedEntities(input_template)
         return self._getData(input_template, params)
 
     def setData(self, params):
@@ -148,9 +149,7 @@ class InputTemplateService(BaseService):
         else:
             input_template = InputTemplate.objects.get(code=params["code"])
 
-        # TODO: check security
-        # TODO: check if related entity has filter by group
-
+        self._checkInputTemplateSecurity(input_template)
         return self._setData(input_template, params)
 
     def _getData(self, entity, params):
@@ -160,109 +159,85 @@ class InputTemplateService(BaseService):
         entity_code = entity.code
         conn = self._connect(entity)
         try:
+            conn.create_function("INLIST", 2, self._inlist)
+
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
 
             if not self.exists(entity_code, cursor):
                 self.generate_entity(entity)
 
-            # TODO: view departments
-            # Dim myGroups As String = ""
-            # '' iterate all columns for determinate if is necesary get user groups
-            # For Each column As TemplateColumnVO In entity.columns
-            #     If column.entityFilterByGroup Or column.type = eTemplateColumnType.groupSelector Then
-            #         'get myGroups
-            #         myGroups = Me.getMyGroups()
-            #         Exit For
-            #     End If
-            # Next
+            my_departments = ""
+            my_users = ""
+            for column in entity.definition["columns"]:
+                if "entityFilterByDepartment" in column or column["type"] == "departmentSelector":
+                    my_departments = self.getMyDepartments()
+                if "entityFilterByUser" in column or column["type"] == "userSelector":
+                    my_users = self.getMyUsers()
 
             # Create columnames for each column in entity metadata. Adding too related fields
             columnNames = "A.id"
             leftJoin = ""
             letter = "B"
-            thisEntityHaveGroupFilter = False
+            thisEntityHaveDepartmentFilter = False
+            thisEntityHaveUserFilter = False
             for column in entity.definition["columns"]:
 
-                if column["type"] == "numeric" or column["type"] == "text":
-
+                if column["type"] in ["numeric", "text"]:
                     columnNames += f", A.[{column['field']}]"
 
                 elif column["type"] == "dateTime":
-                    # TODO:  view format
-                    # formatCode As String
-                    # If column.dateFormat = "YYYY/MM/DD" Then
-                    #     formatCode = 111
-                    # End If
                     columnNames += f", strftime('%Y-%m-%d',{column['field']}) as [{column['field']}]"
 
-                elif column["type"] == "dropdown" or column["type"] == "remoteDropdown":
+                elif column["type"] in ["dropdown", "remoteDropdown"]:
                     columnNames += f", A.[{column['field']}]"
                     columnNames += f", {letter}.[{column['entityLabel']}] as {letter}_label"
                     leftJoin += f" LEFT JOIN [{column['entity']}] as {letter} ON {letter}.id = A.{column['field']} "
 
-                    # TODO: filter by group
-                    #     If column.entityFilterByGroup Then
-                    #         leftJoin &= " AND ( " & letter & ".groups is null or  [dbo].[checkInList](" & letter & ".groups,'" & myGroups & "') = 1 ) "
-                    #     End If
+                    if "entityFilterByDepartment" in column:
+                        leftJoin += f' AND ( {letter}.departments is null or INLIST({letter}.departments,"{my_departments}") = 1 ) '
+                    if "entityFilterByUser" in column:
+                        leftJoin += f' AND ( {letter}.users is null or INLIST({letter}.users,"{my_users}") = 1 ) '
 
                     letter = self.getNextLetter(letter)
 
                 elif column["type"] == "departmentSelector":
                     columnNames += f", A.[departments]"
-                    thisEntityHaveGroupFilter = True
+                    thisEntityHaveDepartmentFilter = True
 
-                    # Case eTemplateColumnType.groupSelector
-                    #     columnNames &= ", A.[groups] "
-                    #     thisEntityHaveGroupFilter = True
+                elif column["type"] == "userSelector":
+                    columnNames += f", A.[users]"
+                    thisEntityHaveUserFilter = True
 
-                    # Case eTemplateColumnType.relatedEntity
-                    #     columnNames &= ", " & letter & ".[" & column.entityLabel & "] as " & column.field
-                    #     If Not String.IsNullOrEmpty(column.relatedColumnRelation) Then
-                    #         leftJoin &= " LEFT JOIN [" & getKey(column.entity, entity.companyId) & "] as " & letter & " ON " & column.relatedColumnRelation.Replace("#entity#", "A").Replace("#relatedEntity#", letter) & " "
-                    #     Else
-                    #         leftJoin &= " LEFT JOIN [" & getKey(column.entity, entity.companyId) & "] as " & letter & " ON " & letter & ".id = " & "A." & column.relatedForeignKey & " "
-                    #     End If
-
-                    #     letter = getNextLetter(letter)
-
-                    #     End Select
-                    # Next
-
-            # TODO: includeHistory
-            # If params.includeHistory Then
-            #     columnNames &= ", ZZ.historyColumns "
-            #     leftJoin &= " LEFT JOIN (SELECT entityId,STUFF((SELECT ',' + [ColumnName] FROM ( SELECT DISTINCT entityId, [ColumnName] FROM [" & key & "_log] ) KK  WHERE (entityId = Results.entityId)  FOR XML PATH(''),TYPE).value('(./text())[1]','VARCHAR(MAX)'),1,1,'') AS historyColumns FROM [" & key & "_log] Results GROUP BY entityId) ZZ on A.id = ZZ.entityId "
-            # End If
+                elif column["type"] == "relatedEntity":
+                    columnNames += f", {letter}.[{column['entityLabel']}] as {column.field}"
+                    if "relatedColumnRelation" in column and column["relatedColumnRelation"]:
+                        left_on = str(column['relatedColumnRelation']).replace(
+                            "#entity#", "A").replace("#relatedEntity#", letter)
+                        leftJoin += f" LEFT JOIN [{column['entity']}] as {letter} ON {left_on} "
+                    else:
+                        leftJoin += f" LEFT JOIN [{column['entity']}] as {letter} ON {letter}.id = A.{column['relatedForeignKey']} "
+                    letter = self.getNextLetter(letter)
 
             sortBy = "A.ID"
             if "sortBy" in params and params["sortBy"]:
-                sortBy = "A." + params["sortBy"]
+                sortBy = f'A.{params["sortBy"]}'
             elif "sortBy" in entity.definition and entity.definition["sortBy"]:
-                sortBy = "A." + entity.definition["sortBy"]
-
+                sortBy = f'A.{entity.definition["sortBy"]}'
             where = ""
             letter = "B"
 
-            # TODO: grop filters
-            # if thisEntityHaveGroupFilter:
-            #     where = " WHERE  ( A.groups is null or [dbo].[checkInList](A.groups,'" + myGroups & "') = 1 ) "
+            if thisEntityHaveDepartmentFilter:
+                where = f' WHERE ( A.departments is null or INLIST(A.departments,"{my_departments}") = 1 ) '
+            if thisEntityHaveUserFilter:
+                where = f' WHERE ( A.users is null or INLIST(A.users,"{my_users}") = 1 ) '
 
-            # TODO: 'Add filter for group in related entities
-            # For Each column As TemplateColumnVO In entity.columns
-            #     Select Case column.type
-            #         Case eTemplateColumnType.dropdown, eTemplateColumnType.remoteDropdown
-            #             If column.entityFilterByGroup Then
-            #                 If where = "" Then
-            #                     where = " WHERE "
-            #                 Else
-            #                     where &= " AND "
-            #                 End If
-            #                 where &= " A.[" & column.field & "] is null or  A.[" & column.field & "] is not null and " & letter & ".id is not null "
-            #             End If
-            #             letter = getNextLetter(letter)
-            #     End Select
-            # Next
+            # Add filter for group in related entities
+            for column in entity.definition["columns"]:
+                if column["type"] in ["dropdown", "remoteDropdown"] and ("entityFilterByDepartment" in column or "entityFilterByUser" in column):
+                    where += " AND " if where else " WHERE "
+                    where += f'A.{column["field"]} is null or A.{column["field"]} is not null and {letter}.id is not null '
+                letter = self.getNextLetter(letter)
 
             param_list = tuple()
             if "filters" in params and params["filters"] and len(params["filters"]) > 0:
@@ -320,7 +295,6 @@ class InputTemplateService(BaseService):
                 sql += F" LIMIT {params['fromReg']-1}, {params['toReg']-params['fromReg']+1} "
 
             cursor.execute(sql, param_list)
-            #row = cursor.fetchone()
             for row in cursor:
                 dic = {"id": row["id"]}
                 letter = "B"
@@ -329,22 +303,18 @@ class InputTemplateService(BaseService):
 
                     if column["type"] in ["numeric", "text", "dateTime", "date"]:
                         dic[column["field"]] = row[column["field"]]
-
-                    if column["type"] in ["dropdown", "remoteDropdown"]:
-
+                    elif column["type"] in ["dropdown", "remoteDropdown"]:
                         dic[column["field"]] = f"{row[column['field']]}|-|{row[f'{letter}_label']}"
-
+                        letter = self.getNextLetter(letter)
+                    elif column["type"] == "departmentSelector":
+                        dic["departments"] = row["departments"]
+                    elif column["type"] == "userSelector":
+                        dic["users"] = row["users"]
+                    elif column["type"] == "relatedEntity":
+                        dic[column["field"]] = row[column["field"]]
                         letter = self.getNextLetter(letter)
 
-                    # Case eTemplateColumnType.relatedEntity
-                    #     row.Add(column.field, dr(column.field))
-                    #     letter = getNextLetter(letter)
-
-                    # Case eTemplateColumnType.groupSelector
-                    #     row.Add("groups", dr("groups"))
-
                 res.append(dic)
-                #row = cursor.fetchone()
 
         finally:
             conn.close()
@@ -361,7 +331,7 @@ class InputTemplateService(BaseService):
             if not self.exists(entity_code, cursor):
                 self.generate_entity(entity)
 
-            usercompany_id = self.client_session.companyId
+            usercompany_id = self.client_session.userCompanyId
 
             for row in params["rows"]:
 
@@ -388,19 +358,20 @@ class InputTemplateService(BaseService):
                         res_update = cursor.execute(" ".join(sqlBuild), paramList)
                         if res_update is None or res_update.rowcount <= 0:
                             res[len(res) - 1]["err"] = "Error"
-
-                    except:
-                        res[len(res) - 1]["err"] = "Error"
+                    except Exception as ex:
+                        res[len(res) - 1]["err"] = str(ex)
 
                 else:  # INSERT
                     sqlBuild.append(f" INSERT INTO {entity_code} (userId,lastUpdate ")
                     for change in row["changes"]:
                         sqlBuild.append(f", [{change['field']}]")
                     sqlBuild.append(f") VALUES ({usercompany_id}, datetime('now') ")
+                    
                     for change in row["changes"]:
                         sqlBuild.append(f", '{change['value']}'")
 
                     sqlBuild.append(");")
+                    
                     res.append({"id": row["id"], "newId": row["id"],
                                 "rowIndex": row["rowIndex"] if "rowIndex" in row else -1})
 
@@ -427,6 +398,8 @@ class InputTemplateService(BaseService):
                     except Exception as ex:
                         res[len(res) - 1]["err"] = str(ex)
 
+            self._saveUser(cursor)
+
         finally:
             conn.close()
 
@@ -440,8 +413,79 @@ class InputTemplateService(BaseService):
             res = letter + "A"
         else:
             next_letter = chr(ord(aux)+1)
-            if len(next_letter) == 1:
+            if len(letter) == 1:
                 res = next_letter
             else:
                 res = letter[:-1] + next_letter
         return res
+    
+    def getMyDepartments(self):
+        """ return list of my departments """
+        my_departments = None
+        if self.current_user.is_superuser or self.current_user.has_perm("manage_input_templates"):
+            my_departments = Department.objects.filter(
+                company__pk=self.client_session.companyId).all()
+        else:
+            my_departments = Department.objects.filter(
+                usercompanies__pk=self.client_session.userCompanyId).all()
+
+        ids = []
+        if my_departments.count() > 0:
+            ids = [str(d.id) for d in my_departments]
+        return ",".join(ids)
+
+    def getMyUsers(self):
+        """ return my user id or list of all users """
+        my_users = None
+        if self.current_user.is_superuser or self.current_user.has_perm("manage_input_templates"):
+            my_users = UserCompany.objects.filter(
+                company__pk=self.client_session.companyId).all()
+        else:
+            my_users = UserCompany.objects.filter(pk=self.client_session.userCompanyId).all()
+
+        ids = []
+        if my_users.count() > 0:
+            ids = [str(d.id) for d in my_users]
+        return ",".join(ids)
+
+    def _inlist(self, source, target):
+        """ function for sqlite for compare two arrays in string format """
+        source = "" if not source else source
+        target = "" if not target else target
+        source_list = source.split(",")
+        target_list = target.split(",")
+        return 1 if len([value for value in source_list if value in target_list]) > 0 else 0
+
+    def _fillSecurityInRelatedEntities(self, input_template):
+        """ fill security info for related entities """
+
+        if not input_template.definition is None and "columns" in input_template.definition:
+            for column in input_template.definition["columns"]:
+                if column["type"] in ["dropdown", "remoteDropdown"]:
+                    related_input_template = InputTemplate.objects.get(code=column["entity"])
+                    for related_column in related_input_template.definition["columns"]:
+                        if related_column["type"] == "departmentSelector":
+                            column["entityFilterByDepartment"] = True
+                            break
+
+    def _checkInputTemplateSecurity(self, input_template):
+        """ check if current user can view the input template """
+        if input_template.departments.count() > 0:
+            ids = [str(d.id) for d in input_template.departments.all()]
+            my_departments = self.getMyDepartments()
+            if not self._inlist(",".join(ids), my_departments):
+                raise exceptions.PermissionDenied()
+
+    def _saveUser(self, cursor):
+        """ add usercompany data to _users_ table """
+        user_tablename = "_users_"
+        if not self.exists(user_tablename, cursor):
+            sql = f"CREATE TABLE {user_tablename}(id INTEGER PRIMARY KEY, user_code TEXT, firstname TEXT, lastname TEXT)"
+            cursor.executescript(sql)
+        sql = f"  INSERT INTO {user_tablename}(id,user_code,firstname,lastname)"
+        sql += f" SELECT {self.client_session.userCompanyId},?,?,? "
+        sql += f" WHERE NOT EXISTS( SELECT 1 FROM {user_tablename} WHERE id = {self.client_session.userCompanyId} )"
+        params = (self.current_user.username, self.client_session.userFirstName,
+                  self.client_session.userLastName)
+        cursor.execute(sql, params)
+

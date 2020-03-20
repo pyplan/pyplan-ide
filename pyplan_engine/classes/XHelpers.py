@@ -597,12 +597,12 @@ class XHelpers(object):
             indexes = str(list(source.dims)).replace("'", '')
             np.set_printoptions(threshold=np.prod(source.values.shape))
             data = np.array2string(source.values, separator=",", precision=20, formatter={
-                                   'float_kind': lambda x: repr(x)}).replace('\n', '')
+                'float_kind': lambda x: "np.nan" if np.isnan(x) else repr(x)}).replace('\n', '')
             newDef = "result = pp.dataArray(" + indexes + "," + data + ")"
         elif isinstance(source, XIndex):
             np.set_printoptions(threshold=np.prod(source.values.shape))
             data = np.array2string(source.values, separator=",", precision=20, formatter={
-                                   'float_kind': lambda x: repr(x)}).replace('\n', '')
+                'float_kind': lambda x: "np.nan" if np.isnan(x) else repr(x)}).replace('\n', '')
             newDef = "result = pp.index(" + data + ")"
 
         self.node.model.getNode(targetId).definition = newDef

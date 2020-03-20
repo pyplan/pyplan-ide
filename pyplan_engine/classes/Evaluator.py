@@ -32,7 +32,7 @@ class Evaluator(object):
                 return PandasEvaluator()
             elif isinstance(result, xr.DataArray) or isinstance(result, XIndex):
                 return XArrayEvaluator()
-            elif isinstance(result, MatplotlibArtist) or inspect.ismodule(result) and "matplotlib.pyplot" in str(result) or isinstance(result, np.ndarray) and len(result) > 0 and isinstance(result.item(0), MatplotlibArtist):
+            elif isinstance(result, MatplotlibArtist) or inspect.ismodule(result) and "matplotlib.pyplot" in str(result) or isinstance(result, np.ndarray) and result.ndim > 0 and len(result) > 0 and isinstance(result.item(0), MatplotlibArtist):
                 return MatplotlibEvaluator()
             elif isinstance(result, np.ndarray):
                 return NumpyEvaluator()

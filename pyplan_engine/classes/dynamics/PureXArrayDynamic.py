@@ -53,6 +53,15 @@ class PureXArrayDynamic(BaseDynamic):
             cyclicDic[_id] = evaluate(_node["initialize"])
             if not initialValues is None and _id in initialValues:
                 cyclicDic[_id] = cyclicDic[_id] + evaluate(initialValues[_id])
+            # check align
+            if cyclicDic[_id].dims[0] != dynamicIndex.name:
+                # move dynamic index to top
+                list_dims = list(cyclicDic[_id].dims)
+                list_dims.remove(dynamicIndex.name)
+                new_tuple = (dynamicIndex.name,) + tuple(list_dims)
+                cyclicDic[_id] = cyclicDic[_id].transpose(
+                    *new_tuple, transpose_coords=True)
+
             endTime = dt.datetime.now()
             _node["calcTime"] = _node["calcTime"] + \
                 (endTime - startTime).total_seconds()
@@ -98,40 +107,41 @@ class PureXArrayDynamic(BaseDynamic):
                 # execute vars
                 if (_id in initialValues) and ((nn < initialCount and (not reverseMode)) or (nn > initialCount and reverseMode)):
                     # use initial values
-                    __resultNode = evaluate(
+                    _resultNode = evaluate(
                         _node["loopDefinition"], cyclicParams)
-                    __initialValues = evaluate(initialValues[_id])
-
-                    if isinstance(__initialValues, xr.DataArray):
-                        __finalNode = self._tryFilter(
-                            __initialValues, dynamicIndex, item) + self._tryFilter(__resultNode, dynamicIndex, item)
+                    _initialValues = evaluate(initialValues[_id])
+                    _finalNode = None
+                    if isinstance(_initialValues, xr.DataArray):
+                        _finalNode = self._tryFilter(
+                            _resultNode, dynamicIndex, item) + self._tryFilter(_initialValues, dynamicIndex, item)
                     else:
-                        __finalNode = self._tryFilter(
-                            __resultNode, dynamicIndex, item) + __initialValues
+                        _finalNode = self._tryFilter(
+                            _resultNode, dynamicIndex, item) + _initialValues
 
                     try:
                         cyclicDic[_id].loc[{dynamicIndex.name: slice(
-                            item, item)}] = __finalNode.values
+                            item, item)}] = _finalNode.values
                     except Exception as ex:
-                        _cubeShape = cyclicDic[_id].loc[{
-                            dynamicIndex.name: slice(item, item)}].shape
+                        list_dims = list(cyclicDic[_id].dims)
+                        list_dims.remove(dynamicIndex.name)
                         cyclicDic[_id].loc[{dynamicIndex.name: slice(
-                            item, item)}] = __finalNode.values.reshape(_cubeShape)
+                            item, item)}] = _finalNode.transpose(*list_dims, transpose_coords=True).values
 
                 else:
                     # dont use use initial values
-                    __resultNode = evaluate(
+                    _resultNode = evaluate(
                         _node["loopDefinition"], cyclicParams)
-                    _values = self._tryFilter(
-                        __resultNode, dynamicIndex, item).values
+                    _finalNode = self._tryFilter(
+                        _resultNode, dynamicIndex, item)
+
                     try:
                         cyclicDic[_id].loc[{
-                            dynamicIndex.name: slice(item, item)}] = _values
+                            dynamicIndex.name: slice(item, item)}] = _finalNode.values
                     except Exception as ex:
-                        _cubeShape = cyclicDic[_id].loc[{
-                            dynamicIndex.name: slice(item, item)}].shape
+                        list_dims = list(cyclicDic[_id].dims)
+                        list_dims.remove(dynamicIndex.name)
                         cyclicDic[_id].loc[{dynamicIndex.name: slice(
-                            item, item)}] = _values.reshape(_cubeShape)
+                            item, item)}] = _finalNode.transpose(*list_dims, transpose_coords=True).values
 
                 endTime = dt.datetime.now()
                 _node["calcTime"] = _node["calcTime"] + \

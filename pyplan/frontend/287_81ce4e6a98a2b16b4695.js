@@ -1,0 +1,2 @@
+/*! Copyright Pyplan 2020. All rights reserved. */
+(window.webpackJsonp=window.webpackJsonp||[]).push([[287],{2109:function(n,e,o){"use strict";(function(t){var c;void 0===(c=function(){return t.Controller.extend({name:"drawMenu",show:function(n){Promise.all([o.e(315),o.e(308)]).then(function(){var e=[o(2167)];(function(e){(new e).render(n)}).apply(null,e)}).catch(o.oe)}})}.apply(e,[]))||(n.exports=c)}).call(this,o(694))}}]);

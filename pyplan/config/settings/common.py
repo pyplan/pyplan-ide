@@ -132,7 +132,6 @@ class Common(Configuration):
     # TODO: tomar paths de documents y temps ??
     MEDIA_ROOT = os.getenv("DATA_PATH") if os.getenv(
         "DATA_PATH") else os.path.join(os.path.expanduser('~'), 'pyplan')
-    TMP_ROOT = "/tmp"
 
     MEDIA_URL = '/media/'
 

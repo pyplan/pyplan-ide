@@ -1045,6 +1045,10 @@ class Model(object):
 
     def saveModel(self, fileName=None):
         """Save model. If fileName is specified, then save to fileName, else return string of ppl """
+
+        # update used libraries
+        self.modelProp['libs'] = self._get_used_libraries()
+
         toSave = {
             'modelProp': self.modelProp,
             'nodeList': []
@@ -1313,10 +1317,12 @@ class Model(object):
                     node_of_input = self.getNode(nodeInput)
                     if node_of_profile.evaluationVersion == node_of_input.evaluationVersion and node['nodeId'] == node_of_input.profileParent:
                         if node_of_input.isCircular():
-                            #get circule node and their time
+                            # get circule node and their time
                             nodes_in_circule = node_of_input.getSortedCyclicDependencies()
                             for circular_node_id in nodes_in_circule:
-                                inputsTime = inputsTime + self.getNode(circular_node_id).lastEvaluationTime
+                                inputsTime = inputsTime + \
+                                    self.getNode(
+                                        circular_node_id).lastEvaluationTime
                         else:
                             inputsTime = inputsTime + \
                                 node_of_input.lastEvaluationTime
@@ -1574,13 +1580,13 @@ class Model(object):
                 # TODO: if exists, check version and send message via channels
 
             if to_install != '':
-                self._installLibrary(to_install, False)
+                self._installLibrary(to_install)
 
         except Exception as ex:
             print(f'Error checking libraries. {ex}')
             # TODO: send to client via channels
 
-    def _installLibrary(self, lib, add_to_model=True):
+    def _installLibrary(self, lib):
 
         cmd = f'pip install {lib}'
 
@@ -1610,60 +1616,115 @@ class Model(object):
 
         importlib.invalidate_caches()
 
-        if add_to_model:
-            # check if lib is succefully installed
-            libname = lib
-            if '>=' in lib:
-                libname = lib.split('>=')[0]
-            if '<=' in lib:
-                libname = lib.split('<=')[0]
-            if '==' in lib:
-                libname = lib.split('==')[0]
-            if '>' in lib:
-                libname = lib.split('>')[0]
-            if '<' in lib:
-                libname = lib.split('<')[0]
-            libname = libname.lower()
-            installed_libs_str = self.listInstalledLibraries()
-            installed_libs = jsonpickle.decode(installed_libs_str)
-            for lib_item in installed_libs:
-                if lib_item and str(lib_item['name']).lower() == libname:
-                    # add lib to model props
-                    self.addLibToModel(lib_item)
-                    break
-
-    def installLibrary(self, lib, target, add_to_model=True):
+    def installLibrary(self, lib, target):
         """install python library"""
         self._currentInstallProgress = []
         thread = threading.Thread(target=self._installLibrary, args=(lib,))
         thread.start()
         return 'ok'
 
-    def addLibToModel(self, lib_item):
-        """Add user lib to model"""
-        if not 'libs' in self.modelProp:
-            self.modelProp['libs'] = []
+    def _get_used_libraries(self):
+        try:
+            _regex = re.compile(r'(^import\s.*)|(^from\s.*)', re.M)
+            _temp_imports = []
+            _imports = dict()
+            _used_libraries = []
 
-        modelLibs = self.modelProp['libs']
-        found = False
-        for modelLib in modelLibs:
-            if modelLib and modelLib['name'] == lib_item['name']:
-                found = True
-                break
-        if not found:
-            modelLibs.append(
-                {'name': lib_item['name'], 'version': lib_item['version'], 'alias': ''})
+            # retrieve all import statements
+            for node_id in self.nodeDic:
+                _def = self.nodeDic[node_id].definition
+                if _def:
+                    _finditer = re.finditer(_regex, _def)
+                    for match in _finditer:
+                        if match.group() not in _temp_imports:
+                            _temp_imports.append(match.group())
 
-    def removeLibFromModel(self, lib):
-        """Remove user lib from model"""
-        if not 'libs' in self.modelProp:
-            self.modelProp['libs'] = []
+            # filter imports (make distinct, check type)
+            # name == pypi name
+            for _element in _temp_imports:
+                if _element[:6] == 'import':
+                    # import
+                    if _element[7:].find(',') != -1:
+                        # multiple imports in one line
+                        for _el in _element[7:].split(','):
+                            _imports[self._check_import_function(_el.strip())] = {'import_name': self._check_import_function(
+                                _el.strip()), 'import_type': 'import', 'name': None, 'version': None}
+                    elif _element[7:].find(' as ') != -1:
+                        # import has an alias
+                        _el = _element[7:_element.find(' as ')].strip()
+                        _imports[self._check_import_function(_el)] = {'import_name': self._check_import_function(
+                            _el), 'import_type': 'import', 'name': None, 'version': None}
+                    else:
+                        # full import
+                        _el = _element[7:].strip()
+                        _imports[self._check_import_function(_el)] = {'import_name': self._check_import_function(
+                            _el), 'import_type': 'import', 'name': None, 'version': None}
+                elif _element[:4] == 'from':
+                    # from
+                    if _element[5:].find(' import ') != -1:
+                        _el = _element[5:_element.find(' import ')].strip()
+                        _imports[self._check_import_function(_el)] = {'import_name': self._check_import_function(
+                            _el), 'import_type': 'from', 'name': None, 'version': None}
+                    else:
+                        self.ws.sendMsg(_element, 'Could not find import from')
+                else:
+                    self.ws.sendMsg(_element, 'Element not recognized')
 
-        modelLibs = self.modelProp['libs']
-        for nn, modelLib in enumerate(modelLibs):
-            if modelLib and modelLib['name'] == lib:
-                del modelLibs[nn]
-                break
+            _installed_libs = self._check_installed_libraries()
+            for key in _imports.keys():
+                for lib in _installed_libs:
+                    if lib == _imports[key]['import_name']:
+                        _imports[key].update(_installed_libs[lib])
+                if _imports[key]['name'] != None:
+                    _used_libraries.append(_imports[key])
+
+            return _used_libraries
+        except Exception as ex:
+            self.ws.sendMsg(str(ex), 'Error getting used libraries')
+            return []
+
+    def _check_import_function(self, _element):
+        if _element.find('.') != -1:
+            # the element has a function been imported
+            return _element[:_element.find('.')].strip()
+        else:
+            return _element
+
+    def _check_installed_libraries(self):
+        try:
+            installed_libraries = dict()
+            dirs = sys.path if os.getenv('PYPLAN_IDE') else [
+                '/venv/lib64/python3.7/site-packages/']
+            for _dir in dirs:
+                installed_modules = dict()
+                if '.zip' not in _dir:
+                    for folder in os.listdir(_dir):
+                        # get dist.info folders
+                        if '.dist-info' in folder or '.egg-info' in folder:
+                            top_level_file = os.path.join(
+                                _dir, folder, 'top_level.txt')
+                            if os.path.isfile(top_level_file):
+                                top_level = str(
+                                    open(top_level_file).read()).replace('\n', '')
+                                metadata_file = os.path.join(
+                                    _dir, folder, 'METADATA' if '.dist-info' in folder else 'PKG-INFO')
+                                if os.path.isfile(metadata_file):
+                                    metadata = str(open(metadata_file).read())
+                                    metadata_arr = metadata.split('\n')
+                                    for metadata_item in metadata_arr:
+                                        if str(metadata_item).startswith('Name: '):
+                                            pypi_name = str(
+                                                metadata_item).split(' ')[1]
+                                        elif str(metadata_item).startswith('Version: '):
+                                            pypi_version = str(
+                                                metadata_item).split(' ')[1]
+                                installed_modules[top_level] = {
+                                    'name': pypi_name, 'version': pypi_version}
+                installed_libraries.update(installed_modules)
+            return installed_libraries
+        except Exception as ex:
+            self.ws.sendMsg(str(ex), 'Error checking installed libraries')
+            return {}
 
     def listInstalledLibraries(self):
         cmd = 'pip list -v --disable-pip-version-check --format=json'
@@ -1681,12 +1742,11 @@ class Model(object):
         """Uninstall python library"""
         #cmd = f'pip uninstall -y {lib}'
         # We cant use pip uninstall so we do a dirty workaround
-        cmd = f"find {target} -name '*{lib}*' -exec rm -rf {{}} \;"
+        cmd = f"find {target} -name '*{lib.replace('-','_')}*' -exec rm -rf {{}} \;"
         popen = subprocess.Popen(
             split(cmd), stdout=subprocess.PIPE, universal_newlines=True)
         stdout, stderr = popen.communicate()
         importlib.invalidate_caches()
-        self.removeLibFromModel(lib)
         if stderr:
             raise ValueError(f'Error uninstalling library: {str(stderr)}')
 

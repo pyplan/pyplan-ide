@@ -488,7 +488,7 @@ class PandasEvaluator(BaseEvaluator):
         if isinstance(result, pd.Index):
             np.set_printoptions(threshold=np.prod(result.values.shape))
             values = np.array2string(result.values, separator=",", precision=20, formatter={
-                                     'float_kind': lambda x: repr(x)}).replace('\n', '')
+                'float_kind': lambda x: "np.nan" if np.isnan(x) else repr(x)}).replace('\n', '')
             newDef = f"result = pd.Index({values})"
         else:
             return False

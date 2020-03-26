@@ -283,7 +283,7 @@ class ModelManagerService(BaseService):
                         prop["value"] = None
                     else:
                         file_extension = prop["value"].rsplit(".").pop()
-                        file_path = join(settings.TMP_ROOT, prop["value"])
+                        file_path = join(settings.MEDIA_ROOT, 'tmp', prop['value'])
                         with open(file_path, "rb") as image_file:
                             prop["value"] = f'data:image/{file_extension};base64,{str(base64.b64encode(image_file.read()), "utf-8")}'
 
@@ -447,7 +447,7 @@ class ModelManagerService(BaseService):
     def exportFlatNode(self, exportData):
         """Export flat node to file"""
         file_path = join(
-            settings.TMP_ROOT, f'{exportData.nodeId}.{exportData.fileFormat.lower()}')
+            settings.MEDIA_ROOT, 'tmp', f'{exportData.nodeId}.{exportData.fileFormat.lower()}')
         identifier = self.getNodeProperties(
             exportData.nodeId, [{"name": "identifier", "value": ""}])
         original = identifier['properties'][0]['value']
@@ -473,7 +473,7 @@ class ModelManagerService(BaseService):
     def exportCurrentNode(self, exportData, dashboardManagerService):
         """Export node (current table) to file"""
         file_path = join(
-            settings.TMP_ROOT, f'{exportData.nodeId}.{exportData.fileFormat.lower()}')
+            settings.MEDIA_ROOT, 'tmp', f'{exportData.nodeId}.{exportData.fileFormat.lower()}')
         identifier = self.getNodeProperties(
             exportData.nodeId, [{"name": "identifier", "value": ""}])
         original = identifier['properties'][0]['value']
@@ -529,7 +529,7 @@ class ModelManagerService(BaseService):
     def exportModuleToFile(self, exportData):
         """Export module to file"""
         calcEngine = CalcEngine.factory(self.client_session)
-        file_path = join(settings.TMP_ROOT, f'{exportData.moduleId}.ppl')
+        file_path = join(settings.MEDIA_ROOT, 'tmp', f'{exportData.moduleId}.ppl')
         if exportData.exportType != "1":
             storage = FileSystemStorage(
                 join(settings.MEDIA_ROOT, 'models'))
@@ -544,20 +544,18 @@ class ModelManagerService(BaseService):
 
     def importModuleFromFile(self, importModuleData):
         """Import module from file"""
-        storage = FileSystemStorage(
-            join(settings.MEDIA_ROOT, 'models'))
+        storage = FileSystemStorage(join(settings.MEDIA_ROOT, 'models'))
         currentPath = self.client_session.modelInfo.uri
-        importModuleData.currentModelPath = join(
-            storage.base_location, currentPath)
-        fullFileName = join(settings.TMP_ROOT, importModuleData.moduleFile)
+        importModuleData.currentModelPath = join(storage.base_location, currentPath)
+        fullFileName = join(settings.MEDIA_ROOT, 'tmp', importModuleData.moduleFile)
         if not importModuleData.fromTemp:
             fullFileName = join(storage.base_location, importModuleData.moduleFile)
 
         if (importModuleData.importType.name == eImportType(0).name) or (importModuleData.importType.name == eImportType(2).name):
             calcEngine = CalcEngine.factory(self.client_session)
             result = calcEngine.importModule(importModuleData.parentModelId,
-                                             fullFileName, importModuleData.importType.value)
-            if result == 1:
+                                             fullFileName, str(importModuleData.importType.value))
+            if result:
                 importModuleData.importType = importModuleData.importType.value
                 if importModuleData.fromTemp:
                     os.remove(fullFileName)

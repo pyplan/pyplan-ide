@@ -24,13 +24,13 @@ class XArrayEvaluator(BaseEvaluator):
             return self.indexEvaluate(result, nodeDic, nodeId, dims, rows, columns, summaryBy, bottomTotal, rightTotal, fromRow, toRow)
 
     def cubeEvaluate(self, result, nodeDic, nodeId, dims=None, rows=None, columns=None, summaryBy="sum", bottomTotal=False, rightTotal=False, fromRow=0, toRow=0):
-        sby = np.sum
+        sby = np.nansum
         if summaryBy == 'avg':
-            sby = np.mean
+            sby = np.nanmean
         elif summaryBy == 'max':
-            sby = np.max
+            sby = np.nanmax
         elif summaryBy == 'min':
-            sby = np.min
+            sby = np.nanmin
 
         if (fromRow is None) or int(fromRow) <= 0:
             fromRow = 1
@@ -80,7 +80,15 @@ class XArrayEvaluator(BaseEvaluator):
             otherDims = [
                 xx for xx in filteredResult.dims if xx not in (_rows + _columns)]
             if len(otherDims) > 0:
+                squeezable = [filteredResult.sizes[xx]
+                              == 1 for xx in otherDims]
+                to_squeeze = list(np.array(otherDims)[squeezable])
+                if len(to_squeeze) > 0:
+                    filteredResult = filteredResult.squeeze(to_squeeze)
+                    otherDims = [
+                        xx for xx in filteredResult.dims if xx not in (_rows + _columns)]
 
+            if len(otherDims) > 0:
                 try:
                     tmp = filteredResult.reduce(
                         sby, otherDims).transpose(*(_rows + _columns))
@@ -88,7 +96,6 @@ class XArrayEvaluator(BaseEvaluator):
                     if "flexible type" in str(ex):
                         tmp = filteredResult.astype("O").reduce(
                             sby, otherDims).transpose(*(_rows + _columns))
-
             else:
                 tmp = filteredResult.transpose(*(_rows + _columns))
 
@@ -385,14 +392,34 @@ class XArrayEvaluator(BaseEvaluator):
 
             otherDims = [
                 xx for xx in _filteredResult.dims if xx not in query["columns"]]
+
+            if len(otherDims) > 0:
+                squeezable = [_filteredResult.sizes[xx]
+                              == 1 for xx in otherDims]
+                to_squeeze = list(np.array(otherDims)[squeezable])
+                if len(to_squeeze) > 0:
+                    _filteredResult = _filteredResult.squeeze(to_squeeze)
+                    otherDims = [
+                        xx for xx in _filteredResult.dims if xx not in query["columns"]]
+
             resultValues = None
             if len(otherDims) > 0:
                 resultValues = _filteredResult.sum(otherDims)
             else:
                 resultValues = _filteredResult
-            #resultValues = _filteredResult.sum(keep=query["columns"])
 
             if isinstance(resultValues, xr.DataArray):
+                # chec if haver nan values
+                if pd.isnull(resultValues).any():
+                    new_values = None
+                    try:
+                        new_values = np.where(
+                            np.isnan(resultValues), None, resultValues)
+                    except:
+                        new_values = resultValues.values
+                        new_values[pd.isnull(new_values)] = None
+                    resultValues = resultValues.copy(data=new_values)
+
                 if len(query["columns"]) > 0:
                     res["values"] = resultValues.transpose(
                         *query["columns"]).values.reshape(resultValues.size).tolist()
@@ -492,7 +519,7 @@ class XArrayEvaluator(BaseEvaluator):
         """Generate code for cube definition"""
         np.set_printoptions(threshold=np.prod(array.values.shape))
         data = np.array2string(array.values, separator=",", precision=20, formatter={
-                               'float_kind': lambda x: repr(x)}).replace('\n', '')
+                               'float_kind': lambda x: "np.nan" if np.isnan(x) else repr(x)}).replace('\n', '')
 
         indexes = []
         for dim in list(array.dims):
@@ -500,7 +527,7 @@ class XArrayEvaluator(BaseEvaluator):
                 indexes.append(dim)
             else:
                 index_values = np.array2string(array[dim].values, separator=",", precision=20, formatter={
-                                               'float_kind': lambda x: repr(x)}).replace('\n', '')
+                                               'float_kind': lambda x: "np.nan" if np.isnan(x) else repr(x)}).replace('\n', '')
                 coord = f"pd.Index({index_values},name='{dim}')"
                 indexes.append(coord)
 

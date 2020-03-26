@@ -1,5 +1,6 @@
 import sys
 import webbrowser
+from os import mkdir
 from os.path import exists, join
 from shutil import copyfile, copytree
 from threading import Thread
@@ -23,6 +24,9 @@ class PyplanAppConfig(AppConfig):
         print('Pyplan is ready')
 
         try:
+            tmp_folder = join(settings.MEDIA_ROOT, 'tmp')
+            if not exists(tmp_folder):
+                mkdir(tmp_folder)
             # Check if the user has demo models
             examples_folder = join(settings.MEDIA_ROOT, 'models', 'Examples')
             if not exists(examples_folder):

@@ -1,15 +1,17 @@
-import uuid
-import os
 import json
-import requests
+import os
+import uuid
 from datetime import datetime
+from numbers import Number
 
-from django.db.models import Q
-from django.core.files.storage import FileSystemStorage
-from django.core import serializers
+import requests
 from django.conf import settings
+from django.core import serializers
+from django.core.files.storage import FileSystemStorage
+from django.db.models import Q
 
 from pyplan.pyplan.common.baseService import BaseService
+from pyplan.pyplan.common.utils import _zipFiles
 from pyplan.pyplan.dashboard.models import Dashboard
 from pyplan.pyplan.dashboardstyle.models import DashboardStyle
 from pyplan.pyplan.department.models import Department
@@ -17,8 +19,6 @@ from pyplan.pyplan.usercompanies.models import UserCompany
 
 from .models import Report
 from .serializers import ExportItemsSerializer
-
-from pyplan.pyplan.common.utils import _zipFiles
 
 
 class ReportManagerService(BaseService):
@@ -308,27 +308,30 @@ class ReportManagerService(BaseService):
     def importItems(self, data):
         user_company_id = self.client_session.userCompanyId
         model_id = self.client_session.modelInfo.modelId
-        result = {"reports": [], "dashboards": [], "styles": []}
-        styles = dict()
-        for item in data["styles"]:
-            ds = DashboardStyle.objects.create(
-                name=item["name"],
-                definition=item["definition"],
-                style_type=item["style_type"],
-                owner_id=user_company_id,
+        result = {'reports': [], 'dashboards': [], 'styles': []}
+        styles_mappings = dict()
+        for style in data['styles']:
+            ds, _ = DashboardStyle.objects.update_or_create(
+                definition=style['definition'],
+                defaults={
+                    'name': style['name'],
+                    'owner_id': user_company_id,
+                    'style_type': style['style_type']
+                }
             )
-            styles.update({item["id"]: ds.pk})
-        for item in data["reports"]:
-
-            """check the uuid if the report is imported more than one time
-            if the report exits with the same owner we update ir else we create a new one (links will be broken in this case)"""
-            # we need to check if the parent exits when we create it and never update the parent when we update it
+            styles_mappings.update({style['id']: ds.pk})
+            result['styles'].append(ds)
+        for rep in data["reports"]:
+            """
+            check the uuid if the report is imported more than one time
+            if the report exits with the same owner we update ir else we create a new one (links will be broken in this case)
+            """
 
             use_new_uuid = True
             update = False
-            if "uuid" in item.keys():
-                if Report.objects.filter(uuid=item['uuid']).count() > 0:
-                    if Report.objects.filter(uuid=item['uuid'], owner__pk=user_company_id).count() > 0:
+            if "uuid" in rep.keys():
+                if Report.objects.filter(uuid=rep['uuid']).count() > 0:
+                    if Report.objects.filter(uuid=rep['uuid'], owner__pk=user_company_id).count() > 0:
                         # we need to update the old_report with new data
                         use_new_uuid = False
                         update = True
@@ -338,53 +341,59 @@ class ReportManagerService(BaseService):
 
             defaults = {
                 'model': model_id,
-                'name': item['name'],
-                'is_fav': item["is_fav"],
-                'is_public': item["is_public"],
-                'order': item["order"]
+                'name': rep['name'],
+                'is_fav': rep["is_fav"],
+                'is_public': rep["is_public"],
+                'order': rep["order"]
             }
             if not update:
                 # we check if the parent exists
-                parent_id = item['parent_id'] if Report.objects.filter(
-                    parent__id=item['parent_id']).count() > 0 else None
+                parent_id = rep['parent_id'] if Report.objects.filter(
+                    parent__id=rep['parent_id']).count() > 0 else None
                 # if the parent doesnt exist we import it on the root (so parent is none)
                 defaults.update({'parent_id': parent_id})
-            report, created = Report.objects.update_or_create(
-                uuid=uuid.uuid4() if use_new_uuid else item["uuid"],
+            report, _ = Report.objects.update_or_create(
+                uuid=uuid.uuid4() if use_new_uuid else rep["uuid"],
                 owner_id=user_company_id,
                 defaults=defaults
             )
-            self._createChildReportsAndDashboards(report, item, result, styles)
-        for item in data["dashboards"]:
-
-            """check the uuid if the dashboard is imported more than one time
-            if the dashboard exits with the same owner we update ir else we create a new one (links will be broken in this case)"""
+            self._createChildReportsAndDashboards(report, rep, result, styles_mappings)
+        for dash in data["dashboards"]:
+            """
+            check the uuid if the dashboard is imported more than one time
+            if the dashboard exits with the same owner we update ir else we create a new one (links will be broken in this case)
+            """
             use_new_uuid = True
 
-            if "uuid" in item.keys():
-                if Dashboard.objects.filter(uuid=item['uuid']).count() > 0:
-                    if Dashboard.objects.filter(uuid=item['uuid'], owner__pk=user_company_id).count() > 0:
+            if "uuid" in dash.keys():
+                if Dashboard.objects.filter(uuid=dash['uuid']).count() > 0:
+                    if Dashboard.objects.filter(uuid=dash['uuid'], owner__pk=user_company_id).count() > 0:
                         # we need to update the old dashboard with new data
                         use_new_uuid = False
                 else:
                     # we need to create a new dashboard with the same uuid
                     use_new_uuid = False
 
+            definition = None
+            if 'definition' in dash:
+                definition = dash['definition']
+                self._update_definition(definition, styles_mappings)
+
             defaults = {
                 'model': model_id,
-                'name': item['name'],
-                'node': item["node"] if "node" in item else None,
-                'is_fav': item["is_fav"],
-                'definition': item["definition"] if "definition" in item else None,
-                'order': item["order"],
+                'name': dash['name'],
+                'node': dash["node"] if "node" in dash else None,
+                'is_fav': dash["is_fav"],
+                'definition': definition,
+                'order': dash["order"],
             }
-            dash_created, created = Dashboard.objects.update_or_create(
-                uuid=uuid.uuid4() if use_new_uuid else item["uuid"],
+            dash_created, _ = Dashboard.objects.update_or_create(
+                uuid=uuid.uuid4() if use_new_uuid else dash["uuid"],
                 owner_id=user_company_id,
                 defaults=defaults
             )
             dash_created.styles.set(DashboardStyle.objects.filter(pk__in=list(
-                map(lambda style: styles[style], item["styles"]))))
+                map(lambda style: styles_mappings[style], dash["styles"]))))
             result["dashboards"].append(dash_created)
         return result
 
@@ -426,14 +435,14 @@ class ReportManagerService(BaseService):
 
     # private
 
-    def _createChildReportsAndDashboards(self, parent, item, result, styles):
+    def _createChildReportsAndDashboards(self, parent, item, result, styles_mappings):
         user_company_id = self.client_session.userCompanyId
         model_id = self.client_session.modelInfo.modelId
         for rep in item["reports"]:
-
-            """check the uuid if the report is imported more than one time
-            if the report exits with the same owner we update ir else we create a new one (links will be broken in this case)"""
-
+            """
+            check the uuid if the report is imported more than one time
+            if the report exits with the same owner we update ir else we create a new one (links will be broken in this case)
+            """
             use_new_uuid = True
             if "uuid" in rep.keys():
                 if Report.objects.filter(uuid=rep['uuid']).count() > 0:
@@ -457,11 +466,12 @@ class ReportManagerService(BaseService):
                 owner_id=user_company_id,
                 defaults=defaults
             )
-            self._createChildReportsAndDashboards(report, rep, result, styles)
+            self._createChildReportsAndDashboards(report, rep, result, styles_mappings)
         for dash in item["dashboards"]:
-
-            """check the uuid if the dashboard is imported more than one time
-            if the dashboard exits with the same owner we update ir else we create a new one (links will be broken in this case)"""
+            """
+            check the uuid if the dashboard is imported more than one time
+            if the dashboard exits with the same owner we update ir else we create a new one (links will be broken in this case)
+            """
             use_new_uuid = True
 
             if "uuid" in dash.keys():
@@ -473,25 +483,38 @@ class ReportManagerService(BaseService):
                     # we need to create a new dashboard with the same uuid
                     use_new_uuid = False
 
+            definition = None
+            if 'definition' in dash:
+                definition = dash['definition']
+                self._update_definition(definition, styles_mappings)
+
             defaults = {
                 'model': model_id,
                 'name': dash['name'],
                 'node': dash["node"] if "node" in dash else None,
                 'is_fav': dash["is_fav"],
-                'definition': dash["definition"] if "definition" in dash else None,
+                'definition': definition,
                 'order': dash["order"],
                 'report': parent
             }
-            dash_created, created = Dashboard.objects.update_or_create(
+            dash_created, _ = Dashboard.objects.update_or_create(
                 uuid=uuid.uuid4() if use_new_uuid else dash["uuid"],
                 owner_id=user_company_id,
                 defaults=defaults
             )
             dash_created.styles.set(DashboardStyle.objects.filter(pk__in=list(
-                map(lambda item: styles[item], dash["styles"]))))
+                map(lambda item: styles_mappings[item], dash["styles"]))))
 
         result["reports"].append(parent)
 
+    def _update_definition(self, definition, styles_mappings):
+        """
+        Updates dashboard definition with new dashboard_style ids.
+        Properties checked:
+            - 'colorSerie'
+        """
+        for def_type in ['definitionSmall', 'definitionMedium', 'definitionLarge']:
+            if def_type in definition:
     def _copyReport(self, report, owner_id, parent_id=None):
         old_report_id = report.pk
         report.owner_id = owner_id

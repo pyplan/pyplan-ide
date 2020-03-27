@@ -515,6 +515,14 @@ class ReportManagerService(BaseService):
         """
         for def_type in ['definitionSmall', 'definitionMedium', 'definitionLarge']:
             if def_type in definition:
+                for itemProp in definition[def_type]:
+                    if 'itemProperties' in itemProp:
+                        if 'colorSerie' in itemProp['itemProperties'] \
+                                and isinstance(itemProp['itemProperties']['colorSerie'], Number) \
+                                and int(itemProp['itemProperties']['colorSerie']) in styles_mappings:
+                            itemProp['itemProperties']['colorSerie'] = styles_mappings[int(
+                                itemProp['itemProperties']['colorSerie'])]
+
     def _copyReport(self, report, owner_id, parent_id=None):
         old_report_id = report.pk
         report.owner_id = owner_id

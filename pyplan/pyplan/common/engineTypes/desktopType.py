@@ -197,11 +197,10 @@ class DesktopType(IEngineType):
 
     def evaluateNode(
             self, node_id, dims, rows, columns, summary_by="sum",
-            from_row=0, to_row=0, bottom_total=False, right_total=False
-    ):
+            from_row=0, to_row=0, bottom_total=False, right_total=False, resultType=""):
 
         response = DesktopType.calcEngine.model.evaluateNode(
-            node_id, dims, rows, columns, summary_by, bottom_total, right_total, from_row, to_row)
+            node_id, dims, rows, columns, summary_by, bottom_total, right_total, from_row, to_row, resultType)
 
         try:
             return json.loads(response)
@@ -378,7 +377,7 @@ class DesktopType(IEngineType):
 
     # Pivot
     def getCubeMetadata(self, query):
-        return DesktopType.calcEngine.model.getCubeMetadata(query["cube"])
+        return DesktopType.calcEngine.model.getCubeMetadata(query["cube"], query['resultType'] if 'resultType' in query else '')
 
     def getCubeValues(self, query):
         return DesktopType.calcEngine.model.getCubeValues(query)

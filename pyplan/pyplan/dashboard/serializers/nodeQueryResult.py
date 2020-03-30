@@ -16,6 +16,7 @@ class NodeQueryResultSerializer(serializers.Serializer):
     timeFormat = serializers.CharField(default="A")
     timeFormatType = serializers.CharField(default="FLO")
     calendarType = serializers.CharField(default="CAL")
+    resultType = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
     def create(self, validated_data):
         return NodeQueryResult(**validated_data)
@@ -33,4 +34,5 @@ class NodeQueryResultSerializer(serializers.Serializer):
         instance.timeFormat = validated_data.get('timeFormat', instance.timeFormat)
         instance.timeFormatType = validated_data.get('timeFormatType', instance.timeFormatType)
         instance.calendarType = validated_data.get('calendarType', instance.calendarType)
+        instance.resultType = validated_data.get('resultType', instance.resultType)
         return instance

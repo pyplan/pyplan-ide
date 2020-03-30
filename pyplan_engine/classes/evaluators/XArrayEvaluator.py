@@ -24,6 +24,7 @@ class XArrayEvaluator(BaseEvaluator):
             return self.indexEvaluate(result, nodeDic, nodeId, dims, rows, columns, summaryBy, bottomTotal, rightTotal, fromRow, toRow)
 
     def cubeEvaluate(self, result, nodeDic, nodeId, dims=None, rows=None, columns=None, summaryBy="sum", bottomTotal=False, rightTotal=False, fromRow=0, toRow=0):
+        result_structure = self.getStructure(result)
         sby = np.nansum
         if summaryBy == 'avg':
             sby = np.nanmean
@@ -204,7 +205,27 @@ class XArrayEvaluator(BaseEvaluator):
                 res["data"].append(
                     _totalRow[:XArrayEvaluator.MAX_COLUMS].tolist())
 
-        return self.createResult(res, type(tmp), onRow=onRow, onColumn=onColumn, node=nodeDic[nodeId], pageInfo=pageInfo)
+        return self.createResult(res, result_structure, onRow=onRow, onColumn=onColumn, node=nodeDic[nodeId], pageInfo=pageInfo)
+
+    def getStructure(self, result):
+        structure = dict()
+        structure["type"] = str(type(result))
+        structure["dims"] = list(result.dims)
+        return structure
+
+    def checkStructure(self, result, resultType):
+        """ Check current vs result structure. Result False for distinct structure """
+        res = True
+        if resultType:
+            try:
+                structure = json.loads(resultType)
+                result_structure = self.getStructure(result)
+                res = structure["type"] == result_structure["type"] and all(elem in list(result_structure["dims"])
+                                                                            for elem in list(structure["dims"]))
+            except Exception as ex:
+                print(f"Error checking structure: {ex}")
+
+        return res
 
     def hasDim(self, result, dim):
         return True if dim.split(".")[0] in result.dims else False
@@ -451,7 +472,8 @@ class XArrayEvaluator(BaseEvaluator):
                 "isEditable": True if self.isTable(nodeDic[nodeId]) == "1" else False,
                 "nodeProperties": {
                     "title": nodeDic[nodeId].title if not nodeDic[nodeId].title is None else nodeDic[nodeId].identifier,
-                    "numberFormat": nodeDic[nodeId].numberFormat
+                    "numberFormat": nodeDic[nodeId].numberFormat,
+                    "resultType": json.dumps(self.getStructure(result))
                 }
             }
 

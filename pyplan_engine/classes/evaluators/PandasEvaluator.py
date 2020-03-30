@@ -15,6 +15,7 @@ class PandasEvaluator(BaseEvaluator):
     MAX_COLUMS = 5000
 
     def evaluateNode(self, result, nodeDic, nodeId, dims=None, rows=None, columns=None, summaryBy="sum", bottomTotal=False, rightTotal=False, fromRow=0, toRow=0):
+        result_structure = self.getStructure(result)
         sby = np.nansum
         if summaryBy == 'avg':
             sby = np.nanmean
@@ -121,7 +122,31 @@ class PandasEvaluator(BaseEvaluator):
             res = dfResult[:PandasEvaluator.MAX_COLUMS].to_json(
                 orient='split', date_format='iso')
 
-        return self.createResult(res, type(theResult), resultIsJson=True, pageInfo=pageInfo, node=nodeDic[nodeId],  onRow=(_rows[0] if len(_rows) > 0 else None), onColumn=(_columns[0] if len(_columns) > 0 else None))
+        return self.createResult(res, result_structure, resultIsJson=True, pageInfo=pageInfo, node=nodeDic[nodeId],  onRow=(_rows[0] if len(_rows) > 0 else None), onColumn=(_columns[0] if len(_columns) > 0 else None))
+
+    def getStructure(self, result):
+        structure = dict()
+        structure["type"] = str(type(result))
+        structure["columns"] = list(result.columns)
+        structure["indexes"] = []
+        if self.isIndexed(result):
+            structure["indexes"] = list(result.index.names)
+        return structure
+
+    def checkStructure(self, result, resultType):
+        """ Check current vs result structure. Result False for distinct structure """
+        res = True
+        if resultType:
+            try:
+                structure = json.loads(resultType)
+                result_structure = self.getStructure(result)
+                res = structure["type"] == result_structure["type"] and all(elem in list(result_structure["columns"])
+                                                                            for elem in list(structure["columns"])) and all(elem in list(result_structure["indexes"])
+                                                                                                                            for elem in list(structure["indexes"]))
+            except Exception as ex:
+                print(f"Error checking structure: {ex}")
+
+        return res
 
     def addToFilter(self, dim, filters):
         if "values" in dim and dim["values"] is not None and len(dim["values"]) > 0:
@@ -276,7 +301,8 @@ class PandasEvaluator(BaseEvaluator):
                 "isEditable": False,
                 "nodeProperties": {
                     "title": nodeDic[nodeId].title if not nodeDic[nodeId].title is None else nodeDic[nodeId].identifier,
-                    "numberFormat": nodeDic[nodeId].numberFormat
+                    "numberFormat": nodeDic[nodeId].numberFormat,
+                    "resultType": json.dumps(self.getStructure(result))
                 }
             }
 

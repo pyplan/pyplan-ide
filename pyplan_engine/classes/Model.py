@@ -10,6 +10,7 @@ from shlex import split
 from site import getsitepackages
 from sys import platform
 from time import sleep
+from rest_framework import exceptions
 
 import environ
 import jsonpickle
@@ -207,7 +208,7 @@ class Model(object):
         else:
             return False
 
-    def evaluateNode(self, nodeId, dims=None, rows=None, columns=None, summaryBy='sum', bottomTotal=False, rightTotal=False, fromRow=0, toRow=0):
+    def evaluateNode(self, nodeId, dims=None, rows=None, columns=None, summaryBy='sum', bottomTotal=False, rightTotal=False, fromRow=0, toRow=0, resultType=""):
         """Evaluate node. Call evaluator class for implement diferent evaluators."""
         if self.existNode(nodeId):
             result = None
@@ -219,6 +220,8 @@ class Model(object):
             if not result is None:
                 self.evaluationVersion += 1
                 evaluator = Evaluator.createInstance(result)
+                if not evaluator.checkStructure(result, resultType):
+                    raise exceptions.NotAcceptable("bad_node_structure")
                 return evaluator.evaluateNode(result, self.nodeDic, nodeId, dims, rows, columns, summaryBy, bottomTotal, rightTotal, fromRow, toRow)
         return ''
 
@@ -282,7 +285,7 @@ class Model(object):
                 evaluator = Evaluator.createInstance(result)
                 return evaluator.getCubeDimensionValues(result, self.nodeDic, nodeId, query)
 
-    def getCubeMetadata(self, nodeId):
+    def getCubeMetadata(self, nodeId, resultType=''):
         """Return metadata of cube. Used from pivotgrid"""
         if self.existNode(nodeId):
             result = None
@@ -293,6 +296,9 @@ class Model(object):
 
             if not result is None:
                 evaluator = Evaluator.createInstance(result)
+                if resultType:
+                    if not evaluator.checkStructure(result,resultType):
+                        raise exceptions.NotAcceptable("bad_node_structure")
                 return evaluator.getCubeMetadata(result, self.nodeDic, nodeId)
 
     def setNodeValueChanges(self, changes):

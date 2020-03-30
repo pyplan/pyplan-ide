@@ -289,8 +289,7 @@ class DashboardManagerService(BaseService):
             nodeQuery.node, nodeQuery.dims, nodeQuery.rows,
             nodeQuery.columns, nodeQuery.summaryBy,
             nodeQuery.fromRow, nodeQuery.toRow, nodeQuery.bottomTotal, nodeQuery.rightTotal,
-            nodeQuery.timeFormat, nodeQuery.timeFormatType, nodeQuery.calendarType
-        )
+            nodeQuery.timeFormat, nodeQuery.timeFormatType, nodeQuery.calendarType, nodeQuery.resultType)
 
     def getOrCreate(self, node_id):
         """
@@ -458,8 +457,8 @@ class DashboardManagerService(BaseService):
     def _evaluateNode(
             self, node: str, dims: list, rows: list, columns: list, summary_by: str = "sum",
             from_row: int = 0, to_row: int = 0, bottom_total: bool = False, right_total: bool = False,
-            time_format: str = "A", time_format_type: str = "FLO", calendar_type: str = "CAL"
-    ):
+            time_format: str = "A", time_format_type: str = "FLO", calendar_type: str = "CAL", resultType: str = ""):
+
         calcEngine = CalcEngine.factory(self.client_session)
         node_result = NodeResult()
 
@@ -571,7 +570,8 @@ class DashboardManagerService(BaseService):
                 from_row,
                 to_row,
                 bottom_total,
-                right_total
+                right_total,
+                resultType
             )
 
             result = eval_result_json["result"]

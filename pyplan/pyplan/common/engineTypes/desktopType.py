@@ -11,17 +11,32 @@ from pyplan.pyplan.modelmanager.classes.modelInfo import ModelInfo
 from pyplan_engine.classes.CalcEngine import CalcEngine
 
 from .serializers import IndexValuesReqSerializer
+from multiprocessing import Lock
 
 
 class DesktopType(IEngineType):
 
     calcEngine = None
+    lock = None
 
     def __init__(self, clientSession):
 
         if DesktopType.calcEngine is None:
             self.currentSession = clientSession
             self.createEngine(clientSession)
+            DesktopType.lock = Lock()
+
+    def lock_acquire(self):
+        if not self.lock is None:
+            return DesktopType.lock.acquire()
+        return False
+
+    def lock_release(self):
+        if not DesktopType.lock is None:
+            try:
+                DesktopType.lock.release()
+            except:
+                pass
 
     def createEngine(self, clientSession):
         """ Create a new engine endpoint"""
@@ -40,7 +55,13 @@ class DesktopType(IEngineType):
 
     def openModel(self, file):
         """Open model"""
-        result = DesktopType.calcEngine.model.openModel(file)
+        result = None
+        try:
+            self.lock_acquire()
+            result = DesktopType.calcEngine.model.openModel(file)
+        finally:
+            self.lock_release()
+
         if result:
             self.setInfoToModel()
         return result
@@ -135,8 +156,12 @@ class DesktopType(IEngineType):
 
     def setNodeProperties(self, node_id, properties):
         """Set node properties"""
-        DesktopType.calcEngine.model.setNodeProperties(node_id, properties)
-        return True
+        try:
+            self.lock_acquire()
+            DesktopType.calcEngine.model.setNodeProperties(node_id, properties)
+            return True
+        finally:
+            self.lock_release()
 
     def saveModel(self, file_path):
         """Save Model"""
@@ -176,31 +201,47 @@ class DesktopType(IEngineType):
 
     def previewNode(self, node):
         """Evaluate and return node result preview"""
-        return DesktopType.calcEngine.model.previewNode(node)
+        try:
+            self.lock_acquire()
+            return DesktopType.calcEngine.model.previewNode(node)
+        finally:
+            self.lock_release()
 
     def evaluate(self, definition):
         """Evaluate a definition and return result"""
-
-        response = DesktopType.calcEngine.model.evaluate(definition)
-        if isinstance(response, dict):
-            return response
-        else:
-            return {"data": f"{response}"}
+        try:
+            self.lock_acquire()
+            response = DesktopType.calcEngine.model.evaluate(definition)
+            if isinstance(response, dict):
+                return response
+            else:
+                return {"data": f"{response}"}
+        finally:
+            self.lock_release()
 
     def callFunction(self, nodeId, params):
         """Call function node and return result"""
-        response = DesktopType.calcEngine.model.callFunction(nodeId, params)
-        if isinstance(response, dict):
-            return response
-        else:
-            return {"data": f"{response}"}
+        try:
+            self.lock_acquire()
+            response = DesktopType.calcEngine.model.callFunction(nodeId, params)
+            if isinstance(response, dict):
+                return response
+            else:
+                return {"data": f"{response}"}
+        finally:
+            self.lock_release()
 
     def evaluateNode(
             self, node_id, dims, rows, columns, summary_by="sum",
             from_row=0, to_row=0, bottom_total=False, right_total=False, resultType=""):
 
-        response = DesktopType.calcEngine.model.evaluateNode(
-            node_id, dims, rows, columns, summary_by, bottom_total, right_total, from_row, to_row, resultType)
+        response = None
+        try:
+            self.lock_acquire()
+            response = DesktopType.calcEngine.model.evaluateNode(
+                node_id, dims, rows, columns, summary_by, bottom_total, right_total, from_row, to_row, resultType)
+        finally:
+            self.lock_release()
 
         try:
             return json.loads(response)
@@ -241,41 +282,50 @@ class DesktopType(IEngineType):
         Retrieves index values from engine.
         Warning!: Paginated response.
         """
-        index_id = data['id']
-        node_id = ''
+        try:
+            self.lock_acquire()
 
-        if '.' in data['id']:
-            index_id, node_id = data['id'].split('.')
+            index_id = data['id']
+            node_id = ''
 
-        page = ''
-        if 'page' in data:
-            page = f"?page={data['page']}"
+            if '.' in data['id']:
+                index_id, node_id = data['id'].split('.')
 
-        content = {
-            'node_id': node_id,
-            'index_id': index_id,
-        }
-        if 'filter' in data:
-            content['filter'] = data['filter']
-        if 'text1' in data:
-            content['text1'] = data['text1']
-        if 'text2' in data:
-            content['text2'] = data['text2']
+            page = ''
+            if 'page' in data:
+                page = f"?page={data['page']}"
 
-        serialized_rq = IndexValuesReqSerializer(
-            data=content)
-        serialized_rq.is_valid(raise_exception=True)
+            content = {
+                'node_id': node_id,
+                'index_id': index_id,
+            }
+            if 'filter' in data:
+                content['filter'] = data['filter']
+            if 'text1' in data:
+                content['text1'] = data['text1']
+            if 'text2' in data:
+                content['text2'] = data['text2']
 
-        query_set = DesktopType.calcEngine.model.getIndexValues(
-            serialized_rq.create(serialized_rq.validated_data))
+            serialized_rq = IndexValuesReqSerializer(
+                data=content)
+            serialized_rq.is_valid(raise_exception=True)
 
-        return query_set
+            query_set = DesktopType.calcEngine.model.getIndexValues(
+                serialized_rq.create(serialized_rq.validated_data))
+            return query_set
+
+        finally:
+            self.lock_release()
 
     def isResultComputed(self, nodes):
         return DesktopType.calcEngine.model.isCalcNodes(nodes)
 
     def getNodeIndexes(self, node_id):
-        return DesktopType.calcEngine.model.getIndexesWithLevels(node_id)
+        try:
+            self.lock_acquire()
+            return DesktopType.calcEngine.model.getIndexesWithLevels(node_id)
+        finally:
+            self.lock_release()
 
     def isChoice(self, node_id):
         definition = self.getNodeProperty(
@@ -283,17 +333,29 @@ class DesktopType(IEngineType):
         return (not definition is None or not definition == "") and "choice(" in definition
 
     def isSelector(self, node_id):
-        return DesktopType.calcEngine.model.isSelector(node_id)
+        try:
+            self.lock_acquire()
+            return DesktopType.calcEngine.model.isSelector(node_id)
+        finally:
+            self.lock_release()
 
     def getSelector(self, node_id):
-        return DesktopType.calcEngine.model.getSelector(node_id)
+        try:
+            self.lock_acquire()
+            return DesktopType.calcEngine.model.getSelector(node_id)
+        finally:
+            self.lock_release()
 
     def isIndex(self, node_id):
         node_class = self.getNodeProperty(node_id, eNodeProperty.CLASS.value)
         return (not node_class is None or not node_class == "") and node_class == "index"
 
     def isTable(self, node_id):
-        return DesktopType.calcEngine.model.isTable(node_id) == '1'
+        try:
+            self.lock_acquire()
+            return DesktopType.calcEngine.model.isTable(node_id) == '1'
+        finally:
+            self.lock_release()
 
     def isTime(self, field):
         time_indexes = ["time", "tiempo", "_time", ".timeframe"]
@@ -306,7 +368,11 @@ class DesktopType(IEngineType):
         return DesktopType.calcEngine.model.getToolbars(extra_path)
 
     def profileNode(self, node_id):
-        return DesktopType.calcEngine.model.profileNode(node_id)
+        try:
+            self.lock_acquire()
+            return DesktopType.calcEngine.model.profileNode(node_id)
+        finally:
+            self.lock_release()
 
     def createNode(self, node):
         return DesktopType.calcEngine.model.createNode(nodeClass=node.nodeClass, moduleId=node.moduleId, x=node.x - 50, y=node.y - 25, toObj=True)
@@ -372,28 +438,56 @@ class DesktopType(IEngineType):
         return DesktopType.calcEngine.model.importModule(moduleId, filename, importType)
 
     def callWizard(self, wizardRequest):
-        """Imports a module"""
-        return DesktopType.calcEngine.model.callWizard(json.dumps(wizardRequest))
+        """Call wizards"""
+        try:
+            self.lock_acquire()
+            return DesktopType.calcEngine.model.callWizard(json.dumps(wizardRequest))
+        finally:
+            self.lock_release()
 
     # Pivot
     def getCubeMetadata(self, query):
-        return DesktopType.calcEngine.model.getCubeMetadata(query["cube"], query['resultType'] if 'resultType' in query else '')
+        try:
+            self.lock_acquire()
+            return DesktopType.calcEngine.model.getCubeMetadata(query["cube"], query['resultType'] if 'resultType' in query else '')
+        finally:
+            self.lock_release()
 
     def getCubeValues(self, query):
-        return DesktopType.calcEngine.model.getCubeValues(query)
+        try:
+            self.lock_acquire()
+            return DesktopType.calcEngine.model.getCubeValues(query)
+        finally:
+            self.lock_release()
 
     def setNodeValueChanges(self, changes):
-        DesktopType.calcEngine.model.setNodeValueChanges(changes)
-        return True
+        try:
+            self.lock_acquire()
+            DesktopType.calcEngine.model.setNodeValueChanges(changes)
+            return True
+        finally:
+            self.lock_release()
 
     def getCubeDimensionValues(self, query):
-        return DesktopType.calcEngine.model.getCubeDimensionValues(query)
+        try:
+            self.lock_acquire()
+            return DesktopType.calcEngine.model.getCubeDimensionValues(query)
+        finally:
+            self.lock_release()
 
     def getUnclusterData(self, query):
-        return DesktopType.calcEngine.model.geoUnclusterData(query.node, query.rowIndex, query.attIndex, query.latField, query.lngField, query.geoField, query.labelField, query.sizeField, query.colorField, query.iconField)
+        try:
+            self.lock_acquire()
+            return DesktopType.calcEngine.model.geoUnclusterData(query.node, query.rowIndex, query.attIndex, query.latField, query.lngField, query.geoField, query.labelField, query.sizeField, query.colorField, query.iconField)
+        finally:
+            self.lock_release()
 
     def executeButton(self, nodeId):
-        return DesktopType.calcEngine.model.executeButton(nodeId)
+        try:
+            self.lock_acquire()
+            return DesktopType.calcEngine.model.executeButton(nodeId)
+        finally:
+            self.lock_release()
 
     def is_healthy(self):
         try:

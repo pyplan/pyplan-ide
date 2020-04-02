@@ -529,6 +529,8 @@ def evaluateNode(request, uid):
             _rightTotal = False
             _fromRow = 0
             _toRow = 0
+            _resultType = request.data.get('resultType', '')
+
             if not request.data.get('dims') is None:
                 _dims = jsonpickle.decode(request.data.get('dims'))
             if not request.data.get('rows') is None:
@@ -549,7 +551,7 @@ def evaluateNode(request, uid):
                 _toRow = request.data.get('toRow')
             engines[uid].stoppable = True
             _res = engines[uid].model.evaluateNode(
-                _nodeId, _dims, _rows, _columns, _summaryBy, _bottomTotal, _rightTotal, _fromRow, _toRow)
+                _nodeId, _dims, _rows, _columns, _summaryBy, _bottomTotal, _rightTotal, _fromRow, _toRow, _resultType)
             if _res is None:
                 return HttpResponse('', status=204)
             return HttpResponse(_res)
@@ -846,7 +848,8 @@ def getCubeMetadata(request, uid):
     try:
         if uid in engines:
             _nodeId = request.data.get('nodeId')
-            return JsonResponse(engines[uid].model.getCubeMetadata(_nodeId), safe=False)
+            _resultType = request.data.get('resultType', '')
+            return JsonResponse(engines[uid].model.getCubeMetadata(_nodeId, _resultType), safe=False)
         return manageNoEngine()
     except Exception as e:
         return genericApiException(e)

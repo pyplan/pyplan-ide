@@ -1,8 +1,8 @@
 import json
-
 import numpy as np
 import pandas as pd
-
+import inspect
+import jsonpickle
 import cubepy
 from pyplan_engine.common.classes.filterChoices import filterChoices
 from pyplan_engine.common.classes.indexValuesReq import IndexValuesReq
@@ -13,26 +13,27 @@ class BaseEvaluator(object):
     Base Class to manage node evaluators
     """
 
-    def createResult(self, result, resultType, resultIsJson=False, onRow=None, onColumn=None, node=None, pageInfo=None):
+    def createResult(self, result, structure, resultIsJson=False, onRow=None, onColumn=None, node=None, pageInfo=None):
         if resultIsJson:
 
-            res = '{"resultType":"' + str(resultType) + '"'
+            res = {
+                "resultType": json.dumps(structure),
+                "result": json.loads(result),
+            }
             if not onRow is None:
-                res += ',"onRow":"' + onRow + '"'
+                res["onRow"] = onRow
             if not onColumn is None:
-                res += ',"onColumn":"' + onColumn + '"'
+                res["onColumn"] = onColumn
             if not pageInfo is None:
-                res += ',"pageInfo":' + json.dumps(pageInfo)
+                res["pageInfo"] = pageInfo
             if not node is None and node.numberFormat:
-                res += ',"numberFormat":"' + node.numberFormat + '"'
-            res += ',"result":'
-            res += result
-            res += "}"
-            return res
+                res["numberFormat"] = node.numberFormat
+
+            return json.dumps(res)
         else:
 
             res = {
-                "resultType": str(resultType),
+                "resultType": json.dumps(structure),
                 "result": result,
                 "onRow": onRow,
                 "onColumn": onColumn
@@ -49,22 +50,40 @@ class BaseEvaluator(object):
 
             return json.dumps(res)
 
+    def getStructure(self, result):
+        structure = dict()
+        structure["type"] = str(type(result))
+        return structure
+
+    def checkStructure(self, result, resultType):
+        """ Check current vs result structure. Result False for distinct structure """
+        res = True
+        if resultType:
+            try:
+                structure = json.loads(resultType)
+                result_structure = self.getStructure(result)
+                if structure["type"] != result_structure["type"]:
+                    res = False
+            except Exception as ex:
+                print(f"Error checking structure: {ex}")
+
+        return res
+
     def evaluateNode(self, result, nodeDic, nodeId, dims=None, rows=None, columns=None, summaryBy="sum", bottomTotal=False, rightTotal=False, fromRow=0, toRow=0):
+        result_structure = self.getStructure(result)
         if isinstance(result, np.ndarray):
-            return self.createResult(result.tolist(), type(result), node=nodeDic[nodeId])
+            return self.createResult(result.tolist(), result_structure, node=nodeDic[nodeId])
         elif callable(result):  # is function
-            import inspect
-            import jsonpickle
             aux = {
                 "params": inspect.getargspec(result)[0]
             }
-            return self.createResult(jsonpickle.encode(aux), type(result), node=nodeDic[nodeId])
+            return self.createResult(jsonpickle.encode(aux), result_structure, node=nodeDic[nodeId])
         else:
 
             try:
-                return self.createResult(result, type(result), node=nodeDic[nodeId])
+                return self.createResult(result, result_structure, node=nodeDic[nodeId])
             except:
-                return self.createResult(str(result), type(result), node=nodeDic[nodeId])
+                return self.createResult(str(result), result_structure, node=nodeDic[nodeId])
 
     def getCubeValues(self, result, nodeDic, nodeId,
                       query): raise NotImplementedError
@@ -98,8 +117,6 @@ class BaseEvaluator(object):
             }
 
             if callable(nodeDic[nodeId].result):  # is function
-                import inspect
-                import jsonpickle
                 try:
                     res["preview"] += "\nparams: " + \
                         str(inspect.getargspec(nodeDic[nodeId].result)[0])

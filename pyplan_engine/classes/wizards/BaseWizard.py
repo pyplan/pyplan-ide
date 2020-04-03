@@ -1,5 +1,6 @@
 import json
 import autopep8
+from pandas import MultiIndex
 
 
 class BaseWizard(object):
@@ -19,7 +20,7 @@ class BaseWizard(object):
             for nn, idx in enumerate(nodeResult.index.names):
                 if not idx is None:
                     res.append(dict(field=idx, type="index", dtype=self.kindToString(
-                        nodeResult.index.levels[nn].values.dtype.kind)))
+                        nodeResult.index.levels[nn].values.dtype.kind if isinstance(nodeResult.index, MultiIndex) else nodeResult.index.values.dtype.kind)))
 
             # append columns
             for nn, cols in enumerate(list(nodeResult.columns)):

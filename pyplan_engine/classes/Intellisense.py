@@ -9,7 +9,6 @@ import pandas as pd
 import cubepy
 from pyplan_engine.classes.BaseNode import BaseNode
 from pyplan_engine.classes.Evaluator import Evaluator
-from pyplan_engine.classes.Helpers import Helpers
 from pyplan_engine.classes.XHelpers import XHelpers
 from pyplan_engine.common.classes.indexValuesReq import IndexValuesReq
 
@@ -146,10 +145,6 @@ class Intellisense(object):
 
                                 res.append(toAppend)
 
-        if filterOptions["fillDetail"]:
-            res = res + self.describe(searchText, "cp",
-                                      self._extraText, ".", XHelpers)
-
         return res
 
     # search if operator is .
@@ -164,7 +159,6 @@ class Intellisense(object):
                                         extraText, operator, type(node.result))
         else:
             localRes = localRes = {
-                "cp": Helpers,
                 "pp": XHelpers,
             }
             customImports = model.getCustomImports()

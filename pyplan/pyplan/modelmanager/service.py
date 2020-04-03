@@ -78,7 +78,9 @@ class ModelManagerService(BaseService):
             can_edit = False
             if "/public/" in file.lower():
                 is_public = True
-            if self.current_user.has_perm("pyplan.change_model") and not is_public or self.current_user.has_perm("pyplan.change_public_model") and is_public:
+            if self.current_user.has_perm("pyplan.change_model") \
+                    and not is_public or self.current_user.has_perm("pyplan.change_public_model") \
+                    and is_public:
                 can_edit = True
 
             res.canEdit = can_edit
@@ -87,16 +89,17 @@ class ModelManagerService(BaseService):
             try:
                 for db_session in self.session_store.get_model_class().objects.all():
                     _decoded = db_session.get_decoded()
-                    if "data" in _decoded and "modelInfo" in _decoded["data"] and _decoded["data"]["modelInfo"]["uri"] == file and int(_decoded["data"]["userCompanyId"]) != self.getSession().userCompanyId and not _decoded["data"]["modelInfo"]["readonly"]:
+                    if "data" in _decoded and "modelInfo" in _decoded["data"] \
+                            and _decoded["data"]["modelInfo"]["uri"] == file \
+                            and int(_decoded["data"]["userCompanyId"]) != self.getSession().userCompanyId \
+                            and not _decoded["data"]["modelInfo"]["readonly"]:
                         res.readonly = True
                         res.readOnlyReason = f"The model is being used by '{_decoded['data']['userFullName']}'. The model will be opened in read-only mode."
                         break
             except Exception as ex:
                 print(
                     f"Error checking other session for mark as readonly: {str(ex)}")
-
             self.saveSession()
-
         return res
 
     def getModelInfo(self):

@@ -1,5 +1,6 @@
 import json
 import os
+from multiprocessing import Lock
 
 from django.conf import settings
 from django.contrib.sessions.models import Session
@@ -8,10 +9,10 @@ from rest_framework import exceptions
 from pyplan.pyplan.common.classes.eNodeProperty import eNodeProperty
 from pyplan.pyplan.common.engineTypes.engineType import IEngineType
 from pyplan.pyplan.modelmanager.classes.modelInfo import ModelInfo
+from pyplan.pyplan.ws import sysMsg, ws_settings
 from pyplan_engine.classes.CalcEngine import CalcEngine
 
 from .serializers import IndexValuesReqSerializer
-from multiprocessing import Lock
 
 
 class DesktopType(IEngineType):
@@ -40,8 +41,10 @@ class DesktopType(IEngineType):
 
     def createEngine(self, clientSession):
         """ Create a new engine endpoint"""
+        self.notifyProgress('creating_environment', 10)
         DesktopType.calcEngine = CalcEngine()
         DesktopType.calcEngine.initializeModel()
+        self.notifyProgress('loading_workspace', 75)
         if not clientSession is None and not clientSession.modelInfo is None and clientSession.modelInfo.uri:
             file_path = os.path.join(
                 settings.MEDIA_ROOT, "models", clientSession.modelInfo.uri)
@@ -57,10 +60,12 @@ class DesktopType(IEngineType):
         """Open model"""
         result = None
         try:
+            self.notifyProgress('opening_model', 95)
             self.lock_acquire()
             result = DesktopType.calcEngine.model.openModel(file)
         finally:
             self.lock_release()
+            self.notifyProgress('done', 100)
 
         if result:
             self.setInfoToModel()
@@ -519,3 +524,14 @@ class DesktopType(IEngineType):
     def getInstallProgress(self, from_line):
         """Get install python library progress"""
         return DesktopType.calcEngine.model.getInstallProgress(from_line)
+
+    def notifyProgress(self, message: str = '', percent: int = 0):
+        sysMsg(
+            self.currentSession.session_key,
+            ws_settings.MSG_TYPE_OPENING_MODEL,
+            ws_settings.NOTIFICATION_LEVEL_INFO,
+            content={
+                'title': message,
+                'message': percent,
+            }
+        )

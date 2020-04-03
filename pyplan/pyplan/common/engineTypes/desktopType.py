@@ -275,7 +275,11 @@ class DesktopType(IEngineType):
         if "." in id:
             index_id = id.split(".")[0]
             node_id = id.split(".")[1]
-        return DesktopType.calcEngine.model.getIndexType(node_id, index_id)
+        try:
+            self.lock_acquire()
+            return DesktopType.calcEngine.model.getIndexType(node_id, index_id)
+        finally:
+            self.lock_release()
 
     def getIndexValues(self, data):
         """

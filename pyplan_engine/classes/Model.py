@@ -168,7 +168,7 @@ class Model(object):
                         else:
                             self.deleteNodes(aliasesId, removeAliasIfNotIn)
 
-                    self.nodeDic[nodeId].ioEngine.updateOnDeleteNode()
+                    self.nodeDic[nodeId].preDelete()
                     self.nodeDic[nodeId].release()
                     self.nodeDic[nodeId] = None
                     del self.nodeDic[nodeId]
@@ -1085,9 +1085,16 @@ class Model(object):
                 os.rename(fileName, filename_old)
                 # move filename_to_save to ppl
                 os.rename(filename_to_save, fileName)
-                # remove old
+                
                 if os.path.isfile(filename_old):
-                    os.remove(filename_old)
+                    new_size = os.path.getsize(fileName)
+                    old_size = os.path.getsize(filename_old)
+                    if new_size/old_size > 0.8:
+                        # remove old if new file is greater
+                        os.remove(filename_old)
+                    else:
+                        os.rename(filename_old, f"{fileName}-{datetime.datetime.today().strftime('%Y%m%d-%H%M%S')}.old")
+
             # Save new model
             else:
                 with open(fileName, 'w') as f:

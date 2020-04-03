@@ -399,6 +399,11 @@ class BaseNode(object):
         return self.moduleId
 
     # Methods
+
+    def preDelete(self):
+        self.invalidate()
+        self.ioEngine.updateOnDeleteNode()
+
     def invalidate(self, fromCircularNode=False):
         """Invalidate node result"""
         self._isCalc = False
@@ -420,7 +425,7 @@ class BaseNode(object):
         for node in self.ioEngine.outputs:
             if not node is None:
                 if self._model.existNode(node):
-                    if isCircular and self._model.getNode(node).isCircular():
+                    if isCircular and self._model.getNode(node).isCircular() and self.identifier in self._model.getNode(node).getSortedCyclicDependencies():
                         pass
                     else:
                         if self._model.getNode(node).isCalc:

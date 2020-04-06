@@ -22,8 +22,8 @@ class DesktopType(IEngineType):
 
     def __init__(self, clientSession):
 
+        self.currentSession = clientSession
         if DesktopType.calcEngine is None:
-            self.currentSession = clientSession
             self.createEngine(clientSession)
             DesktopType.lock = Lock()
 

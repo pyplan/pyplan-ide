@@ -517,11 +517,18 @@ class ReportManagerService(BaseService):
             if def_type in definition:
                 for itemProp in definition[def_type]:
                     if 'itemProperties' in itemProp:
-                        if 'colorSerie' in itemProp['itemProperties'] \
-                                and isinstance(itemProp['itemProperties']['colorSerie'], Number) \
-                                and int(itemProp['itemProperties']['colorSerie']) in styles_mappings:
-                            itemProp['itemProperties']['colorSerie'] = styles_mappings[int(
-                                itemProp['itemProperties']['colorSerie'])]
+                        try:
+                            color_serie = int(itemProp['itemProperties']['colorSerie'])
+                            if color_serie in styles_mappings:
+                                itemProp['itemProperties']['colorSerie'] = styles_mappings[color_serie]
+                        except:
+                            pass
+                        try:
+                            indicator_color = int(itemProp['itemProperties']['indicator']['styleLibrary'])
+                            if indicator_color in styles_mappings:
+                                itemProp['itemProperties']['indicator']['styleLibrary'] = styles_mappings[indicator_color]
+                        except:
+                            pass
 
     def _copyReport(self, report, owner_id, parent_id=None):
         old_report_id = report.pk

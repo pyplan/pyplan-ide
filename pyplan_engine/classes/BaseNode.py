@@ -56,6 +56,7 @@ class BaseNode(object):
         self.system = False
         self.lastEvaluationTime = 0
         self.lastEvaluationConsole = ""
+        self.lastLazyTime = 0
         self.evaluationVersion = 0
         self.profileParent = None
         self.nodeFont = None
@@ -404,6 +405,12 @@ class BaseNode(object):
         self.invalidate()
         self.ioEngine.updateOnDeleteNode()
 
+    def silentInvalidate(self):
+        self._isCalc = False
+        self.profileParent = None
+        self._result = None
+        self._resultMemory = 0
+
     def invalidate(self, fromCircularNode=False):
         """Invalidate node result"""
         self._isCalc = False
@@ -466,6 +473,16 @@ class BaseNode(object):
             pass
         return None
 
+    def _getCalcNode(self, node):
+        lazy_start_time = dt.datetime.now()
+        try:
+            return self._model.getNode(node).result
+        finally:
+            lazy_end_time = dt.datetime.now()
+            if self.identifier != node:
+                self.lastLazyTime = self.lastLazyTime + \
+                    (lazy_end_time - lazy_start_time).total_seconds()
+
     def calculate(self, extraParams=None):
         """Calculate result of node"""
 
@@ -486,13 +503,15 @@ class BaseNode(object):
                         circularNodes) + ".\nPlease use the 'dynamic' function")
                 self.dynamicEvaluator.circularEval(self, params)
             else:
+                from_circular_evaluator = self._bypassCircularEvaluator
 
+                self.sendStartCalcNode(from_circular_evaluator)
                 self.model.currentProcessingNode(self.identifier)
-
                 self._bypassCircularEvaluator = False
 
                 startTime = dt.datetime.now()
                 finalDef = str(self._definition)
+                self.lastLazyTime = 0
 
                 # CLEAR circular dependency
                 if nodeIsCircular:
@@ -521,7 +540,7 @@ class BaseNode(object):
                                     else
                                     (node
                                      if (m.string[m.regs[0][0]-1:m.regs[0][0]+len(node)] == ('.'+node))
-                                     else "getNode('"+node+"').result"
+                                     else "getCalcNode('"+node+"')"
                                      )
                                 )
                             ), finalDef, 0, re.IGNORECASE)
@@ -538,6 +557,7 @@ class BaseNode(object):
 
                 localRes = {
                     "getNode": self._model.getNode,
+                    "getCalcNode": self._getCalcNode,
                     "cp": Helpers(self),
                     "pp": XHelpers(self)
                 }
@@ -588,12 +608,15 @@ class BaseNode(object):
 
                     endTime = dt.datetime.now()
                     self.lastEvaluationTime = (
-                        endTime - startTime).total_seconds()
+                        endTime - startTime).total_seconds() - self.lastLazyTime
+                    if self.lastEvaluationTime < 0:
+                        self.lastEvaluationTime = 0
                     self.evaluationVersion = self.model.evaluationVersion
                 finally:
                     localRes["cp"].release()
                     localRes["pp"].release()
                     localRes = None
+                    self.sendEndCalcNode(from_circular_evaluator)
         else:
             self._bypassCircularEvaluator = False
 
@@ -759,6 +782,17 @@ class BaseNode(object):
     def set_hierarchy(self, parents, maps):
         self._hierarchy_parents = parents
         self._hierarchy_maps = maps
+
+    def sendStartCalcNode(self, fromCircularEvaluator=False, fromDynamic=False):
+        if self.model.debugMode and not self.identifier in ["__evalnode__", "dynamic"] and not fromCircularEvaluator:
+            self._model.ws.sendDebugInfo(
+                self.identifier, self.title if self.title else "", "startCalc", fromDynamic=fromDynamic)
+
+    def sendEndCalcNode(self, fromCircularEvaluator=False, fromDynamic=False):
+        if self.model.debugMode and not self.identifier in ["__evalnode__", "dynamic"] and not fromCircularEvaluator:
+            resources = self.model.getSystemResources(onlyMemory=True)
+            self._model.ws.sendDebugInfo(
+                self.identifier, self.title if self.title else "", "endCalc", self.lastEvaluationTime, resources["usedMemory"], resources["totalMemory"], fromDynamic=fromDynamic)
 
     # ***********************************
     # *** CYCLICK EVALUATOR  METHODS  ***

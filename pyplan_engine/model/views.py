@@ -409,8 +409,9 @@ def previewNode(request, uid):
     try:
         if uid in engines:
             _nodeId = request.data.get('nodeId')
+            _debugMode = request.data.get('debugMode', '')
             engines[uid].stoppable = True
-            _res = engines[uid].model.previewNode(_nodeId)
+            _res = engines[uid].model.previewNode(_nodeId, _debugMode)
             if _res is None:
                 return HttpResponse('', status=204)
             return HttpResponse(_res)

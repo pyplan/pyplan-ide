@@ -88,3 +88,23 @@ class WS:
             }))
         except Exception as ex:
             logger.error(f'Error in WebSocket send: {str(ex)}')
+
+    def sendDebugInfo(self, node, title, action, time=0, usedMemory=0, totalMemory=0, fromDynamic=False):
+        try:
+            self._ensure_ws()
+            self.ws.send(dumps({
+                'msg_type': ws_settings.MSG_TYPE_DEBUG_MODE_INFO,
+                'command': 'send',
+                'room': self.session_key,
+                'company_code': self.company_code,
+                'message': '',
+                'node': node,
+                'title': title,
+                'action': action,
+                'fromDynamic': fromDynamic,
+                'time': time,
+                'usedMemory': usedMemory,
+                'totalMemory': totalMemory
+            }))
+        except Exception as ex:
+            logger.error(f'Error in WebSocket sendDebugInfo: {str(ex)}')

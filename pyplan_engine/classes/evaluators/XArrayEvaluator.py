@@ -76,6 +76,9 @@ class XArrayEvaluator(BaseEvaluator):
                     tmp = sby(filteredResult.astype("O"))
                 else:
                     raise ex
+            # fix np.nansum don't return dataarray 0 dimensional like np.sum
+            if not isinstance(tmp, xr.DataArray):
+                tmp = xr.DataArray(tmp)
 
         else:
             otherDims = [

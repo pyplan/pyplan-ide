@@ -127,7 +127,8 @@ class PandasEvaluator(BaseEvaluator):
     def getStructure(self, result):
         structure = dict()
         structure["type"] = str(type(result))
-        structure["columns"] = list(result.columns)
+        structure["columns"] = list(result.columns) if isinstance(
+            result, pd.DataFrame) else []
         structure["indexes"] = []
         if self.isIndexed(result):
             structure["indexes"] = list(result.index.names)

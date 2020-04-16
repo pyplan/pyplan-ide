@@ -8,6 +8,7 @@ class ws_settings:
     MSG_TYPE_ENTER = 3
     MSG_TYPE_PROGRESSBAR = 4  # For progressbar messages
     MSG_TYPE_OPENING_MODEL = 5  # For opening model progress
+    MSG_TYPE_DEBUG_MODE_INFO = 6  # For debug mode
 
     MESSAGE_TYPES_CHOICES = (
         (MSG_TYPE_MESSAGE, 'MESSAGE'),

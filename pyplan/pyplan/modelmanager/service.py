@@ -327,11 +327,11 @@ class ModelManagerService(BaseService):
 
         return result
 
-    def previewNode(self, node):
+    def previewNode(self, node, debugMode=""):
         """Evaluate and return node result preview"""
         self.checkModelOpen()
         calcEngine = CalcEngine.factory(self.client_session)
-        return calcEngine.previewNode(node)
+        return calcEngine.previewNode(node, debugMode)
 
     def evaluate(self, definition):
         """Evaluate definition and return result"""

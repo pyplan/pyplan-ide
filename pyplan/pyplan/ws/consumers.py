@@ -153,6 +153,19 @@ class NotifyConsumer(AsyncJsonWebsocketConsumer):
                 'message': content['message'],
                 'progress': content['progress'] if 'progress' in content else 0
             }
+        elif msg_type == ws_settings.MSG_TYPE_DEBUG_MODE_INFO:
+            payload = {
+                'type': 'chat.message',
+                'msg_type': msg_type,
+                'message': content['message'],
+                'node': content['node'],
+                'title': content['title'],
+                'action': content['action'],
+                'fromDynamic': content['fromDynamic'],
+                'time': content['time'],
+                'usedMemory': content['usedMemory'],
+                'totalMemory': content['totalMemory']
+            }
 
         # Check they are in this room
         # if room_id not in self.rooms:

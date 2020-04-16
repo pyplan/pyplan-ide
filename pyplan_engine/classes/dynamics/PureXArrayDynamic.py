@@ -1,9 +1,9 @@
 from pyplan_engine.classes.dynamics.BaseDynamic import BaseDynamic
 from pyplan_engine.classes.Helpers import Helpers
 import numpy as np
-import datetime as dt
 import re
 import xarray as xr
+import datetime as dt
 
 
 class PureXArrayDynamic(BaseDynamic):
@@ -21,6 +21,12 @@ class PureXArrayDynamic(BaseDynamic):
 
         evaluate = node.model.evaluate
 
+        if node.model.debugMode:
+            for circular_node_id in nodesInCyclic:
+                circular_node = node.model.getNode(circular_node_id)
+                if not circular_node is None:
+                    circular_node.sendStartCalcNode(fromDynamic=True)
+
         # create nodes array
         cyclicNodes = []
 
@@ -28,16 +34,18 @@ class PureXArrayDynamic(BaseDynamic):
             node.model.inCyclicEvaluate = True
             for nodeId in nodesInCyclic:
                 _nodeObj = node.model.getNode(nodeId)
-                startTime = dt.datetime.now()
                 cyclic_item = {
                     "node": _nodeObj,
                     "initialize": self.generateInitDef(node, _nodeObj.bypassCircularEvaluator().result, dynamicIndex),
-                    "loopDefinition": self.generateLoopDef(node, _nodeObj.definition, nodesInCyclic),
-                    "calcTime": 0.
+                    "calcTime": _nodeObj.lastEvaluationTime
                 }
+                startTime = dt.datetime.now()
+                cyclic_item["loopDefinition"] = self.generateLoopDef(
+                    node, _nodeObj.definition, nodesInCyclic)
                 endTime = dt.datetime.now()
-                cyclic_item["calcTime"] = cyclic_item["calcTime"] + \
-                    (endTime - startTime).total_seconds()
+                cyclic_item["calcTime"] += (endTime -
+                                            startTime).total_seconds()
+
                 cyclicNodes.append(cyclic_item)
         except Exception as e:
             raise e
@@ -48,11 +56,18 @@ class PureXArrayDynamic(BaseDynamic):
 
         # initialice var dictionary
         for _node in cyclicNodes:
-            startTime = dt.datetime.now()
             _id = _node["node"].identifier
-            cyclicDic[_id] = evaluate(_node["initialize"])
+
+            evaluate_node_time = 0
+            evaluate_initial_params_time = 0
+
+            cyclicDic[_id], evaluate_node_time = evaluate(
+                _node["initialize"], returnEvaluateTime=True)
+
             if not initialValues is None and _id in initialValues:
-                cyclicDic[_id] = cyclicDic[_id] + evaluate(initialValues[_id])
+                initial_result, evaluate_initial_params_time = evaluate(
+                    initialValues[_id], returnEvaluateTime=True)
+                cyclicDic[_id] = cyclicDic[_id] + initial_result
             # check align
             if cyclicDic[_id].dims[0] != dynamicIndex.name:
                 # move dynamic index to top
@@ -62,9 +77,8 @@ class PureXArrayDynamic(BaseDynamic):
                 cyclicDic[_id] = cyclicDic[_id].transpose(
                     *new_tuple, transpose_coords=True)
 
-            endTime = dt.datetime.now()
             _node["calcTime"] = _node["calcTime"] + \
-                (endTime - startTime).total_seconds()
+                evaluate_node_time + evaluate_initial_params_time
 
         # initialice vars in t-1
         for _var in dynamicVars:
@@ -98,19 +112,24 @@ class PureXArrayDynamic(BaseDynamic):
             # loop over variables
             for _node in cyclicNodes:
 
-                startTime = dt.datetime.now()
-
                 _id = _node["node"].identifier
                 node.model.currentProcessingNode(_id)
                 cyclicParams["cyclicDic"] = cyclicDic
 
+                evaluate_node_time = 0
+                evaluate_initial_params_time = 0
+
+                start_extra_process_time = None
+
                 # execute vars
                 if (_id in initialValues) and ((nn < initialCount and (not reverseMode)) or (nn > initialCount and reverseMode)):
                     # use initial values
-                    _resultNode = evaluate(
-                        _node["loopDefinition"], cyclicParams)
-                    _initialValues = evaluate(initialValues[_id])
+                    _resultNode, evaluate_node_time = evaluate(
+                        _node["loopDefinition"], cyclicParams, True)
+                    _initialValues, evaluate_initial_params_time = evaluate(
+                        initialValues[_id], returnEvaluateTime=True)
                     _finalNode = None
+                    start_extra_process_time = dt.datetime.now()
                     if isinstance(_initialValues, xr.DataArray):
                         _finalNode = self._tryFilter(
                             _resultNode, dynamicIndex, item) + self._tryFilter(_initialValues, dynamicIndex, item)
@@ -129,11 +148,12 @@ class PureXArrayDynamic(BaseDynamic):
 
                 else:
                     # dont use use initial values
-                    _resultNode = evaluate(
-                        _node["loopDefinition"], cyclicParams)
+                    _resultNode, evaluate_node_time = evaluate(
+                        _node["loopDefinition"], cyclicParams, True)
                     _finalNode = self._tryFilter(
                         _resultNode, dynamicIndex, item)
 
+                    start_extra_process_time = dt.datetime.now()
                     try:
                         cyclicDic[_id].loc[{
                             dynamicIndex.name: slice(item, item)}] = _finalNode.values
@@ -143,9 +163,12 @@ class PureXArrayDynamic(BaseDynamic):
                         cyclicDic[_id].loc[{dynamicIndex.name: slice(
                             item, item)}] = _finalNode.transpose(*list_dims, transpose_coords=True).values
 
-                endTime = dt.datetime.now()
-                _node["calcTime"] = _node["calcTime"] + \
-                    (endTime - startTime).total_seconds()
+                _node["calcTime"] += evaluate_node_time + \
+                    evaluate_initial_params_time
+                if not start_extra_process_time is None:
+                    end_extra_process_time = dt.datetime.now()
+                    _node["calcTime"] += (end_extra_process_time -
+                                          start_extra_process_time).total_seconds()
 
             # set dynamicVar
             if (not reverseMode and (nn+1) < initialCount) or (reverseMode and (nn-1) > initialCount):
@@ -170,6 +193,12 @@ class PureXArrayDynamic(BaseDynamic):
             _node["node"]._isCalc = True
             _node["node"].lastEvaluationTime = _node["calcTime"]
             _node["node"].evaluationVersion = node.model.evaluationVersion
+
+        if node.model.debugMode:
+            for circular_node_id in nodesInCyclic:
+                circular_node = node.model.getNode(circular_node_id)
+                if not circular_node is None:
+                    circular_node.sendEndCalcNode(fromDynamic=True)
 
         evaluate = None
         model = None

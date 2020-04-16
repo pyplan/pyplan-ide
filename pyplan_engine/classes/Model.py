@@ -58,6 +58,7 @@ class Model(object):
         self.company_code = None
         self.session_key = None
         self.ws = None
+        self.debugMode=None
 
     # Props
 
@@ -236,25 +237,40 @@ class Model(object):
 
         return ''
 
-    def previewNode(self, nodeId):
+    def previewNode(self, nodeId, debugMode=""):
         """Perform preview of a node"""
-        result = None
-        if self.existNode(nodeId):
-            if not self.nodeDic[nodeId].originalId is None:
-                nodeId = self.nodeDic[nodeId].originalId
-            if self.nodeDic[nodeId].nodeClass in ["button", "module", "text"]:
-                self.evaluationVersion += 1
-                _dummy = self.nodeDic[nodeId].result  # for execute button
-            elif not self.nodeDic[nodeId].result is None:
-                self.evaluationVersion += 1
-                evaluator = Evaluator.createInstance(
-                    self.nodeDic[nodeId].result)
-                result = evaluator.previewNode(self.nodeDic, nodeId)
-        if result is None:
-            evaluator = Evaluator.createInstance(None)
-            result = evaluator.generateEmptyPreviewResponse(
-                self.nodeDic, nodeId)
-        return result
+        try:
+                    
+
+            result = None
+            if self.existNode(nodeId):
+                if debugMode:
+                    self.debugMode=debugMode
+                    if debugMode=="node":
+                        self.nodeDic[nodeId].silentInvalidate()
+                    elif debugMode=="model":
+                        for node_key in self.nodeDic:
+                            self.nodeDic[node_key].silentInvalidate()
+
+                if not self.nodeDic[nodeId].originalId is None:
+                    nodeId = self.nodeDic[nodeId].originalId
+                if self.nodeDic[nodeId].nodeClass in ["button", "module", "text"]:
+                    self.evaluationVersion += 1
+                    _dummy = self.nodeDic[nodeId].result  # for execute button
+                elif not self.nodeDic[nodeId].result is None:
+                    self.evaluationVersion += 1
+                    evaluator = Evaluator.createInstance(
+                        self.nodeDic[nodeId].result)
+                    result = evaluator.previewNode(self.nodeDic, nodeId)
+            if result is None:
+                evaluator = Evaluator.createInstance(None)
+                result = evaluator.generateEmptyPreviewResponse(
+                    self.nodeDic, nodeId)
+            return result
+        finally:
+            if self.debugMode:
+                self.ws.sendDebugInfo("endPreview", "", "endPreview")
+            self.debugMode=None
 
     def getCubeValues(self, query):
         """Evaluate node. Used for pivotgrid"""
@@ -297,7 +313,7 @@ class Model(object):
             if not result is None:
                 evaluator = Evaluator.createInstance(result)
                 if resultType:
-                    if not evaluator.checkStructure(result,resultType):
+                    if not evaluator.checkStructure(result, resultType):
                         raise exceptions.NotAcceptable("bad_node_structure")
                 return evaluator.getCubeMetadata(result, self.nodeDic, nodeId)
 
@@ -659,7 +675,7 @@ class Model(object):
                         for inp in tempInputs:
                             aliases = self.getAliasInLevel(inp, moduleId)
                             if len(aliases) > 0:
-                                for auxModule in modulesComplete:                                
+                                for auxModule in modulesComplete:
                                     for alias in aliases:
                                         if alias.nodeInfo.showOutputs:
                                             element = {
@@ -742,7 +758,7 @@ class Model(object):
     # UNUSED FULL ARROWS (NODE TO NODE WITH ALIASES)
     """
     def getArrows(self,moduleId):
-        res=[]        
+        res=[]
         thisLevel = self.findNodes("moduleId",moduleId)
         thisIds = [node.identifier for node in thisLevel]
         for nodeId in self.nodeDic:
@@ -751,7 +767,7 @@ class Model(object):
                 nodeOutputs = []
                 fullNode = []
                 fullInputs = []
-                fullOutputs = [] 
+                fullOutputs = []
                 # To clear non existent aliases
                 if self.getNode(nodeId).originalId:
                     if self.getNode(nodeId).originalId not in self.nodeDic:
@@ -793,10 +809,10 @@ class Model(object):
                                             element = {"from":n,"to":out}
                                             if element not in res:
                                                 res.append(element)
-                                                
+
         return res
 
-    
+
     def getNodeParentsAndAliases(self,nodeId):
         response = []
         aliases = []
@@ -809,7 +825,8 @@ class Model(object):
                 if a.identifier not in response:
                     response.append(a.identifier)
         if self.getNode(nodeId).isin in self.nodeDic:
-            parentModulesAndAliases = self.getParentModulesWithAlias(self.getNode(nodeId).isin,[])
+            parentModulesAndAliases = self.getParentModulesWithAlias(
+                self.getNode(nodeId).isin,[])
         if parentModulesAndAliases:
             for m in parentModulesAndAliases:
                 if m not in response:
@@ -1085,7 +1102,7 @@ class Model(object):
                 os.rename(fileName, filename_old)
                 # move filename_to_save to ppl
                 os.rename(filename_to_save, fileName)
-                
+
                 if os.path.isfile(filename_old):
                     new_size = os.path.getsize(fileName)
                     old_size = os.path.getsize(filename_old)
@@ -1093,7 +1110,8 @@ class Model(object):
                         # remove old if new file is greater
                         os.remove(filename_old)
                     else:
-                        os.rename(filename_old, f"{fileName}-{datetime.datetime.today().strftime('%Y%m%d-%H%M%S')}.old")
+                        os.rename(
+                            filename_old, f"{fileName}-{datetime.datetime.today().strftime('%Y%m%d-%H%M%S')}.old")
 
             # Save new model
             else:
@@ -1320,28 +1338,7 @@ class Model(object):
             [], [], self.getNode(nodeId).evaluationVersion, nodeId)
 
         for node in profile:
-            node_of_profile = self.nodeDic[node['nodeId']]
-
-            if node_of_profile.isCircular():
-                node['calcTime'] = node['evaluationTime']
-            else:
-                inputsTime = 0
-                for nodeInput in node_of_profile.inputs:
-                    node_of_input = self.getNode(nodeInput)
-                    if node_of_profile.evaluationVersion == node_of_input.evaluationVersion and node['nodeId'] == node_of_input.profileParent:
-                        if node_of_input.isCircular():
-                            # get circule node and their time
-                            nodes_in_circule = node_of_input.getSortedCyclicDependencies()
-                            for circular_node_id in nodes_in_circule:
-                                inputsTime = inputsTime + \
-                                    self.getNode(
-                                        circular_node_id).lastEvaluationTime
-                        else:
-                            inputsTime = inputsTime + \
-                                node_of_input.lastEvaluationTime
-                node['calcTime'] = node['evaluationTime'] - inputsTime
-            if node['calcTime'] < 0:
-                node['calcTime'] = 0
+            node['calcTime'] = node['evaluationTime'] if node['evaluationTime'] > 0 else 0
 
         # Fix acumulated time
         total_time = 0
@@ -1352,7 +1349,7 @@ class Model(object):
 
         return jsonpickle.encode(profile)
 
-    def evaluate(self, definition, params=None):
+    def evaluate(self, definition, params=None, returnEvaluateTime=False):
         """Evaluate expression"""
         res = None
         evalNode = BaseNode(
@@ -1360,8 +1357,11 @@ class Model(object):
         evalNode._definition = definition
         evalNode.calculate(params)
         res = evalNode.result
+        evaluateTime = evalNode.lastEvaluationTime
         evalNode.release()
         evalNode = None
+        if returnEvaluateTime:
+            return res, evaluateTime
         return res
 
     def callFunction(self, nodeId, params=None):
@@ -1518,7 +1518,7 @@ class Model(object):
         elif key == 'dataframegroupby':
             return DataframeGroupby.Wizard()
 
-    def getSystemResources(self):
+    def getSystemResources(self, onlyMemory=False):
         """Return current system resources"""
 
         def _read_int(file):
@@ -1549,28 +1549,36 @@ class Model(object):
             '/sys/fs/cgroup/memory/memory.usage_in_bytes') - _read_cache()) / 1024/1024/1024
 
         # get cpu usage
-        time_1 = datetime.datetime.now()
-        cpu_time_1 = _read_int('/sys/fs/cgroup/cpu/cpuacct.usage')
-        sleep(0.3)
-        time_2 = datetime.datetime.now()
-        cpu_time_2 = _read_int('/sys/fs/cgroup/cpu/cpuacct.usage')
-        delta_time = (time_2 - time_1).microseconds * 10
-        used_cpu = (cpu_time_2 - cpu_time_1) / delta_time
-        used_cpu = used_cpu if used_cpu < 100 else 100
+        
+        if onlyMemory:
+            return {
+                'totalMemory': mem_limit,
+                'usedMemory': mem_used
+            }
+        else:
 
-        current_node = self._currentProcessingNode
-        if self.existNode(current_node):
-            node = self.getNode(current_node)
-            if node.title:
-                current_node = f'{node.title} ({current_node})'
+            time_1 = datetime.datetime.now()
+            cpu_time_1 = _read_int('/sys/fs/cgroup/cpu/cpuacct.usage')
+            sleep(0.3)
+            time_2 = datetime.datetime.now()
+            cpu_time_2 = _read_int('/sys/fs/cgroup/cpu/cpuacct.usage')
+            delta_time = (time_2 - time_1).microseconds * 10
+            used_cpu = (cpu_time_2 - cpu_time_1) / delta_time
+            used_cpu = used_cpu if used_cpu < 100 else 100
 
-        return {
-            'totalMemory': mem_limit,
-            'usedMemory': mem_used,
-            'usedCPU': used_cpu,
-            'pid': self.getPID(),
-            'currentNode': current_node
-        }
+            current_node = self._currentProcessingNode
+            if self.existNode(current_node):
+                node = self.getNode(current_node)
+                if node.title:
+                    current_node = f'{node.title} ({current_node})'
+
+            return {
+                'totalMemory': mem_limit,
+                'usedMemory': mem_used,
+                'usedCPU': used_cpu,
+                'pid': self.getPID(),
+                'currentNode': current_node
+            }
 
     def ensureModelLibraries(self):
         """Ensure that all model libs are installed"""
@@ -1753,7 +1761,7 @@ class Model(object):
 
     def uninstallLibrary(self, lib, target):
         """Uninstall python library"""
-        #cmd = f'pip uninstall -y {lib}'
+        # cmd = f'pip uninstall -y {lib}'
         # We cant use pip uninstall so we do a dirty workaround
         cmd = f"find {target} -name '*{lib.replace('-','_')}*' -exec rm -rf {{}} \;"
         popen = subprocess.Popen(

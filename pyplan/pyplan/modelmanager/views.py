@@ -474,9 +474,10 @@ class ModelManagerView(object):
     ]))
     def previewNode(request, *args, **kargs):
         node = str(request.data.get("node", ""))
+        debugMode = str(request.data.get("debugMode", ""))
         if node:
             service = ModelManagerService(request)
-            result = service.previewNode(node)
+            result = service.previewNode(node, debugMode)
             return Response(result)
         raise exceptions.NotAcceptable("Node not found")
 

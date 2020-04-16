@@ -204,11 +204,11 @@ class DesktopType(IEngineType):
             print(f"Error on close model: {str(ex)}")
         return True
 
-    def previewNode(self, node):
+    def previewNode(self, node, debugMode=""):
         """Evaluate and return node result preview"""
         try:
             self.lock_acquire()
-            return DesktopType.calcEngine.model.previewNode(node)
+            return DesktopType.calcEngine.model.previewNode(node, debugMode)
         finally:
             self.lock_release()
 

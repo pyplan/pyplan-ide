@@ -195,12 +195,12 @@ class SecurityService(BaseService):
         entity_id = None
         entity_type = None
         if hasattr(external_link, "dashboard_external_link"):
-            entity_id = external_link.dashboard_external_link.dashboard.id
+            entity_id = external_link.dashboard_external_link.dashboard.uuid
             entity_type = "dashboard"
         elif hasattr(external_link, "report_external_link"):
             entity_id = external_link.report_external_link.report.id
             extra_data = external_link.report_external_link.report.dashboards.values_list(
-                'id', flat=True).order_by("order")
+                'uuid', flat=True).order_by("order")
             entity_type = "report"
         elif hasattr(external_link, "node_external_link"):
             entity_id = external_link.node_external_link.node_id

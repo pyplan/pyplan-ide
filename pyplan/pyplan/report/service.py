@@ -117,8 +117,10 @@ class ReportManagerService(BaseService):
     def getNavigator(self, report_id, dashboard_id):
         result = {
             "priorId": None,
+            'priorUuid': None,
             "priorName": None,
             "nextId": None,
+            'nextUuid': None,
             "nextName": None,
             "list": [],
         }
@@ -135,6 +137,7 @@ class ReportManagerService(BaseService):
             if dash_count > 0:
                 next_dashboard = dashboards[1]
                 result["nextId"] = next_dashboard['id']
+                result['nextUuid'] = next_dashboard['uuid']
                 result["nextName"] = next_dashboard['name']
 
         if dashboard_id:
@@ -147,11 +150,13 @@ class ReportManagerService(BaseService):
                     report=report, order=dashboard.order-1).all()
                 if previous.count() > 0:
                     result["priorId"] = previous[0].id
+                    result['priorUuid'] = previous[0].uuid
                     result["priorName"] = previous[0].name
                 following = Dashboard.objects.filter(
                     report=report, order=dashboard.order+1).all()
                 if following.count() > 0:
                     result["nextId"] = following[0].id
+                    result['nextUuid'] = following[0].uuid
                     result["nextName"] = following[0].name
             else:
                 dashboards.append(dashboard)

@@ -58,12 +58,15 @@ class ReportSerializer(serializers.Serializer):
 
 class ReportNavigatorItemSerializer(serializers.Serializer):
     id = serializers.IntegerField()
+    uuid = serializers.UUIDField()
     name = serializers.CharField()
 
 
 class ReportGetNavigatorSerializer(serializers.Serializer):
     priorId = serializers.IntegerField()
     nextId = serializers.IntegerField()
+    priorUuid = serializers.UUIDField()
+    nextUuid = serializers.UUIDField()
     priorName = serializers.CharField()
     nextName = serializers.CharField()
     list = ReportNavigatorItemSerializer(many=True, default=[])

@@ -4,6 +4,7 @@ import json
 import os
 import shutil
 import tempfile
+import ntpath
 from datetime import datetime
 from errno import ENOTDIR
 from itertools import islice
@@ -387,13 +388,17 @@ class FileManagerService(BaseService):
                         self._generate_csv_from_excel(template_filename)
 
     # Private
+    def _get_folder_from_path(self, path):
+        head, tail = ntpath.split(path)
+        return tail or ntpath.basename(head)
 
     def _generate_csv_from_excel(self, filename):
         """Generate compressed csv from excel file
         """
 
-        file_name, file_extension = os.path.splitext(filename)
-        target_dir = os.path.join(os.path.dirname(filename), file_name)
+        file_name, _ = os.path.splitext(filename)
+        target_dir = os.path.join(os.path.dirname(
+            filename), f'.{self._get_folder_from_path(os.path.join(os.path.dirname(filename), file_name))}')
 
         if not os.path.isdir(target_dir):
             os.mkdir(target_dir)

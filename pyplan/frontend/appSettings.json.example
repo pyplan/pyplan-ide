@@ -8,13 +8,15 @@
     {
       "app": "linkedin",
       "data": {
-        "clientId": "LINKEDIN_CLIENT_ID"
+        "clientId": "LINKEDIN_CLIENT_ID",
+        "scope": "r_liteprofile%20r_emailaddress"
       }
     },
     {
       "app": "google",
       "data": {
-        "clientId": "GOOGLE_CLIENT_ID"
+        "clientId": "GOOGLE_CLIENT_ID",
+        "scope": "profile%20email"
       }
     }
   ],

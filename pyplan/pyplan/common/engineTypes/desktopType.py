@@ -11,8 +11,8 @@ from pyplan.pyplan.common.engineTypes.engineType import IEngineType
 from pyplan.pyplan.modelmanager.classes.modelInfo import ModelInfo
 from pyplan.pyplan.ws import sysMsg, ws_settings
 from pyplan_engine.classes.CalcEngine import CalcEngine
-
 from .serializers import IndexValuesReqSerializer
+import jsonpickle
 
 
 class DesktopType(IEngineType):
@@ -29,12 +29,15 @@ class DesktopType(IEngineType):
 
     def lock_acquire(self):
         if not self.lock is None:
-            return DesktopType.lock.acquire()
+            DesktopType.lock.acquire()
+            DesktopType.calcEngine.stoppable = True
+            return True
         return False
 
     def lock_release(self):
         if not DesktopType.lock is None:
             try:
+                DesktopType.calcEngine.stoppable = False
                 DesktopType.lock.release()
             except:
                 pass
@@ -373,8 +376,22 @@ class DesktopType(IEngineType):
                 return True
         return False
 
-    def getToolbars(self, extra_path):
-        return DesktopType.calcEngine.model.getToolbars(extra_path)
+    def getToolbars(self, extra_path=""):
+        # TODO: move toolbars to pyplan-ide  and default styles to pyplan-core
+        nodeClassDic = {}
+        res = []
+        fileName = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'toolbars.json')
+        if os.path.isfile(fileName):
+            with open(fileName, 'r') as f:
+                res = jsonpickle.decode(f.read())
+                f.close()
+        for tGroup in res:
+            for tItem in tGroup['items']:
+                tItem['baseClass'] = tItem['format']['nodeClass']
+                nodeClassDic[tItem['nodeClass']] = tItem['format']
+
+        DesktopType.calcEngine.model.setNodeClassDic(nodeClassDic)
+        return res
 
     def profileNode(self, node_id):
         try:

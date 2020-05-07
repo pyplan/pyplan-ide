@@ -194,7 +194,7 @@ class ModelManagerService(BaseService):
     def getToolbars(self):
         """Get Toolbars"""
         calcEngine = CalcEngine.factory(self.client_session)
-        return calcEngine.getToolbars(join(settings.MEDIA_ROOT, 'models', self.client_session.companyName))
+        return calcEngine.getToolbars()
 
     def createNewModel(self, modelName):
         """Creates a new model """

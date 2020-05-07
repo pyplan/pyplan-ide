@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 
-from pyplan_engine.common.classes.filterChoices import filterChoices
-from pyplan_engine.common.classes.indexValuesReq import IndexValuesReq
+from pyplan_core.classes.common.filterChoices import filterChoices
+from pyplan_core.classes.common.indexValuesReq import IndexValuesReq
 
 
 class IndexValuesReqSerializer(serializers.Serializer):

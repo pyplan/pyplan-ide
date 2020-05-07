@@ -1,6 +1,7 @@
 # Core
 Django==2.2.5
 django-configurations==2.1
+pyplan-core==0.1.9
 
 # WebSocket
 channels==2.4.0
@@ -29,19 +30,11 @@ autopep8>=1.4.4
 django-nose==1.4.6
 
 # Calc engine
-numpy==1.17.5
-numpydoc==0.9.1
-pandas==0.25.3
-scipy==1.4.1
 openpyxl==2.6.2
-sqlalchemy==1.3.13
 xlrd==1.2.0
 jsonpickle==1.2
-xarray==0.14.1
-plotly==4.4.1
-bokeh==1.3.4
-matplotlib==3.1.2
 toolz==0.10.0
+
 
 # Calc extras
 folium==0.10.1
@@ -50,3 +43,12 @@ statsmodels==0.11.0
 
 # Serve
 whitenoise>=4.1.4
+
+
+# Additional Calc libraries (used inside core and optional)
+toolz==0.10.0
+plotly==4.4.1
+bokeh==1.3.4
+matplotlib==3.1.2
+sqlalchemy==1.3.13
+

@@ -32,7 +32,7 @@
 				"format": {
 					"color": "#cb98ff",
 					"nodeClass": "function",
-					"definition": "def _fn(param1,param2):\n   return param1+param2\n\nresult = _fn",
+					"definition": "def _fn(param1,param2):\n    return param1+param2\n\nresult = _fn",
 					"nodeInfo": {
 						"fill": 1,
 						"showBorder": 1,

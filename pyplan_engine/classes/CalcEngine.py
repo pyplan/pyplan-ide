@@ -7,8 +7,8 @@ from multiprocessing.managers import BaseManager
 from sys import platform
 from threading import Timer
 
-
-from pyplan_engine.classes.Model import Model
+from pyplan_engine.ws.ws import WS
+from pyplan_core.classes.Model import Model
 
 
 class ProcessManager(BaseManager):
@@ -41,19 +41,15 @@ class CalcEngine(object):
 
             self._manager = ProcessManager()
             self._manager.start()
-            self._model = self._manager.Model()
+            self._model = self._manager.Model(WS)
             self._pid = self._model.getPID()
 
             if self.resources and "mem_limit" in self.resources and self.resources["mem_limit"]:
                 self.maxMemoryForSession = float(re.findall(
                     r'\d+', self.resources["mem_limit"])[0])
 
-            if not skipStartMonitor:
-                if not self.mode == "fixed":
-                    Timer(5, self._monitorDocker).start()
-
         else:
-            self._model = Model()
+            self._model = Model(WS)
             self._pid = self._model.getPID()
 
     @property
@@ -116,22 +112,3 @@ class CalcEngine(object):
                 self._manager.shutdown()
                 self._manager = None
             self._model = None
-
-    def _monitorDocker(self):
-        """Monitor python proces for prevent oom. used only with docker engine """
-        try:
-            _file = "/sys/fs/cgroup/memory/memory.usage_in_bytes"
-            _mem = 0
-            with open(_file, 'r') as _f:
-                _mem = _f.read()
-                _f.close()
-            memUsed = int(_mem)/1024/1024/1024
-            if memUsed >= (self.maxMemoryForSession*0.95):
-                self.stop(
-                    f"You have exceeded your memory limit: {str(self.maxMemoryForSession)} GB")
-
-        except Exception as ex:
-            print(f"Error on _monitorDocker: {str(ex)}")
-
-        if self.isAlive():
-            Timer(2, self._monitorDocker).start()

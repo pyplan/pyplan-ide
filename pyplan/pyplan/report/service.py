@@ -316,14 +316,18 @@ class ReportManagerService(BaseService):
         result = {'reports': [], 'dashboards': [], 'styles': []}
         styles_mappings = dict()
         for style in data['styles']:
-            ds, _ = DashboardStyle.objects.update_or_create(
-                definition=style['definition'],
-                defaults={
-                    'name': style['name'],
-                    'owner_id': user_company_id,
-                    'style_type': style['style_type']
-                }
-            )
+            ds = None
+            dss = DashboardStyle.objects.filter(
+                definition=style['definition'], style_type=style['style_type'])
+            if dss.count() > 0:
+                ds = dss[0]
+            else:
+                ds = DashboardStyle.objects.create(
+                    definition=style['definition'],
+                    style_type=style['style_type'],
+                    name=style['name'],
+                    owner_id=user_company_id,
+                )
             styles_mappings.update({style['id']: ds.pk})
             result['styles'].append(ds)
         for rep in data["reports"]:

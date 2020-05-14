@@ -1,7 +1,7 @@
 # Core
 Django==2.2.5
 django-configurations==2.1
-pyplan-core==0.1.9
+pyplan-core>=0.1.13
 
 # WebSocket
 channels==2.4.0

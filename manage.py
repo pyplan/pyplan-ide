@@ -16,7 +16,7 @@ if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SECRET_KEY_ENGINE.",
                           "u3!a&y6*vv%&8shi-3kpq6ii2r@ga^k!r2v02jb7lcha%()td)")
     os.environ.setdefault("DJANGO_CONFIGURATION_ENGINE", "Production")
-    os.environ.setdefault("USE_MULTIPROCESS", "1")
+    os.environ.setdefault("USE_MULTIPROCESS", "0")
     os.environ.setdefault("FREE_MEMORY_FOR_NEW_SESSION", "0.5")
     os.environ.setdefault("MAX_MEMORY_FOR_SESSION", "64")
     os.environ.setdefault("PYPLAN_API_HOST", "http://localhost:9740/api")

@@ -12,6 +12,7 @@ from pyplan.pyplan.modelmanager.classes.modelInfo import ModelInfo
 from pyplan.pyplan.ws import sysMsg, ws_settings
 from pyplan_engine.classes.CalcEngine import CalcEngine
 from .serializers import IndexValuesReqSerializer
+from .toolbar import default_toolbar
 import jsonpickle
 
 
@@ -379,12 +380,7 @@ class DesktopType(IEngineType):
     def getToolbars(self, extra_path=""):
         # TODO: move toolbars to pyplan-ide  and default styles to pyplan-core
         nodeClassDic = {}
-        res = []
-        fileName = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'toolbars.json')
-        if os.path.isfile(fileName):
-            with open(fileName, 'r') as f:
-                res = jsonpickle.decode(f.read())
-                f.close()
+        res = default_toolbar
         for tGroup in res:
             for tItem in tGroup['items']:
                 tItem['baseClass'] = tItem['format']['nodeClass']

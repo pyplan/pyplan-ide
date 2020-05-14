@@ -37,20 +37,21 @@ class CalcEngine(object):
                 os.getenv('MAX_MEMORY_FOR_SESSION', '32'))
 
     def initializeModel(self, modeFileName=None, skipStartMonitor=False):
-        if os.getenv('USE_MULTIPROCESS', '1') == "1":
+        self._model = Model(WS)
+        self._pid = self._model.getPID()
+        # unsupported multiprocess for pyplan-ide
+        # if os.getenv('USE_MULTIPROCESS', '0') == "1":
 
-            self._manager = ProcessManager()
-            self._manager.start()
-            self._model = self._manager.Model(WS)
-            self._pid = self._model.getPID()
-
-            if self.resources and "mem_limit" in self.resources and self.resources["mem_limit"]:
-                self.maxMemoryForSession = float(re.findall(
-                    r'\d+', self.resources["mem_limit"])[0])
-
-        else:
-            self._model = Model(WS)
-            self._pid = self._model.getPID()
+        #     self._manager = ProcessManager()
+        #     self._manager.start()
+        #     self._model = self._manager.Model(WS)
+        #     self._pid = self._model.getPID()
+        #     if self.resources and "mem_limit" in self.resources and self.resources["mem_limit"]:
+        #         self.maxMemoryForSession = float(re.findall(
+        #             r'\d+', self.resources["mem_limit"])[0])
+        # else:
+        #     self._model = Model(WS)
+        #     self._pid = self._model.getPID()
 
     @property
     def uid(self):

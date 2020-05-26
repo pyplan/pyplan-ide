@@ -12,7 +12,6 @@ from pyplan.pyplan.modelmanager.classes.modelInfo import ModelInfo
 from pyplan.pyplan.ws import sysMsg, ws_settings
 from pyplan_engine.classes.CalcEngine import CalcEngine
 from .serializers import IndexValuesReqSerializer
-from .toolbar import default_toolbar
 import jsonpickle
 
 
@@ -376,18 +375,6 @@ class DesktopType(IEngineType):
             if time_index in field.lower():
                 return True
         return False
-
-    def getToolbars(self, extra_path=""):
-        # TODO: move toolbars to pyplan-ide  and default styles to pyplan-core
-        nodeClassDic = {}
-        res = default_toolbar
-        for tGroup in res:
-            for tItem in tGroup['items']:
-                tItem['baseClass'] = tItem['format']['nodeClass']
-                nodeClassDic[tItem['nodeClass']] = tItem['format']
-
-        DesktopType.calcEngine.model.setNodeClassDic(nodeClassDic)
-        return res
 
     def profileNode(self, node_id):
         try:

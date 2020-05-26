@@ -129,9 +129,6 @@ class IEngineType(ABC):
     def isTime(self, field): raise NotImplementedError
 
     @abstractmethod
-    def getToolbars(self, extra_path): raise NotImplementedError
-
-    @abstractmethod
     def profileNode(self, node_id): raise NotImplementedError
 
     @abstractmethod

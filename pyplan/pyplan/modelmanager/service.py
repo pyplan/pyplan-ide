@@ -191,11 +191,6 @@ class ModelManagerService(BaseService):
             "module_id": module_id
         }
 
-    def getToolbars(self):
-        """Get Toolbars"""
-        calcEngine = CalcEngine.factory(self.client_session)
-        return calcEngine.getToolbars()
-
     def createNewModel(self, modelName):
         """Creates a new model """
         try:
@@ -579,7 +574,7 @@ class ModelManagerService(BaseService):
 
     def callWizard(self, wizardRequest):
         """
-        Call toolbar wizard
+        Call wizard
         """
         calcEngine = CalcEngine.factory(self.client_session)
         return calcEngine.callWizard(wizardRequest)

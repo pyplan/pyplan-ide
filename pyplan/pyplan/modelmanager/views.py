@@ -52,7 +52,6 @@ class ModelManagerView(object):
             path('modelManager/navigateDiagram/',
                  ModelManagerView.navigateDiagram),
             path('modelManager/getArrows/', ModelManagerView.getArrows),
-            path('modelManager/getToolbars/', ModelManagerView.getToolbars),
             path('modelManager/createNewModel/',
                  ModelManagerView.createNewModel),
             path('modelManager/getModelPreferences/',
@@ -224,19 +223,6 @@ class ModelManagerView(object):
                 }
             )
             return Response(serializer.data)
-        except Exception as ex:
-            raise exceptions.NotAcceptable(ex)
-
-    @staticmethod
-    @api_view(['GET'])
-    @permission_classes((permissions.IsAuthenticated,))
-    def getToolbars(request, *args, **kargs):
-        try:
-            service = ModelManagerService(request)
-            result = service.getToolbars()
-            if result:
-                return Response(result)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
         except Exception as ex:
             raise exceptions.NotAcceptable(ex)
 

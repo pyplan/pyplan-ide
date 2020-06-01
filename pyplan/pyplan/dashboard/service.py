@@ -285,11 +285,18 @@ class DashboardManagerService(BaseService):
     def evaluateNode(self, nodeQuery):
         calcEngine = CalcEngine.factory(self.client_session)
 
-        return self._evaluateNode(
-            nodeQuery.node, nodeQuery.dims, nodeQuery.rows,
-            nodeQuery.columns, nodeQuery.summaryBy,
-            nodeQuery.fromRow, nodeQuery.toRow, nodeQuery.bottomTotal, nodeQuery.rightTotal,
-            nodeQuery.timeFormat, nodeQuery.timeFormatType, nodeQuery.calendarType, nodeQuery.resultType)
+        try:
+            return self._evaluateNode(
+                nodeQuery.node, nodeQuery.dims, nodeQuery.rows,
+                nodeQuery.columns, nodeQuery.summaryBy,
+                nodeQuery.fromRow, nodeQuery.toRow, nodeQuery.bottomTotal, nodeQuery.rightTotal,
+                nodeQuery.timeFormat, nodeQuery.timeFormatType, nodeQuery.calendarType, nodeQuery.resultType)
+
+        except Exception as ex:
+            if nodeQuery.resultType:
+                raise exceptions.ValidationError("bad_node_structure")
+            else:
+                raise ex
 
     def getOrCreate(self, node_id):
         """

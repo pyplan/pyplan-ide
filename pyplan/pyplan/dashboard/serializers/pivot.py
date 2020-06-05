@@ -32,7 +32,8 @@ class PivotQuerySerializer(serializers.Serializer):
         return PivotQuery(**validated_data)
 
 class PivotNodeChangesSerializer(serializers.Serializer):
-    filterList = serializers.ListField(child=serializers.DictField(child=serializers.CharField()))
+    filterList = serializers.ListField(child=serializers.DictField(
+        child=serializers.CharField(trim_whitespace=False)))
     definition = serializers.CharField(allow_blank=True)
 
 class PivotNodeValueChangesSerializer(serializers.Serializer):

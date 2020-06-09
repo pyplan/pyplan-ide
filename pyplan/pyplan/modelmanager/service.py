@@ -211,7 +211,8 @@ class ModelManagerService(BaseService):
             calcEngine = CalcEngine.factory(self.client_session)
             if calcEngine.createNewModel(model_file, new_model_name):
                 self.closeModel()
-                return self.openModel(join(storage.base_location, new_model_name, f'{new_model_name}.ppl'))
+                full_path = join(user_path, new_model_name, f'{new_model_name}.ppl')
+                return self.openModel(full_path), full_path
         except Exception as ex:
             raise ex
 

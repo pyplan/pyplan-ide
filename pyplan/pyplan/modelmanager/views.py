@@ -238,7 +238,9 @@ class ModelManagerView(object):
         if modelName:
             if len(modelName) > 0:
                 service = ModelManagerService(request)
-                new_model = service.createNewModel(modelName)
+                activity_service = ActivityService(request)
+                new_model, full_path = service.createNewModel(modelName)
+                activity_service.registerOpenModel(full_path)
                 serializer = ModelInfoSerializer(new_model)
                 return Response(serializer.data)
             else:

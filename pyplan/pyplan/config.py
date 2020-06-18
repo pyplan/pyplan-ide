@@ -1,7 +1,7 @@
 import sys
 import webbrowser
 from os import mkdir
-from os.path import exists, join, normpath
+from os.path import exists, join
 from shutil import copyfile, copytree
 from threading import Thread
 from time import sleep

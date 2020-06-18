@@ -1,6 +1,6 @@
 # ![Pyplan](assets/img/logo.png)
 
-**Pyplan** provides a Python development environment intended for easily creating and deploying data analytics apps. Different than a Jupyter Notebook, where code is structured as a list of sentences, in Pyplan code is contained in nodes that work as calculation steps, organized in a hierarchical influence diagram. Nodes can be evaluated, and its result inspected through a console output or rendered as a table or graph. User interfaces are created dragging nodes on a canvas. Final apps can be shared with one click to general audience.
+**Pyplan** is a Python development environment intended for easily creating and deploying data analytics apps. Different than a Jupyter Notebook, where code is structured as a list of sentences, in Pyplan code is contained in nodes that work as calculation steps, organized in a hierarchical influence diagram. Nodes can be evaluated, and its result inspected through a console output or rendered as a table or graph. User interfaces are created dragging nodes on a canvas. Final apps can be shared with one click to general audience.
 
 Among its most prominent features you will find:
 
@@ -25,17 +25,20 @@ It includes many tutorials, examples and demos
 
 ![Demos](assets/img/demos.png)
 
-## Requirements
-
-- [python 3.7](https://www.python.org/downloads/release/python-375/)
+## Running Pyplan
+The easiest way to run Pyplan is [creating an account and login in here.](https://my.pyplan.org)
 
 ## Installing and running Pyplan
+Additionally you can install Pyplan in your own computer following the instructions below.
+In order to publish your apps on the web, you will need to [create an account here](https://my.pyplan.org).
 
-You can install Pyplan in your computer following the instructions below. In order to publish your apps or run Pyplan online, you will need to [create an account here](https://my.pyplan.org).
+## Requirements
+Pyplan requires you to have Python 3.7 version [(download here)](https://www.python.org/downloads/release/python-375/) installed on your computer.
+If you already have Python 3.7 installed, you can proceed installing Pyplan following one of the alternatives described below. 
 
 
-### Installing using **Conda**
-
+### Installing Pyplan using **Conda**
+Assuming you have [Conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/) installed in your computer, open the terminal and run this commands:
 ```bash
 # Install
 conda config --append channels pyplan
@@ -51,7 +54,7 @@ pyplan
 
 ### Installing using **PIP**
 
-On Linux:
+#### On Linux:
 
 Open the terminal and run this commands:
 
@@ -67,7 +70,7 @@ pip install pyplan-ide
 pyplan
 ```
 
-On Windows:
+#### On Windows:
 
 Open the command line (CMD) and run this commands:
 

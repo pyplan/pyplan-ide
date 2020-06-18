@@ -202,17 +202,17 @@ class ModelManagerService(BaseService):
                 folderSufix += 1
                 new_model_name = f'{modelName}_{folderSufix}'
 
+            model_path = join(new_model_name, f'{new_model_name}.ppl')
+            full_path = join(storage.base_location, model_path)
             folder_path = join(storage.base_location, new_model_name)
-            model_file = join(folder_path, f'{new_model_name}.ppl')
 
             if not storage.exists(folder_path):
                 os.mkdir(folder_path)
 
             calcEngine = CalcEngine.factory(self.client_session)
-            if calcEngine.createNewModel(model_file, new_model_name):
+            if calcEngine.createNewModel(full_path, new_model_name):
                 self.closeModel()
-                full_path = join(user_path, new_model_name, f'{new_model_name}.ppl')
-                return self.openModel(full_path), full_path
+                return self.openModel(full_path), model_path
         except Exception as ex:
             raise ex
 

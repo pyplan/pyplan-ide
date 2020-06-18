@@ -25,6 +25,8 @@ class PyplanAppConfig(AppConfig):
 
         try:
             media_folder = settings.MEDIA_ROOT
+            if not exists(media_folder):
+                mkdir(media_folder)
             tmp_folder = join(media_folder, 'tmp')
             if not exists(tmp_folder):
                 mkdir(tmp_folder)

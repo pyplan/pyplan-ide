@@ -37,10 +37,10 @@ def _macCopy(src, dest):
 
     # -R
     #   copy directories recursively
-    # -v, --verbose
+    # -v
     #   explain what is being done
 
-    cmd = f'cp -Rv {src_path} {dest_path}'
+    cmd = f'cp -R -v {src_path} {dest_path}'
     popen = Popen(split(cmd), stdout=PIPE, universal_newlines=True)
 
     _, stderr = popen.communicate()

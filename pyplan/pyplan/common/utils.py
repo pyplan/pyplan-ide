@@ -30,6 +30,25 @@ def _linuxCopy(src, dest):
 
     return True
 
+def _macCopy(src, dest):
+    # it will overrite existing files
+    src_path = src.replace(' ', '\ ')
+    dest_path = dest.replace(' ', '\ ')
+
+    # -R
+    #   copy directories recursively
+    # -v
+    #   explain what is being done
+
+    cmd = f'cp -R -v {src_path} {dest_path}'
+    popen = Popen(split(cmd), stdout=PIPE, universal_newlines=True)
+
+    _, stderr = popen.communicate()
+    if stderr:
+        raise exceptions.NotAcceptable(stderr)
+
+    return True
+
 
 def _uploadFile(action, my_file, folder_path, name, chunk, overwrite=False):
 

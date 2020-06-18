@@ -1,10 +1,10 @@
 import base64
 import csv
 import json
+import ntpath
 import os
 import shutil
 import tempfile
-import ntpath
 from datetime import datetime
 from errno import ENOTDIR
 from itertools import islice
@@ -19,7 +19,8 @@ from openpyxl import load_workbook
 from rest_framework import exceptions
 
 from pyplan.pyplan.common.baseService import BaseService
-from pyplan.pyplan.common.utils import _linuxCopy, _unzipFile, _zipFiles
+from pyplan.pyplan.common.utils import (_linuxCopy, _macCopy, _unzipFile,
+                                        _zipFiles)
 from pyplan.pyplan.companies.models import Company
 from pyplan.pyplan.preference.models import Preference
 from pyplan.pyplan.user_company_preference.models import UserCompanyPreference
@@ -197,6 +198,8 @@ class FileManagerService(BaseService):
         dest = os.path.join(storage.base_location, destination)
         if self.isLinux():
             return _linuxCopy(src, dest)
+        if self.isMac():
+            return _macCopy(src, dest)
         return self._copy(src, dest)
 
     def ensureUserWorkspace(self):

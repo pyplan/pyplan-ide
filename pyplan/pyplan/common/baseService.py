@@ -110,4 +110,7 @@ class BaseService(object):
             raise PermissionDenied()
 
     def isLinux(self):
-        return platform in ['linux', 'linux2', 'darwin']
+        return platform in ['linux', 'linux2']
+
+    def isMac(self):
+        return platform in ['darwin']

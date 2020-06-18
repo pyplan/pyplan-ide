@@ -1,7 +1,7 @@
 import sys
 import webbrowser
 from os import mkdir
-from os.path import exists, join
+from os.path import exists, join, normpath
 from shutil import copyfile, copytree
 from threading import Thread
 from time import sleep
@@ -13,7 +13,7 @@ from requests import get as requests_get
 
 class PyplanAppConfig(AppConfig):
     name = 'pyplan.pyplan'
-    verbose_name = "Pyplan API"
+    verbose_name = 'Pyplan API'
 
     def ready(self):
         try:
@@ -24,19 +24,20 @@ class PyplanAppConfig(AppConfig):
         print('Pyplan is ready')
 
         try:
-            tmp_folder = join(settings.MEDIA_ROOT, 'tmp')
+            media_folder = settings.MEDIA_ROOT
+            tmp_folder = join(media_folder, 'tmp')
             if not exists(tmp_folder):
                 mkdir(tmp_folder)
             # Check if the user has demo models
-            examples_folder = join(settings.MEDIA_ROOT, 'models', 'Examples')
+            examples_folder = join(media_folder, 'models', 'Examples')
             if not exists(examples_folder):
                 copytree(join(settings.BACKEND_DIR, 'demos', 'Examples'),
                          examples_folder)
-            tutorials_folder = join(settings.MEDIA_ROOT, 'models', 'Tutorials')
+            tutorials_folder = join(media_folder, 'models', 'Tutorials')
             if not exists(tutorials_folder):
                 copytree(join(settings.BACKEND_DIR, 'demos', 'Tutorials'),
                          tutorials_folder)
-            home_file = join(settings.MEDIA_ROOT, 'models', 'home.json')
+            home_file = join(media_folder, 'models', 'home.json')
             if not exists(home_file):
                 copyfile(join(settings.BACKEND_DIR, 'demos', 'home.json'),
                          home_file)

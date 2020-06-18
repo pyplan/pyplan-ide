@@ -33,7 +33,6 @@ django-nose==1.4.6
 openpyxl==2.6.2
 xlrd==1.2.0
 jsonpickle==1.2
-toolz==0.10.0
 
 # Calc extras
 folium==0.10.1

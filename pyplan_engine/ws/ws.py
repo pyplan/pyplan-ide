@@ -61,11 +61,12 @@ class WS:
     def _on_error(self, ws, error):
         logger.error(f'Error in WebSocket: {str(error)}')
 
-    def sendMsg(self, message, title=None):
+    def sendMsg(self, message, title=None, not_level=None):
         try:
             self._ensure_ws()
             self.ws.send(dumps({
                 'msg_type': ws_settings.MSG_TYPE_MESSAGE,
+                'not_level': not_level if not not_level is None else ws_settings.NOTIFICATION_LEVEL_INFO,
                 'command': 'send',
                 'room': self.session_key,
                 'company_code': self.company_code,

@@ -58,10 +58,11 @@ class BaseService(object):
         session = None
         try:
             session_data = Session.objects.first()
-            serializer = ClientSessionSerializer(
-                data=session_data.get_decoded()["data"])
-            serializer.is_valid(raise_exception=True)
-            session = serializer.save()
+            if not session_data is None:
+                serializer = ClientSessionSerializer(
+                    data=session_data.get_decoded()["data"])
+                serializer.is_valid(raise_exception=True)
+                session = serializer.save()
         except Exception as ex:
             print(str(ex))
         return session

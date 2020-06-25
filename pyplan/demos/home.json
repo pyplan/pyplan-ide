@@ -8,6 +8,13 @@
           "shortDesc": "Start checking these models to see how to begin using Pyplan",
           "items": [
             {
+              "name": "Pyplan Intro",
+              "image": "Tutorials/Quick Start/00-Pyplan Introduction/Introducing Pyplan.png",
+              "shortDesc": "Pyplan introduction",
+              "action": "openModel",
+              "uri": "Tutorials/Quick Start/00-Pyplan Introduction/Introducing Pyplan.ppl"
+            },
+            {
               "name": "Xarray Intro",
               "image": "Tutorials/Quick Start/01-Xarray Intro/Xarray Intro.png",
               "shortDesc": "XArray introduction",

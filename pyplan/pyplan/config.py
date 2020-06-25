@@ -21,7 +21,7 @@ class PyplanAppConfig(AppConfig):
             Session.objects.all().delete()
         except:
             pass
-        print('Pyplan is ready')
+        print('Pyplan is starting...')
 
         try:
             media_folder = settings.MEDIA_ROOT
@@ -39,10 +39,16 @@ class PyplanAppConfig(AppConfig):
             if not exists(tutorials_folder):
                 copytree(join(settings.BACKEND_DIR, 'demos', 'Tutorials'),
                          tutorials_folder)
+
+            # Check new model
+            model_00 = join(media_folder, 'models', 'Tutorials', 'Quick Start', '00-Pyplan Introduction')
+            if not exists(model_00):
+                copytree(join(settings.BACKEND_DIR, 'demos', 'Tutorials',
+                              'Quick Start', '00-Pyplan Introduction'), model_00)
+
+            # update home.json
             home_file = join(media_folder, 'models', 'home.json')
-            if not exists(home_file):
-                copyfile(join(settings.BACKEND_DIR, 'demos', 'home.json'),
-                         home_file)
+            copyfile(join(settings.BACKEND_DIR, 'demos', 'home.json'), home_file)
         except Exception as ex:
             print(ex)
 

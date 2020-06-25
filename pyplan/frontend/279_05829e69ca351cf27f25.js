@@ -1,2 +1,0 @@
-/*! Copyright Pyplan 2020. All rights reserved. */
-(window.webpackJsonp=window.webpackJsonp||[]).push([[279],{2625:function(n,e,t){"use strict";(function(i){var l,o=t(678);void 0===(l=function(){return i.Model.extend({getCubeplanFlexLink:function(n){(0,o.send)("App/GetCubeplanFlexLink",null,null,(function(e){e&&n(e)}))}})}.apply(e,[]))||(n.exports=l)}).call(this,t(219))}}]);

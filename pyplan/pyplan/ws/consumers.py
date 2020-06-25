@@ -137,12 +137,14 @@ class NotifyConsumer(AsyncJsonWebsocketConsumer):
 
         room_id = content['room']
         msg_type = content['msg_type'] if 'msg_type' in content else ws_settings.MSG_TYPE_MESSAGE
+        not_level = content['not_level'] if 'not_level' in content else ws_settings.NOTIFICATION_LEVEL_INFO
 
         payload = {}
         if msg_type == ws_settings.MSG_TYPE_MESSAGE:
             payload = {
                 'type': 'chat.message',
                 'msg_type': msg_type,
+                'not_level': not_level,
                 'message': content['message'],
                 'title': content['title'] if 'title' in content else ''
             }
@@ -150,6 +152,7 @@ class NotifyConsumer(AsyncJsonWebsocketConsumer):
             payload = {
                 'type': 'chat.message',
                 'msg_type': msg_type,
+                'not_level': not_level,
                 'message': content['message'],
                 'progress': content['progress'] if 'progress' in content else 0
             }
@@ -157,6 +160,7 @@ class NotifyConsumer(AsyncJsonWebsocketConsumer):
             payload = {
                 'type': 'chat.message',
                 'msg_type': msg_type,
+                'not_level': not_level,
                 'message': content['message'],
                 'node': content['node'],
                 'title': content['title'],

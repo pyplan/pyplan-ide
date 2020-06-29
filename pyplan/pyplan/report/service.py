@@ -298,8 +298,12 @@ class ReportManagerService(BaseService):
             response = req.text
 
         # remove zip file and interfaces file
-        storage.delete(zip_file)
-        storage.delete(file_path)
+        try:
+            os.remove(zip_file)
+            os.remove(file_path)
+        except Exception as ex:
+            print(f'Error deleting files: {str(ex)}')
+            pass
 
         return response
 

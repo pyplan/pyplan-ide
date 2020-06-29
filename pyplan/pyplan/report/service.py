@@ -302,7 +302,7 @@ class ReportManagerService(BaseService):
             os.remove(zip_file)
             os.remove(file_path)
         except Exception as ex:
-            print(f'Error deleting files: ' + str(ex))
+            print(f'Error deleting files: {str(ex)}')
             pass
 
         return response

@@ -3,6 +3,7 @@ import os
 import uuid
 from datetime import datetime
 from numbers import Number
+from logging import getLogger
 
 import requests
 from django.conf import settings
@@ -19,6 +20,8 @@ from pyplan.pyplan.usercompanies.models import UserCompany
 
 from .models import Report
 from .serializers import ExportItemsSerializer
+
+logger = getLogger('django')
 
 
 class ReportManagerService(BaseService):
@@ -298,8 +301,12 @@ class ReportManagerService(BaseService):
             response = req.text
 
         # remove zip file and interfaces file
-        storage.delete(zip_file)
-        storage.delete(file_path)
+        try:
+            os.remove(zip_file)
+            os.remove(file_path)
+        except Exception as ex:
+            logger.error(f'Error deleting files: ' + str(ex))
+            pass
 
         return response
 

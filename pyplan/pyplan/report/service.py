@@ -3,6 +3,7 @@ import os
 import uuid
 from datetime import datetime
 from numbers import Number
+from sys import platform
 
 import requests
 from django.conf import settings
@@ -287,10 +288,12 @@ class ReportManagerService(BaseService):
                              os.path.join(storage.base_location, f'{os.path.normpath(data["model_folder"])}.zip'), True, None)
 
         if zip_file:
+            zip_name = zip_file[zip_file.rfind(os.path.sep):] if self._isLinux else zip_file[zip_file.rfind(
+                os.path.sep):].replace("\\", "/")
             # we publish the item
             files = {'files': open(zip_file, 'rb')}
             values = {'username': data['username'], 'uuid': data['uuid'],
-                      'model_id': data['model_id'], 'zip_name': zip_file[zip_file.rfind(os.path.sep):],
+                      'model_id': data['model_id'], 'zip_name': zip_name,
                       'model_name': self.client_session.modelInfo.uri[self.client_session.modelInfo.uri.rfind(os.path.sep)+1:]}
             req = requests.put(
                 'https://api.pyplan.com/api/reportManager/publishItems/', files=files, data=values)
@@ -596,3 +599,9 @@ class ReportManagerService(BaseService):
         if is_main:
             dashboard.name += f"_copy {datetime.today().strftime('%Y%m%d-%H:%M:%S')}"
         dashboard.save()
+
+    def _isLinux(self):
+        if platform == 'linux' or platform == 'linux2' or platform == 'darwin':
+            return True
+        else:
+            return False

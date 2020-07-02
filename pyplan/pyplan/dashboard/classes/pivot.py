@@ -29,7 +29,6 @@ class PivotQuery(object):
         self.validationNode = kargs["validationNode"] if "validationNode" in kargs else None
         self.excludeEmptyValues = kargs["excludeEmptyValues"] if "excludeEmptyValues" in kargs else True
         self.text = kargs["text"] if "text" in kargs else None
-        self.resultType = kargs["resultType"] if "resultType" in kargs else ""
 
 class PivotNodeChanges(object):
     def __init__(self, **kargs):

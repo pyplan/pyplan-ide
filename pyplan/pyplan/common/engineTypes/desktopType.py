@@ -241,13 +241,13 @@ class DesktopType(IEngineType):
 
     def evaluateNode(
             self, node_id, dims, rows, columns, summary_by="sum",
-            from_row=0, to_row=0, bottom_total=False, right_total=False, resultType=""):
+            from_row=0, to_row=0, bottom_total=False, right_total=False):
 
         response = None
         try:
             self.lock_acquire()
             response = DesktopType.calcEngine.model.evaluateNode(
-                node_id, dims, rows, columns, summary_by, bottom_total, right_total, from_row, to_row, resultType)
+                node_id, dims, rows, columns, summary_by, bottom_total, right_total, from_row, to_row)
         finally:
             self.lock_release()
 
@@ -458,7 +458,7 @@ class DesktopType(IEngineType):
     def getCubeMetadata(self, query):
         try:
             self.lock_acquire()
-            return DesktopType.calcEngine.model.getCubeMetadata(query["cube"], query['resultType'] if 'resultType' in query else '')
+            return DesktopType.calcEngine.model.getCubeMetadata(query["cube"])
         finally:
             self.lock_release()
 

@@ -26,7 +26,6 @@ class PivotQuerySerializer(serializers.Serializer):
     validationNode = serializers.CharField(default=None)
     excludeEmptyValues = serializers.BooleanField(default=True)
     text = serializers.CharField(default=None)
-    resultType = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
     def create(self, validated_data):
         return PivotQuery(**validated_data)

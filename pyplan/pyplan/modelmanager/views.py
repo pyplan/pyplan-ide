@@ -111,8 +111,6 @@ class ModelManagerView(object):
             path('modelManager/callWizard/', ModelManagerView.callWizard),
             path('modelManager/executeButton/',
                  ModelManagerView.executeButton),
-            path('modelManager/isInBackground/',
-                 ModelManagerView.isInBackground),
             # helper functions
             path('modelManager/uploadFileToTemp/',
                  ModelManagerView.uploadFileToTemp),
@@ -933,28 +931,9 @@ class ModelManagerView(object):
         serializer.is_valid(raise_exception=True)
         try:
             service = ModelManagerService(request)
-            if service.executeButton(serializer.validated_data['nodeId']):
-                return Response(status=status.HTTP_200_OK)
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(service.executeButton(serializer.validated_data['nodeId']))
         except Exception as ex:
-            raise exceptions.NotAcceptable(
-                f"Error in executeButton: {str(ex)}")
-
-    @staticmethod
-    @api_view(['GET'])
-    @permission_classes((permissions.IsAuthenticated,))
-    @schema(AutoSchema(manual_fields=[
-        coreapi.Field("nodeId", required=False,
-                      description="Id of the node to be evaluated")
-    ]))
-    def isInBackground(request, *args, **kargs):
-        try:
-            node_id = request.query_params.get("nodeId", None)
-            service = ModelManagerService(request)
-            return Response(service.isInBackground(node_id))
-        except Exception as ex:
-            raise exceptions.NotAcceptable(
-                f"Error in isInBackground: {str(ex)}")
+            raise exceptions.NotAcceptable(f'Error in executeButton: {str(ex)}')
 
     # helper functions
 

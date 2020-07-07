@@ -584,31 +584,8 @@ class ModelManagerService(BaseService):
         """
         Execute script of button
         """
-        identifierPropertie = self.getNodeProperties(
-            nodeId, [{"name": "identifier", "value": ""}])
-        identifier = identifierPropertie['properties'][0]['value']
-        if self.existSession(self.client_session.session_key):
-            if not self.isInBackground(identifier):
-                # start new executeButtonThread
-                thread = threading.Thread(
-                    target=self._executeButtonThread, args=[nodeId])
-                thread.daemon = True
-                thread.start()
-            # Node is already running in background
-            return True
-        raise exceptions.NotAcceptable(
-            "executeButton - There's no session")
-
-    def isInBackground(self, nodeId):
-        """
-        Returns true if the node is executing in another thread
-        """
-        identifierPropertie = self.getNodeProperties(
-            nodeId, [{"name": "identifier", "value": ""}])
-        identifier = identifierPropertie['properties'][0]['value']
-        if self.existSession(self.client_session.session_key):
-            return (self.client_session.modelInfo.nodeIdInBackground == identifier)
-        raise exceptions.NotAcceptable("isInBackground - There's no session")
+        calcEngine = CalcEngine.factory(self.client_session)
+        return calcEngine.executeButton(nodeId)
 
     def getSelector(self, node):
         """Return selector object definition"""
@@ -672,52 +649,6 @@ class ModelManagerService(BaseService):
             print('Cannot access ' + path + '. Probably a permissions error')
 
         return pathList
-
-    def _executeButtonThread(self, identifier):
-        try:
-            """
-            Dim thEngineUID As String = args(0)
-            Dim thRestClient As RestApiClient.RestClient = args(1)
-            Dim identifier As String = args(2)
-            Dim token As String = args(3)
-            Dim thCubengineManager As CubengineManager = args(4)
-            Dim nodeJSClient As NodeJsClient = args(5)
-            Dim modelData As Object = args(6)
-            """
-            self.client_session.modelInfo.nodeIdInBackground = identifier
-            self.saveSession()
-            # TODO: Notify to nodejs that the thread has finished
-            # Dim message As Object = New System.Dynamic.ExpandoObject()
-            calcEngine = CalcEngine.factory(self.client_session)
-            result = calcEngine.executeButton(identifier)
-            #message.error = False
-            #message.result = evalResult
-            # Notify to WebSocket channel that the thread has finished
-            sysMsg(
-                self.client_session.session_key,
-                ws_settings.MSG_TYPE_MESSAGE,
-                ws_settings.NOTIFICATION_LEVEL_SUCCESS,
-                content={
-                    'title': 'Finished processing.',
-                    'message': f'ID: {identifier}',
-                }
-            )
-        except Exception as ex:
-            error_msg = f'Error when performing execute button thread: {str(ex)}'
-            # Notify to WebSocket channel that the thread has finished with error
-            sysMsg(
-                self.client_session.session_key,
-                ws_settings.MSG_TYPE_MESSAGE,
-                ws_settings.NOTIFICATION_LEVEL_ERROR,
-                content={
-                    'title': 'Finished processing with errors',
-                    'message': error_msg,
-                }
-            )
-            raise exceptions.NotAcceptable(error_msg)
-        finally:
-            self.client_session.modelInfo.nodeIdInBackground = ''
-            self.saveSession()
 
     def installLibrary(self, lib):
         """Install python library"""

@@ -1,0 +1,2 @@
+/*! Copyright Pyplan 2020. All rights reserved. */
+(window.webpackJsonp=window.webpackJsonp||[]).push([[34],{973:function(n,o,e){"use strict";(function(t){var c;void 0===(c=function(){return t.Controller.extend({name:"Scenario",show:function(n){e.e(134).then((function(){var o=[e(2636)];(function(o){(new o).render(n)}).apply(null,o)})).catch(e.oe)},showDataSnapshot:function(){e.e(167).then((function(){var n=[e(2640)];(function(n){(new n).render()}).apply(null,n)})).catch(e.oe)}})}.apply(o,[]))||(n.exports=c)}).call(this,e(677))}}]);

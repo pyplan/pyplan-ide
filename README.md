@@ -27,7 +27,7 @@ It includes many tutorials, examples and demos
 
 ## Requirements
 
-- [python 3.7](https://www.python.org/downloads/release/python-375/)(this specific version)
+- [python 3.7](https://www.python.org/downloads/release/python-375/) (this specific version)
 
 
 

@@ -33,7 +33,7 @@ Additionally you can install Pyplan in your own computer following the instructi
 In order to publish your apps on the web, you will need to [create an account here](https://my.pyplan.org).
 
 ## Requirements
-Pyplan requires you to have Python 3.7 version [(download here)](https://www.python.org/downloads/release/python-375/) installed on your computer.
+Pyplan requires you to have the Python 3.7 version (this specific version) installed on your computer [(download here)](https://www.python.org/downloads/release/python-375/).
 If you already have Python 3.7 installed, you can proceed installing Pyplan following one of the alternatives described below. 
 
 

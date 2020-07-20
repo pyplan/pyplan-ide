@@ -71,7 +71,7 @@ class DashboardManagerService(BaseService):
                     report__pk__isnull=True,
                 )
 
-        return dashboards.order_by('order').distinct()
+        return dashboards.order_by('order', 'pk').distinct()
 
     def sharedWithMe(self, report_id):
         company_id = self.client_session.companyId

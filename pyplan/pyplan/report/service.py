@@ -132,7 +132,7 @@ class ReportManagerService(BaseService):
         if report_id:
             report = Report.objects.get(pk=report_id) if report_id.isnumeric(
             ) else Report.objects.get(uuid=report_id)
-            dashboards = report.dashboards.all()
+            dashboards = report.dashboards.all().order_by('order', 'pk')
             dash_count = report.dashboards.count()
             # only next, on click dashboard id will come and sort
             if dash_count > 0:
@@ -146,19 +146,24 @@ class ReportManagerService(BaseService):
             ) else Dashboard.objects.get(uuid=dashboard_id)
             report = report if report_id else dashboard.report
             if report:
-                dashboards = report.dashboards
-                previous = Dashboard.objects.filter(
-                    report=report, order=dashboard.order-1).all()
-                if previous.count() > 0:
-                    result["priorId"] = previous[0].id
-                    result['priorUuid'] = previous[0].uuid
-                    result["priorName"] = previous[0].name
-                following = Dashboard.objects.filter(
-                    report=report, order=dashboard.order+1).all()
-                if following.count() > 0:
-                    result["nextId"] = following[0].id
-                    result['nextUuid'] = following[0].uuid
-                    result["nextName"] = following[0].name
+                dashboards = report.dashboards.all().order_by('order', 'pk')
+                prev = None
+                foll = None
+                for index, dash in enumerate(dashboards):
+                    if dash.id is dashboard.id:
+                        if index + 1 < len(dashboards):
+                            foll = dashboards[index+1]
+                        if index > 0:
+                            prev = dashboards[index-1]
+                        continue
+                if prev:
+                    result['priorId'] = prev.id
+                    result['priorUuid'] = prev.uuid
+                    result['priorName'] = prev.name
+                if foll:
+                    result['nextId'] = foll.id
+                    result['nextUuid'] = foll.uuid
+                    result['nextName'] = foll.name
             else:
                 dashboards.append(dashboard)
 

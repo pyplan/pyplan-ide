@@ -168,7 +168,8 @@ class NotifyConsumer(AsyncJsonWebsocketConsumer):
                 'fromDynamic': content['fromDynamic'],
                 'time': content['time'],
                 'usedMemory': content['usedMemory'],
-                'totalMemory': content['totalMemory']
+                'totalMemory': content['totalMemory'],
+                'maxMemory': content['maxMemory']
             }
 
         # Check they are in this room

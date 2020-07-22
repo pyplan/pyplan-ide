@@ -11,3 +11,4 @@ class NodeFullData(object):
         self.objectType = ""
         self.itemProperties = object
         self.nodeResult = NodeResult()
+        self.definition = None

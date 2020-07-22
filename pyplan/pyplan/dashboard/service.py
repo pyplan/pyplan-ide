@@ -32,6 +32,13 @@ class DashboardManagerService(BaseService):
     def getDashboard(self, dashboard_id):
         return Dashboard.objects.get(pk=int(dashboard_id)) if dashboard_id.isnumeric() else Dashboard.objects.get(uuid=dashboard_id)
 
+    def getDashboardByNodeID(self, node_id: str):
+        return Dashboard.objects.filter(
+            node=node_id,
+            model=self.client_session.modelInfo.modelId,
+            owner_id=self.client_session.userCompanyId,
+        ).first()
+
     def companyDashboards(self):
         company_id = self.client_session.companyId
         model_id = self.client_session.modelInfo.modelId
@@ -251,6 +258,10 @@ class DashboardManagerService(BaseService):
                 nodeQuery.toRow
             )
 
+            dashboard = self.getDashboardByNodeID(node_id)
+            if dashboard and dashboard.definition:
+                result.definition = dashboard.definition
+
             if calcEngine.isTable(node_id):
                 if not result.columns is None and len(result.columns) == 0 and not result.dims is None and len(result.dims) > 0:
                     dim = result.dims[0]
@@ -297,11 +308,11 @@ class DashboardManagerService(BaseService):
         - Otherwise, create it and return it.
         """
         # Retrieve user dashboards for that node
-        user_company = UserCompany(id=self.client_session.userCompanyId)
+        user_company_id = self.client_session.userCompanyId
         dashboard = Dashboard.objects.filter(
             node=node_id,
             model=self.client_session.modelInfo.modelId,
-            owner=user_company,
+            owner_id=user_company_id,
         )
         if dashboard:
             return dashboard[0]
@@ -314,7 +325,7 @@ class DashboardManagerService(BaseService):
                 model=self.client_session.modelInfo.modelId,
                 name=node_name,
                 node=node_id,
-                owner=user_company,
+                owner_id=user_company_id,
             )
 
     def createDashboard(self, data):

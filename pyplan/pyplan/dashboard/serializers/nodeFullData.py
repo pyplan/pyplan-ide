@@ -15,3 +15,4 @@ class NodeFullDataSerializer(serializers.Serializer):
     itemType = serializers.CharField(default=None)
     objectType = serializers.CharField(default=None)
     nodeResult = NodeResultSerializer()
+    definition = serializers.JSONField(required=False, default=None)

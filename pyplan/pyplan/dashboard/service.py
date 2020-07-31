@@ -476,11 +476,16 @@ class DashboardManagerService(BaseService):
         props_to_get = [{"name": "numberFormat", "value": ""},
                         {"name": eNodeProperty.CLASS.value, "value": ""}]
         node_properties = calcEngine.getNodeProperties(node, props_to_get)
+        node_class = None
         for prop in node_properties['properties']:
             if prop['name'] == "numberFormat" and prop['value']:
                 node_result.nodeProperties["numberFormat"] = str(prop['value'])
             elif prop['name'] == eNodeProperty.CLASS.value:
                 node_class = str(prop['value'])
+            elif prop['name'] == eNodeProperty.TITLE.value and prop['value']:
+                node_result.nodeProperties.update({'title': str(prop['value'])})
+            elif prop['name'] == eNodeProperty.DESCRIPTION.value and prop['value']:
+                node_result.nodeProperties.update({'description': str(prop['value'])})
 
         if calcEngine.isIndex(node):
             node_result.indexValues = self.getIndexValues({'id': node})[

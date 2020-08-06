@@ -166,7 +166,7 @@ class DashboardView(object):
                 service = DashboardManagerService(request)
                 result = service.updateNodeViewAndRetrieveNodeDashboards(old_id, new_id)
                 return Response(NodeViewsAndInterfacesSerializer(result, context={'request': request}).data)
-            Response('old_id and new_id are required', status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response('old_id and new_id are required', status=status.HTTP_406_NOT_ACCEPTABLE)
         except Exception as ex:
             return Response(str(ex), status=status.HTTP_406_NOT_ACCEPTABLE)
 
@@ -184,7 +184,7 @@ class DashboardView(object):
                 service = DashboardManagerService(request)
                 result = service.updateNodeDashboards(old_id, new_id)
                 return Response(DashboardSerializer(result, many=True, context={'request': request}).data)
-            Response('old_id and new_id are required', status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response('old_id and new_id are required', status=status.HTTP_406_NOT_ACCEPTABLE)
         except Exception as ex:
             return Response(str(ex), status=status.HTTP_406_NOT_ACCEPTABLE)
 

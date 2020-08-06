@@ -1,5 +1,7 @@
 import uuid
 from types import SimpleNamespace
+import re
+import json
 
 from django.db.models import Q
 from rest_framework import exceptions
@@ -288,6 +290,64 @@ class DashboardManagerService(BaseService):
         result.nodeResult = node_result
 
         return result
+
+    def updateNodeViewAndRetrieveNodeDashboards(self, old_id, new_id):
+        usercompany_id = self.client_session.userCompanyId
+        model_id = self.client_session.modelInfo.modelId
+        _regex = re.compile(rf'(?<=\"nodeId\": \")({old_id})(?=\")', re.M)
+
+        node_views = Dashboard.objects.filter(
+            node=old_id,
+            model=model_id,
+            owner_id=usercompany_id
+        )
+
+        for view in node_views:
+            view.node = new_id
+            if view.definition:
+                _def = json.dumps(view.definition)
+                view.definition = json.loads(re.sub(_regex, new_id, _def))
+            view.save()
+
+        node_dashboards = Dashboard.objects.filter(
+            node__isnull=True,
+            definition__isnull=False,
+            model=model_id,
+            owner_id=usercompany_id
+        )
+
+        for dashboard in node_dashboards:
+            _matches = re.search(_regex, json.dumps(dashboard.definition))
+            if not _matches:
+                node_dashboards = node_dashboards.exclude(pk=dashboard.pk)
+
+        node_views.order_by('order', 'pk').distinct()
+        node_dashboards.order_by('order', 'pk').distinct()
+
+        return {'node_views': node_views, 'node_dashboards': node_dashboards}
+
+    def updateNodeDashboards(self, old_id, new_id):
+        usercompany_id = self.client_session.userCompanyId
+        model_id = self.client_session.modelInfo.modelId
+        _regex = re.compile(rf'(?<=\"nodeId\": \")({old_id})(?=\")', re.M)
+
+        node_dashboards = Dashboard.objects.filter(
+            node__isnull=True,
+            definition__isnull=False,
+            model=model_id,
+            owner_id=usercompany_id
+        )
+
+        for dashboard in node_dashboards:
+            _matches = re.search(_regex, json.dumps(dashboard.definition))
+            if _matches:
+                _def = json.dumps(dashboard.definition)
+                dashboard.definition = json.loads(re.sub(_regex, new_id, _def))
+                dashboard.save()
+            else:
+                node_dashboards = node_dashboards.exclude(pk=dashboard.pk)
+
+        return node_dashboards.order_by('order', 'pk').distinct()
 
     def existNode(self, nodeId):
         calcEngine = CalcEngine.factory(self.client_session)

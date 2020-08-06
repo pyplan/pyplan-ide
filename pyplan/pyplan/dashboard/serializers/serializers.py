@@ -71,6 +71,9 @@ class DashboardSerializer(serializers.Serializer):
             return 0
         return 1
 
+class NodeViewsAndInterfacesSerializer(serializers.Serializer):
+    node_views = DashboardSerializer(many=True, default=[])
+    node_dashboards = DashboardSerializer(many=True, default=[])
 
 class DashboardExportSerializer(serializers.Serializer):
     id = serializers.IntegerField()

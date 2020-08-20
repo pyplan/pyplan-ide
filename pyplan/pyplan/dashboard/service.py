@@ -210,11 +210,11 @@ class DashboardManagerService(BaseService):
         elif node_class == "decision" and (calcEngine.isChoice(node_id) or calcEngine.isSelector(node_id)):
             item_type = "selector"
             node_result = self._evaluateNode(
-                node_id, result.dims, result.rows, result.columns)
+                node_id, result.dims, result.rows, result.columns, hide_empty=nodeQuery.hideEmpty)
         elif alias_class == "formnode":
             item_type = "formnode"
             node_result = self._evaluateNode(
-                nodeQuery.node, result.dims, result.rows, result.columns)
+                nodeQuery.node, result.dims, result.rows, result.columns, hide_empty=nodeQuery.hideEmpty)
             if calcEngine.isTable(node_id):
                 item_type = "nodetable"
                 edit_mode = True
@@ -223,7 +223,7 @@ class DashboardManagerService(BaseService):
             item_properties.title.enabled = False
             item_properties.title.text = ""
             node_result = self._evaluateNode(
-                node_id, result.dims, result.rows, result.columns)
+                node_id, result.dims, result.rows, result.columns, hide_empty=nodeQuery.hideEmpty)
         elif calcEngine.isIndex(node_id):
             item_type = "indexlist"
             if calcEngine.isTime(node_id):
@@ -255,7 +255,8 @@ class DashboardManagerService(BaseService):
                 result.columns,
                 "sum",
                 nodeQuery.fromRow,
-                nodeQuery.toRow
+                nodeQuery.toRow,
+                nodeQuery.hideEmpty
             )
 
             dashboard = self.getDashboardByNodeID(node_id)
@@ -299,8 +300,7 @@ class DashboardManagerService(BaseService):
         return self._evaluateNode(
             nodeQuery.node, nodeQuery.dims, nodeQuery.rows,
             nodeQuery.columns, nodeQuery.summaryBy,
-            nodeQuery.fromRow, nodeQuery.toRow, nodeQuery.bottomTotal, nodeQuery.rightTotal,
-            nodeQuery.timeFormat, nodeQuery.timeFormatType, nodeQuery.calendarType)
+            nodeQuery.fromRow, nodeQuery.toRow, nodeQuery.bottomTotal, nodeQuery.rightTotal, nodeQuery.hideEmpty)
 
     def getOrCreate(self, node_id):
         """
@@ -467,8 +467,7 @@ class DashboardManagerService(BaseService):
 
     def _evaluateNode(
             self, node: str, dims: list, rows: list, columns: list, summary_by: str = "sum",
-            from_row: int = 0, to_row: int = 0, bottom_total: bool = False, right_total: bool = False,
-            time_format: str = "A", time_format_type: str = "FLO", calendar_type: str = "CAL"):
+            from_row: int = 0, to_row: int = 0, bottom_total: bool = False, right_total: bool = False, hide_empty: str = None):
 
         calcEngine = CalcEngine.factory(self.client_session)
         node_result = NodeResult()
@@ -491,7 +490,7 @@ class DashboardManagerService(BaseService):
                 node, eNodeProperty.ORIGINAL_ID.value)
             if original_id:
                 node_result = self._evaluateNode(
-                    original_id, dims, rows, columns)
+                    original_id, dims, rows, columns, hide_empty=hide_empty)
 
                 props_to_get = [
                     {"name": "numberFormat", "value": ""},
@@ -581,7 +580,8 @@ class DashboardManagerService(BaseService):
                 from_row,
                 to_row,
                 bottom_total,
-                right_total
+                right_total,
+                hide_empty
             )
 
             result = eval_result_json["result"]

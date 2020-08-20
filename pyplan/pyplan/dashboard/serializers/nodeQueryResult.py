@@ -13,9 +13,7 @@ class NodeQueryResultSerializer(serializers.Serializer):
     toRow = serializers.IntegerField(required=False)
     bottomTotal = serializers.BooleanField(default=False)
     rightTotal = serializers.BooleanField(default=False)
-    timeFormat = serializers.CharField(default="A")
-    timeFormatType = serializers.CharField(default="FLO")
-    calendarType = serializers.CharField(default="CAL")
+    hideEmpty = serializers.CharField(default=None, required=False)
 
     def create(self, validated_data):
         return NodeQueryResult(**validated_data)
@@ -30,7 +28,6 @@ class NodeQueryResultSerializer(serializers.Serializer):
         instance.toRow = validated_data.get('toRow', instance.toRow)
         instance.bottomTotal = validated_data.get('bottomTotal', instance.bottomTotal)
         instance.rightTotal = validated_data.get('rightTotal', instance.rightTotal)
-        instance.timeFormat = validated_data.get('timeFormat', instance.timeFormat)
-        instance.timeFormatType = validated_data.get('timeFormatType', instance.timeFormatType)
-        instance.calendarType = validated_data.get('calendarType', instance.calendarType)
+        instance.hideEmpty = validated_data.get('hideEmpty', instance.hideEmpty)
+
         return instance

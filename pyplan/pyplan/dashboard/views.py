@@ -25,7 +25,8 @@ from .serializers.serializers import (DashboardCreateSerializer,
                                       DashboardModelSerializer,
                                       DashboardSerializer,
                                       DashboardUpdateSerializer,
-                                      DashboarSetSharesSerializer)
+                                      DashboarSetSharesSerializer,
+                                      NodeViewsAndInterfacesSerializer)
 from .service import DashboardManagerService
 
 
@@ -42,6 +43,9 @@ class DashboardView(object):
             url(r'^dashboardManager/mySharedDashboards/$', DashboardView.mySharedDashboards),
             url(r'^dashboardManager/by_id/(?P<pk>[0-9a-f-]+)/$', DashboardView.get),
             url(r'^dashboardManager/getNodeFullData/$', DashboardView.getNodeFullData),
+            url(r'^dashboardManager/updateNodeViewAndRetrieveNodeDashboards/$',
+                DashboardView.updateNodeViewAndRetrieveNodeDashboards),
+            url(r'^dashboardManager/updateNodeDashboards/$', DashboardView.updateNodeDashboards),
             url(r'^dashboardManager/evaluateNode/$', DashboardView.evaluateNode),
             url(r'^dashboardManager/getOrCreate/$', DashboardView.getOrCreate),
             url(r'^dashboardManager/$', DashboardView.create),
@@ -147,6 +151,42 @@ class DashboardView(object):
 
         serialized_response = NodeFullDataSerializer(node_data)
         return Response(serialized_response.data)
+
+    @api_view(['GET'])
+    @permission_classes((permissions.IsAuthenticated,))
+    @schema(AutoSchema(manual_fields=[
+        coreapi.Field("old_id", required=True, location="query", description="Old Node ID"),
+        coreapi.Field("new_id", required=True, location="query", description="New Node ID")
+    ]))
+    def updateNodeViewAndRetrieveNodeDashboards(request, *args, **kargs):
+        try:
+            old_id = request.query_params.get("old_id", None)
+            new_id = request.query_params.get("new_id", None)
+            if old_id and new_id:
+                service = DashboardManagerService(request)
+                result = service.updateNodeViewAndRetrieveNodeDashboards(old_id, new_id)
+                return Response(NodeViewsAndInterfacesSerializer(result, context={'request': request}).data)
+            return Response('old_id and new_id are required', status=status.HTTP_406_NOT_ACCEPTABLE)
+        except Exception as ex:
+            return Response(str(ex), status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    @api_view(['GET'])
+    @permission_classes((permissions.IsAuthenticated,))
+    @schema(AutoSchema(manual_fields=[
+        coreapi.Field("old_id", required=True, location="query", description="Old Node ID"),
+        coreapi.Field("new_id", required=True, location="query", description="New Node ID")
+    ]))
+    def updateNodeDashboards(request, *args, **kargs):
+        try:
+            old_id = request.query_params.get("old_id", None)
+            new_id = request.query_params.get("new_id", None)
+            if old_id and new_id:
+                service = DashboardManagerService(request)
+                result = service.updateNodeDashboards(old_id, new_id)
+                return Response(DashboardSerializer(result, many=True, context={'request': request}).data)
+            return Response('old_id and new_id are required', status=status.HTTP_406_NOT_ACCEPTABLE)
+        except Exception as ex:
+            return Response(str(ex), status=status.HTTP_406_NOT_ACCEPTABLE)
 
     @api_view(['POST'])
     @permission_required('pyplan.view_dashboard', raise_exception=True)

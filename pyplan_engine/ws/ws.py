@@ -61,12 +61,12 @@ class WS:
     def _on_error(self, ws, error):
         logger.error(f'Error in WebSocket: {str(error)}')
 
-    def sendMsg(self, message, title=None, not_level=None):
+    def sendMsg(self, message, title=None, not_level=ws_settings.NOTIFICATION_LEVEL_INFO):
         try:
             self._ensure_ws()
             self.ws.send(dumps({
                 'msg_type': ws_settings.MSG_TYPE_MESSAGE,
-                'not_level': not_level if not not_level is None else ws_settings.NOTIFICATION_LEVEL_INFO,
+                'not_level': not_level,
                 'command': 'send',
                 'room': self.session_key,
                 'company_code': self.company_code,
@@ -76,11 +76,12 @@ class WS:
         except Exception as ex:
             logger.error(f'Error in WebSocket sendMsg: {str(ex)}')
 
-    def progressbar(self, progress, message=None):
+    def progressbar(self, progress, message=None, not_level=ws_settings.NOTIFICATION_LEVEL_INFO):
         try:
             self._ensure_ws()
             self.ws.send(dumps({
                 'msg_type': ws_settings.MSG_TYPE_PROGRESSBAR,
+                'not_level': not_level,
                 'command': 'send',
                 'room': self.session_key,
                 'company_code': self.company_code,

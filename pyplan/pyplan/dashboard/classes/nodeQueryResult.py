@@ -16,3 +16,5 @@ class NodeQueryResult(object):
         self.timeFormat = kargs['timeFormat'] if 'timeFormat' in kargs else 'A'
         self.timeFormatType = kargs['timeFormatType'] if 'timeFormatType' in kargs else 'FLO'
         self.calendarType = kargs['calendarType'] if 'calendarType' in kargs else 'CAL'
+        self.isView = kargs['isView'] if 'isView' in kargs else False
+        self.resetView = kargs['resetView'] if 'resetView' in kargs else False

@@ -18,6 +18,7 @@ from .classes.nodeDimensionValue import NodeDimensionValue
 from .classes.nodeEvalProperties import NodeEvalProperties, NodeEvalProperty
 from .classes.nodeFullData import NodeFullData
 from .classes.nodeProperties import NodeProperties
+from .classes.nodeQueryResult import NodeQueryResult
 from .classes.nodeResult import (NodeResult, NodeResultColumns,
                                  NodeResultPageInfo, NodeResultSerie)
 from .classes.pivot import PivotQuery
@@ -166,7 +167,7 @@ class DashboardManagerService(BaseService):
         )
         return dashboards.order_by('order').distinct()
 
-    def getNodeFullData(self, nodeQuery):
+    def getNodeFullData(self, nodeQuery: NodeQueryResult):
         calcEngine = CalcEngine.factory(self.client_session)
 
         result = NodeFullData()
@@ -258,9 +259,15 @@ class DashboardManagerService(BaseService):
                 nodeQuery.toRow
             )
 
+            # Retrieves node dashboard
             dashboard = self.getDashboardByNodeID(node_id)
-            if dashboard and dashboard.definition:
-                result.definition = dashboard.definition
+            if dashboard:
+                if nodeQuery.resetView:
+                    if nodeQuery.isView:
+                        dashboard.definition = None
+                        dashboard.save()
+                elif dashboard.definition:
+                    result.definition = dashboard.definition
 
             if calcEngine.isTable(node_id):
                 if not result.columns is None and len(result.columns) == 0 and not result.dims is None and len(result.dims) > 0:

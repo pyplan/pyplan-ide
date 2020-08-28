@@ -1,5 +1,7 @@
 import uuid
 from types import SimpleNamespace
+import re
+import json
 
 from django.db.models import Q
 from rest_framework import exceptions
@@ -18,6 +20,7 @@ from .classes.nodeDimensionValue import NodeDimensionValue
 from .classes.nodeEvalProperties import NodeEvalProperties, NodeEvalProperty
 from .classes.nodeFullData import NodeFullData
 from .classes.nodeProperties import NodeProperties
+from .classes.nodeQueryResult import NodeQueryResult
 from .classes.nodeResult import (NodeResult, NodeResultColumns,
                                  NodeResultPageInfo, NodeResultSerie)
 from .classes.pivot import PivotQuery
@@ -166,7 +169,7 @@ class DashboardManagerService(BaseService):
         )
         return dashboards.order_by('order').distinct()
 
-    def getNodeFullData(self, nodeQuery):
+    def getNodeFullData(self, nodeQuery: NodeQueryResult):
         calcEngine = CalcEngine.factory(self.client_session)
 
         result = NodeFullData()
@@ -259,9 +262,15 @@ class DashboardManagerService(BaseService):
                 nodeQuery.hideEmpty
             )
 
+            # Retrieves node dashboard
             dashboard = self.getDashboardByNodeID(node_id)
-            if dashboard and dashboard.definition:
-                result.definition = dashboard.definition
+            if dashboard:
+                if nodeQuery.resetView:
+                    if nodeQuery.isView:
+                        dashboard.definition = None
+                        dashboard.save()
+                elif dashboard.definition:
+                    result.definition = dashboard.definition
 
             if calcEngine.isTable(node_id):
                 if not result.columns is None and len(result.columns) == 0 and not result.dims is None and len(result.dims) > 0:
@@ -289,6 +298,64 @@ class DashboardManagerService(BaseService):
         result.nodeResult = node_result
 
         return result
+
+    def updateNodeViewAndRetrieveNodeDashboards(self, old_id, new_id):
+        usercompany_id = self.client_session.userCompanyId
+        model_id = self.client_session.modelInfo.modelId
+        _regex = re.compile(rf'(?<=\"nodeId\": \")({old_id})(?=\")', re.M)
+
+        node_views = Dashboard.objects.filter(
+            node=old_id,
+            model=model_id,
+            owner_id=usercompany_id
+        )
+
+        for view in node_views:
+            view.node = new_id
+            if view.definition:
+                _def = json.dumps(view.definition)
+                view.definition = json.loads(re.sub(_regex, new_id, _def))
+            view.save()
+
+        node_dashboards = Dashboard.objects.filter(
+            node__isnull=True,
+            definition__isnull=False,
+            model=model_id,
+            owner_id=usercompany_id
+        )
+
+        for dashboard in node_dashboards:
+            _matches = re.search(_regex, json.dumps(dashboard.definition))
+            if not _matches:
+                node_dashboards = node_dashboards.exclude(pk=dashboard.pk)
+
+        node_views.order_by('order', 'pk').distinct()
+        node_dashboards.order_by('order', 'pk').distinct()
+
+        return {'node_views': node_views, 'node_dashboards': node_dashboards}
+
+    def updateNodeDashboards(self, old_id, new_id):
+        usercompany_id = self.client_session.userCompanyId
+        model_id = self.client_session.modelInfo.modelId
+        _regex = re.compile(rf'(?<=\"nodeId\": \")({old_id})(?=\")', re.M)
+
+        node_dashboards = Dashboard.objects.filter(
+            node__isnull=True,
+            definition__isnull=False,
+            model=model_id,
+            owner_id=usercompany_id
+        )
+
+        for dashboard in node_dashboards:
+            _matches = re.search(_regex, json.dumps(dashboard.definition))
+            if _matches:
+                _def = json.dumps(dashboard.definition)
+                dashboard.definition = json.loads(re.sub(_regex, new_id, _def))
+                dashboard.save()
+            else:
+                node_dashboards = node_dashboards.exclude(pk=dashboard.pk)
+
+        return node_dashboards.order_by('order', 'pk').distinct()
 
     def existNode(self, nodeId):
         calcEngine = CalcEngine.factory(self.client_session)
@@ -475,11 +542,16 @@ class DashboardManagerService(BaseService):
         props_to_get = [{"name": "numberFormat", "value": ""},
                         {"name": eNodeProperty.CLASS.value, "value": ""}]
         node_properties = calcEngine.getNodeProperties(node, props_to_get)
+        node_class = None
         for prop in node_properties['properties']:
             if prop['name'] == "numberFormat" and prop['value']:
                 node_result.nodeProperties["numberFormat"] = str(prop['value'])
             elif prop['name'] == eNodeProperty.CLASS.value:
                 node_class = str(prop['value'])
+            elif prop['name'] == eNodeProperty.TITLE.value and prop['value']:
+                node_result.nodeProperties.update({'title': str(prop['value'])})
+            elif prop['name'] == eNodeProperty.DESCRIPTION.value and prop['value']:
+                node_result.nodeProperties.update({'description': str(prop['value'])})
 
         if calcEngine.isIndex(node):
             node_result.indexValues = self.getIndexValues({'id': node})[

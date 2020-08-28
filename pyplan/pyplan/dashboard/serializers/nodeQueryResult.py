@@ -14,6 +14,8 @@ class NodeQueryResultSerializer(serializers.Serializer):
     bottomTotal = serializers.BooleanField(default=False)
     rightTotal = serializers.BooleanField(default=False)
     hideEmpty = serializers.CharField(default=None, required=False)
+    isView = serializers.BooleanField(default=False, required=False)
+    resetView = serializers.BooleanField(default=False, required=False)
 
     def create(self, validated_data):
         return NodeQueryResult(**validated_data)
@@ -29,5 +31,7 @@ class NodeQueryResultSerializer(serializers.Serializer):
         instance.bottomTotal = validated_data.get('bottomTotal', instance.bottomTotal)
         instance.rightTotal = validated_data.get('rightTotal', instance.rightTotal)
         instance.hideEmpty = validated_data.get('hideEmpty', instance.hideEmpty)
+        instance.isView = validated_data.get('isView', instance.isView)
+        instance.resetView = validated_data.get('resetView', instance.resetView)
 
         return instance

@@ -14,3 +14,5 @@ class NodeQueryResult(object):
         self.bottomTotal = kargs['bottomTotal'] if 'bottomTotal' in kargs else False
         self.rightTotal = kargs['rightTotal'] if 'rightTotal' in kargs else False
         self.hideEmpty = kargs['hideEmpty'] if 'hideEmpty' in kargs else None
+        self.isView = kargs['isView'] if 'isView' in kargs else False
+        self.resetView = kargs['resetView'] if 'resetView' in kargs else False

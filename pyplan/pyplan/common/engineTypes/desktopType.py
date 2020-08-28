@@ -247,7 +247,7 @@ class DesktopType(IEngineType):
         try:
             self.lock_acquire()
             response = DesktopType.calcEngine.model.evaluateNode(
-                node_id, dims, rows, columns, summary_by, bottom_total, right_total, from_row, to_row, hide_empty=hide_empty)
+                node_id, dims, rows, columns, summary_by, bottom_total, right_total, from_row, to_row, hide_empty)
         finally:
             self.lock_release()
 

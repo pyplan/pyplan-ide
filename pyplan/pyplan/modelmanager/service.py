@@ -495,7 +495,8 @@ class ModelManagerService(BaseService):
             0,
             sys.maxsize,
             exportData.nodeQuery.bottomTotal,
-            exportData.nodeQuery.rightTotal
+            exportData.nodeQuery.rightTotal,
+            exportData.nodeQuery.hideEmpty
         )
 
         with open(file_path, 'w') as f:

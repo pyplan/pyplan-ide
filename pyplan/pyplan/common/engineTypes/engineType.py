@@ -95,8 +95,7 @@ class IEngineType(ABC):
     @abstractmethod
     def evaluateNode(
         self, node_id, dims, rows, columns, summary_by="sum",
-        from_row=0, to_row=0, bottom_total=False, right_total=False
-    ): raise NotImplementedError
+        from_row=0, to_row=0, bottom_total=False, right_total=False, hide_empty=None): raise NotImplementedError
 
     @abstractmethod
     def getIndexType(self, id): raise NotImplementedError

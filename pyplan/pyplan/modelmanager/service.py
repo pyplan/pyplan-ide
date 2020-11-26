@@ -243,7 +243,7 @@ class ModelManagerService(BaseService):
         """Set  model preferences"""
         calcEngine = CalcEngine.factory(self.client_session)
         result = calcEngine.setModelProperties(modelPreferences)
-        if result.text == 'ok':
+        if result:
             model_pref = ModelPreference(**modelPreferences)
             if model_pref.identifier or model_pref.title:
                 self.client_session.modelInfo.modelId = model_pref.identifier

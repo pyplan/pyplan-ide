@@ -13,7 +13,7 @@ jsonfield==2.0.2
 websocket_client==0.57.0
 
 # Rest apis
-djangorestframework==3.10.2
+djangorestframework==3.11.2
 django-filter==2.2.0
 coreapi
 django-cors-headers

@@ -24,7 +24,7 @@ requests==2.22.0
 user-agents>=2.0
 
 # Developer Tools
-ipython==7.8.0
+ipython==7.16.3
 autopep8>=1.4.4
 django-nose==1.4.6
 

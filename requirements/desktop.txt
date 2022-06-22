@@ -29,7 +29,7 @@ autopep8>=1.4.4
 django-nose==1.4.6
 
 # Calc engine
-numpy==1.17.5
+numpy==1.22.0
 numpydoc==0.9.1
 pandas==0.25.3
 scipy==1.4.1
